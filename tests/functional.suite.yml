@@ -1,0 +1,28 @@
+# Codeception Test Suite Configuration
+#
+# Suite for functional (integration) tests
+# Emulate web requests and make application process them
+
+class_name: FunctionalTester
+coverage:
+    enabled: true
+    remote: false
+    include:
+        - controllers/*
+modules:
+    config:
+        MongoDb:
+           dsn: 'mongodb://localhost:27017/project_tests'
+           user: ''
+           password: ''
+           dump: 'tests/_data/dump.js'
+           populate: true
+           cleanup: true
+    enabled:
+        - \Helper\Functional
+        - \Jasny\Codeception\Module:
+            container: tests/_support/container.php
+        - REST:
+            depends: \Jasny\Codeception\Module
+        - MongoDb
+        - Asserts

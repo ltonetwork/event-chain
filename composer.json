@@ -1,0 +1,49 @@
+{
+    "name": "legalthings/legalevents-poc",
+    "description": "Event chain service",
+    "require": {
+        "php": ">=5.4.0",
+        "ext-json": "*",
+        "ext-mongo": "*",       
+        "jasny/config" : "^1.1.2",
+        "jasny/db-mongo" : "^1.2.13",
+        "jasny/mvc": "2.0.0-beta1",
+        "jasny/php-functions" : "^3.0",
+        "jasny/twig-extensions": "1.*",
+        "jasny/validation-result" : "^1.0.0",
+        "jasny/auth": "dev-master as 0.1",
+        "jasny/view": "^1.1.0",
+        "jasny/error-handler": "^0.2.0",
+        "jasny/social": "^0.4.3",
+        "jasny/formbuilder": "~0.1.0",
+        "jasny/assetic-extensions": "^1.0",
+        "monolog/monolog": "1.*",
+        "twig/twig": ">=1.10",
+        "rollbar/rollbar": "^1.1.0",
+        "mouf/picotainer": "^1.1",
+        "oscarotero/psr7-middlewares": "^3.20",
+        "phpmailer/phpmailer": "^5.2",
+        "ircmaxell/password-compat": "1.*",
+        "symfony/yaml" : "^2.4.5",
+        "symfony/debug": "~3.2.8",
+        "symfony/console": "~3.2.8",
+        "kriswallsmith/assetic": "^1.4",
+        "hashids/hashids": "~2.0.0"
+    },
+    "require-dev" : {
+        "jasny/php-code-quality" : "^2.0.0",
+        "fzaninotto/faker": "^1.6",
+        "codeception/c3": "^2.0",
+        "codeception/codeception": "^2.2",
+        "jasny/codeception-module": "dev-master",
+        "mikey179/vfsStream": "~1.2",
+        "mongodb/mongodb": "^1.1"
+    },
+    "autoload": {
+        "classmap": ["lib/", "models/", "controllers/"],
+        "files": ["vendor/jasny/php-functions/global.php"]
+    },
+    "config": {
+        "bin-dir": "bin"
+    }
+}

@@ -1,0 +1,14 @@
+db:
+  default:
+    client: mongodb://localhost:27017
+    database: project_tests
+
+email:
+  From: test@example.com
+  FromName: Test
+  keep: true
+  Mailer: mock
+
+secret:
+  signup: signupSecret
+  session: sessionSecret

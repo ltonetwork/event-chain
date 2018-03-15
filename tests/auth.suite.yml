@@ -1,0 +1,26 @@
+# Codeception Test Suite Configuration
+#
+# Suite for authorization tests
+# Emulate web requests and make application process them
+
+class_name: FunctionalTester
+coverage:
+    enabled: false
+modules:
+    config:
+        MongoDb:
+           dsn: 'mongodb://localhost:27017/plinkr_tests'
+           user: ''
+           password: ''
+           dump: 'tests/_data/dump.js'
+           populate: true
+           cleanup: false
+    enabled:
+        - \Helper\Functional
+        - \Jasny\Codeception\Module:
+            container: tests/_support/container.php
+        - REST:
+            depends: \Jasny\Codeception\Module
+        - MongoDb
+        - Asserts
+

@@ -1,0 +1,11 @@
+{% extends "base.html.twig" %}
+
+{% set title = '500 - Internal error' %}
+
+{% block content %}
+    <hgroup class="error-page">
+        <h1>Sorry, an unexpected error occured</h1>
+        <h2>{{ code|default(500) }}</h2>
+    </hgroup>
+    <p>Please try again later</p>
+{% endblock %}

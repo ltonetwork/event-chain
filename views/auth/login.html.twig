@@ -1,0 +1,16 @@
+{% extends "base.html.twig" %}
+
+{% block javascripts %}
+    <script type="text/javascript">
+        $('#login')
+            .modal({ backdrop: 'static' })
+            .on('hidden.bs.modal', function() {
+                if (document.referrer.indexOf(window.location.host) !== -1) {
+                    history.go(-1);
+                } else {
+                    window.location.href = '/';
+                }
+            })
+            .modal('show');
+    </script>
+{% endblock %}

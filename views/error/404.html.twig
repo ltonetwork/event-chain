@@ -1,0 +1,10 @@
+{% extends "base.html.twig" %}
+
+{% set title = '404 - Page not found' %}
+
+{% block content %}
+    <hgroup class="error-page">
+        <h1>{{ message|default("Sorry, this page doesn't exist") }}</h1>
+        <h2>{{ code|default(404) }}</h2>
+    </hgroup>
+{% endblock %}
