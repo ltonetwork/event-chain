@@ -1,10 +1,12 @@
 {
     "name": "legalthings/legalevents-poc",
+    "version": "0.1.0",
     "description": "Event chain service",
     "require": {
         "php": ">=5.4.0",
         "ext-json": "*",
-        "ext-mongo": "*",       
+        "ext-mongo": "*",
+        "ext-libsodium": "1.*",
         "jasny/config" : "^1.1.2",
         "jasny/db-mongo" : "^1.2.13",
         "jasny/mvc": "2.0.0-beta1",
@@ -28,7 +30,8 @@
         "symfony/debug": "~3.2.8",
         "symfony/console": "~3.2.8",
         "kriswallsmith/assetic": "^1.4",
-        "hashids/hashids": "~2.0.0"
+        "hashids/hashids": "~2.0.0",
+        "stephenhill/base58": "^1.1"
     },
     "require-dev" : {
         "jasny/php-code-quality" : "^2.0.0",

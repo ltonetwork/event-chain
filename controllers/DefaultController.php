@@ -1,25 +1,24 @@
 <?php
 
 /**
- * The default controller
+ * Default controller
  */
-class DefaultController extends BaseController
+class DefaultController extends Jasny\Controller
 {
+    use Jasny\Controller\RouteAction;
+
     /**
-     * Default action for loading base site url
+     * Show API info
      */
-    public function indexAction()
+    public function infoAction()
     {
-        $this->view('index');
-    }
-    
-    /**
-     * Show static page
-     * 
-     * @param string $page
-     */
-    public function pageAction($page)
-    {
-        $this->view("pages/" . basename($page));
+        $info = [
+            'name' => App::name(),
+            'version' => App::version(),
+            'description' => App::description(),
+            'env' => App::env()
+        ];
+
+        $this->output($info, 'json');
     }
 }

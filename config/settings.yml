@@ -1,7 +1,3 @@
-app:
-    name:
-    version:
-
 locale: en_EN
 
 cache: true
@@ -10,26 +6,9 @@ log: true
 db:
   default:
     client: mongodb://localhost:27017
-    database: project
+    database: legalevents
 
 email:
-    from: info@example.com
-    from_name: John Doe
+    from: info@legalthings.io
+    from_name: Legalthings
 
-secret:
-    signup: 'ENTER SOME RANDOM TEXT HERE'
-
-social:
-    facebook:
-        client_id:
-        client_secret:
-    twitter:
-        consumer_key:
-        consumer_secret:
-    google:
-        client_id:
-        client_secret:
-        api_key:
-    linkedin:
-        client_id:
-        client_secret:
