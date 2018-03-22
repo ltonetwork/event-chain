@@ -78,7 +78,9 @@ class EventTest extends \PHPUnit_Framework_TestCase
             "hash" => "2kTjNfrftKdG5iPv743SdJgToxqqUQ5j7C3YU4pUraDm"
         ]);
         
-        $validation = $event->validate();
+        $previous = "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW";
+        
+        $validation = $event->validate(compact('identity', 'previous'));
         
         $this->assertEquals([], $validation->getErrors());
     }
@@ -91,15 +93,23 @@ class EventTest extends \PHPUnit_Framework_TestCase
             "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
             "signkey" => "Cd5ZmfWYjuKVLVZA7YszxiGWdpVewQWTWurYDpWejohP",
             "signature" => "",
-            "hash" => ""
+            "hash" => "EdqM52SpXCn5c1uozuvuH5o9Tcr41kYeCWz4Ymu6ngbt"
         ]);
+
         
-        $validation = $event->validate();
+        $identity = $this->createMock(Identity::class);
+        $identity->id = "73092191-6936-4d44-a942-02be14664ebb";
+        $identity->signkeys['user'] = "Cd5ZmfWYjuKVLVZA7YszxiGWdpVewQWTWurYDpWejohP";
+        
+        $previous = "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn";
+        
+        $validation = $event->validate(compact('identity', 'previous'));
         
         $this->assertEquals([
             'body is not base58 encoded json',
             'invalid signature',
-            'invalid hash'
+            'invalid hash',
+            "event does not fit chain after $previous"
         ], $validation->getErrors());
     }
     

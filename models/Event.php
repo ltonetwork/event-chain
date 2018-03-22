@@ -1,11 +1,12 @@
 <?php
 
 use Jasny\ValidationResult;
+use Jasny\DB\Entity\Identifiable;
 
 /**
  * Event entity
  */
-class Event extends MongoDocument
+class Event extends MongoSubDocument implements Identifiable
 {
     /**
      * Base58 encoded JSON string with the body of the event.
@@ -32,7 +33,7 @@ class Event extends MongoDocument
     public $previous;
     
     /**
-     * Base58 encoded X25519 public key used to sign the event
+     * URI of the public key used to sign the event
      * 
      * @var string
      * @required
@@ -51,6 +52,7 @@ class Event extends MongoDocument
      * SHA256 hash of the event
      * 
      * @var string
+     * @id
      * @required
      */
     public $hash;
@@ -118,14 +120,14 @@ class Event extends MongoDocument
     /**
      * Get the decoded body
      * 
-     * @return object|false
+     * @return array|false
      */
     public function getBody()
     {
         $base58 = new StephenHill\Base58();
         $json = $base58->decode($this->body);
         
-        return $json ? json_decode($json) : null;
+        return $json ? json_decode($json, true) : null;
     }
     
     /**
@@ -144,15 +146,13 @@ class Event extends MongoDocument
         $signature = $base58->decode($this->signature);
         $signkey = $base58->decode($this->signkey);
         
-        // TODO: Convert X25519 key to ED25519
-        // $signkey = jasny\curve25519_pk_to_ed25519($signkey);
-        
-        //return sodium\crypto_sign_verify_detached($this->signature, $this->getMessage(), $signkey);
-        return strlen($this->signature) === 44;
+        return sodium\crypto_sign_verify_detached($this->signature, $this->getMessage(), $signkey);
     }
     
     /**
-     * @inheritDoc
+     * Validate the event
+     * 
+     * @return ValidationResult
      */
     public function validate()
     {
@@ -162,7 +162,7 @@ class Event extends MongoDocument
             $validation->addError('body is not base58 encoded json');
         }
         
-        if (isset($this->signature) && isset($this->signkey) && !$this->verifySignature()) {
+        if (isset($opts['identity']) && !$this->verifySignature($opts['identity'])) {
             $validation->addError('invalid signature');
         }
         
@@ -171,7 +171,7 @@ class Event extends MongoDocument
         }
         
         if (isset($this->receipt) && $this->receipt->targetHash !== $this->hash) {
-            $validation->add(ValidationResult::error("Hash doesn't match"), "Invalid receipt");
+            $validation->add(ValidationResult::error("hash doesn't match"), "Invalid receipt");
         }
         
         return $validation;

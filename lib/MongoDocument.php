@@ -2,17 +2,13 @@
 
 use Jasny\DB\Mongo;
 use Jasny\DB\Entity\Enrichable;
-use Jasny\DB\Mongo\Document\SoftDeletion;
 
 /**
  * Base class for Mongo Documents
  */
-abstract class MongoDocument extends Mongo\Document implements 
-    Enrichable,
-    SoftDeletion
+abstract class MongoDocument extends Mongo\Document implements Enrichable
 {
-    use Enrichable\Implementation,
-        SoftDeletion\FlagImplementation;
+    use Enrichable\Implementation;
 
     /**
      * Class constructor

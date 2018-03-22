@@ -3,7 +3,6 @@
 /**
  * Receipt
  */
-class Receipt
+class Receipt extends MongoSubDocument
 {
-    //put your code here
 }
