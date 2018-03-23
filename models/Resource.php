@@ -13,9 +13,9 @@ interface Resource
     public function getId($withVersion = false);
     
     /**
-     * Apply privileges, removing properties if needed.
+     * Apply privilege, removing properties if needed.
      * 
-     * @param Privilege[] $privileges
+     * @param Privilege $privilege
      */
-    public function applyPrivileges(array $privileges);
+    public function applyPrivilege(Privilege $privilege);
 }

@@ -114,13 +114,13 @@ class EventManager
     public function addResource(Resource $resource, Event $event)
     {
         $identities = $this->chain->identities->filterOnSignkey($event->signkey);
-        $privileges = array_filter($identities->getPrivileges($resource));
+        $privilege = $identities->getPrivilege($resource);
         
-        if (empty($privileges)) {
+        if ($privilege === null) {
             return; // Not allowed, so ignore
         }
         
-        $resource->applyPrivileges($privileges);
+        $resource->applyPrivilege($privilege);
         
         $this->resourceManager->store($resource);
         $this->chain->registerResource($resource);

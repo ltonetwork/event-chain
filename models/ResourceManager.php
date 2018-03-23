@@ -25,22 +25,6 @@ class ResourceManager
         throw new UnexpectedValueException("Unrecognized schema '$schema' for event '$event->hash'");
     }
     
-    public function applyPrivilege(Resource $resource, Privilege $privilege)
-    {
-        if (count($this->chain->events) > 0) {
-
-            if (!$privilege) {
-                return; // Not allowed to add / edit identity
-            }
-
-            if (isset($privilege->only)) {
-                $identity->withOnly(...$privilege->only);
-            } elseif (isset($privilege->not)) {
-                $identity->without(...$privilege->not);
-            }
-        }
-    }
-    
     /**
      * Store a resource (on an external system)
      * 

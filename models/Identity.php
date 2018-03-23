@@ -72,11 +72,18 @@ class Identity extends MongoSubDocument implements Identifiable, Resource
     }
     
     /**
-     * Apply privileges, removing properties if needed.
+     * Apply privilege, removing properties if needed.
      * 
-     * @param \Privilege[] $privileges
+     * @param Privilege $privilege
      */
-    public function applyPrivileges(array $privileges)
+    public function applyPrivilege(Privilege $privilege)
     {
+        if (isset($privilege->only)) {
+            $this->withOnly(...$privilege->only);
+        }
+        
+        if (isset($privilege->not)) {
+            $this->without(...$privilege->not);
+        }
     }
 }

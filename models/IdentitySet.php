@@ -39,4 +39,15 @@ class IdentitySet extends EntitySet
             return in_array($signkey, $entity->signkeys);
         });
     }
+    
+    /**
+     * Get all privileges for a resource and combine them.
+     * 
+     * @param Resource $resource
+     * @return Privilege
+     */
+    public function getPrivilege(Resource $resource)
+    {
+        
+    }
 }
