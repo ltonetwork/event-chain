@@ -5,6 +5,6 @@ namespace Resource;
 /**
  * Response Resource
  */
-class Response extends \Resource
+class Response extends Base
 {
 }

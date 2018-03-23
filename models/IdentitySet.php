@@ -8,11 +8,11 @@ use Jasny\DB\EntitySet;
 class IdentitySet extends EntitySet
 {
     /**
-     * Add an identity
+     * Add or update an identity
      * 
      * @param Identity $entity
      */
-    public function add(Identity $entity)
+    public function set(Identity $entity)
     {
         $existing = $this->get($entity);
         
@@ -21,20 +21,22 @@ class IdentitySet extends EntitySet
             return;
         }
         
-        parent::add($entity);
+        $this->add($entity);
     }
     
-    
     /**
-     * Get an identity by id
+     * Get a set with only identities that have specified signkey
      * 
-     * @param string $uri  An identity ID or signkey URI
-     * @return Identity|null
+     * @param string $signkey
+     * @return static
      */
-    public function get($uri)
+    public function filterOnSignkey($signkey)
     {
-        $id = Jasny\str_before($uri, '#');
+        $filteredSet = clone $this;
+        $filteredSet->flags = $filteredSet->flags & ~static::ALLOW_DUPLICATES;
         
-        return parent::get($id);
+        $filteredSet->entities = array_filter($filteredSet->entities, function($entity) use ($signkey) {
+            return in_array($signkey, $entity->signkeys);
+        });
     }
 }

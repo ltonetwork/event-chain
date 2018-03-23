@@ -5,6 +5,6 @@ namespace Resource;
 /**
  * Form Resource
  */
-class Form extends \Resource
+class Form extends Base
 {
 }

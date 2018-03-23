@@ -6,7 +6,7 @@ use Jasny\DB\Entity\Redactable;
 /**
  * Identity entity
  */
-class Identity extends MongoSubDocument implements Identifiable, Redactable
+class Identity extends MongoSubDocument implements Identifiable, Resource
 {
     use Redactable\Implementation;
     
@@ -58,4 +58,25 @@ class Identity extends MongoSubDocument implements Identifiable, Redactable
      * @var Privilege[]|EntitySet
      */
     public $privileges;
+    
+    
+    /**
+     * Get the unique identifier of the Identity
+     * 
+     * @param boolean $withVersion  Not used, identities aren't versioned
+     * @return string
+     */
+    public function getId($withVersion = false)
+    {
+        return parent::getId();
+    }
+    
+    /**
+     * Apply privileges, removing properties if needed.
+     * 
+     * @param \Privilege[] $privileges
+     */
+    public function applyPrivileges(array $privileges)
+    {
+    }
 }

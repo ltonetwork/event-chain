@@ -37,6 +37,35 @@ class EventChainTest extends \Codeception\Test\Unit
         $this->assertSame("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U", $chain->getInitialHash());
     }
 
+    public function testGetLastestHash()
+    {
+        $events = [];
+        
+        $events[0] = $this->createMock(Event::class);
+        $events[0]->previous = "7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U";
+        $events[0]->hash = "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj";
+        
+        $events[1] = $this->createMock(Event::class);
+        $events[1]->previous = "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj";
+        $events[1]->hash = "J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS";
+        
+        $chain = EventChain::create()->setValues([
+            'id' => 'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
+            'events' => $events
+        ]);
+        
+        $this->assertEquals("J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS", $chain->getLatestHash());
+    }
+    
+    public function testGetLastestHashEmpty()
+    {
+        $chain = EventChain::create()->setValues([
+            'id' => 'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya'
+        ]);
+        
+        $this->assertEquals("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U", $chain->getLatestHash());
+    }
+    
     public function testGetFirstEvent()
     {
         $event1 = $this->createMock(Event::class);
@@ -329,5 +358,48 @@ class EventChainTest extends \Codeception\Test\Unit
         ]);
         
         $chain->getEventsAfter("Aw2Rum85dWFcUKnY6wZPmpoJXK54zENePuLPKjvjhviU");
+    }
+    
+    
+    public function testRegisterResource()
+    {
+        $resource = $this->createMock(Resource::class);
+        $resource->expects($this->once())->method('getId')->with(false)->willReturn('lt:/foos/123');
+        
+        $chain = EventChain::create();
+        $chain->identities = $this->createMock(IdentitySet::class);
+        $chain->identities->expects($this->never())->method('set');
+        
+        $chain->registerResource($resource);
+        
+        $this->assertEquals(['lt:/foos/123'], $chain->resources);
+    }
+    
+    public function testRegisterResourceExisting()
+    {
+        $resource = $this->createMock(Resource::class);
+        $resource->expects($this->once())->method('getId')->with(false)->willReturn('lt:/foos/123');
+        
+        $chain = EventChain::create();
+        $chain->identities = $this->createMock(IdentitySet::class);
+        $chain->identities->expects($this->never())->method('set');
+        $chain->resources = ['lt:/foos/123', 'lt:/bars/333'];
+        
+        $chain->registerResource($resource);
+        
+        $this->assertEquals(['lt:/foos/123', 'lt:/bars/333'], $chain->resources);
+    }
+    
+    public function testRegisterResourceIdentity()
+    {
+        $resource = $this->createMock(Identity::class);
+        
+        $chain = EventChain::create();
+        $chain->identities = $this->createMock(IdentitySet::class);
+        $chain->identities->expects($this->once())->method('set')->with($this->identicalTo($resource));
+        
+        $chain->registerResource($resource);
+        
+        $this->assertEquals([], $chain->resources);
     }
 }

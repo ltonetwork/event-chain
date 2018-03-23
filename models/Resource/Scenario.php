@@ -5,6 +5,6 @@ namespace Resource;
 /**
  * Scenario Resource
  */
-class Scenario extends \Resource
+class Scenario extends Base
 {
 }

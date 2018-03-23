@@ -5,6 +5,6 @@ namespace Resource;
 /**
  * Template Resource
  */
-class Template extends \Resource
+class Template extends Base
 {
 }

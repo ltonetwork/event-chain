@@ -5,7 +5,7 @@ use Jasny\ValidationResult;
 /**
  * Handle new events
  */
-class EventManger
+class EventManager
 {
     /**
      * @var string
@@ -16,6 +16,7 @@ class EventManger
      * @var ResourceManager
      */
     protected $resourceManager;
+    
     
     /**
      * Class constructor
@@ -29,7 +30,7 @@ class EventManger
         }
         
         $this->chain = $chain;
-        $this->resourceManager = $resourceManager ?: new ResourceManager();
+        $this->resourceManager = $resourceManager;
     }
     
     /**
@@ -55,18 +56,20 @@ class EventManger
         try {
             $following = $this->chain->getEventsAfter($previous);
         } catch (OutOfBoundsException $e) {
-            return ValidationResult::error("events don't fit on chain, %s not found", $previous);
+            return ValidationResult::error("events don't fit on chain, '%s' not found", $previous);
         }
         
+        $next = reset($following);
+        
         foreach ($newEvents->events as $event) {
-            $next = next($following);
-            
             if ($next === false) {
                 $handled = $this->handleNewEvent($event);
                 $validation->add($handled, "event '$event->hash';");
-            } elseif ($event->hash !== $next) {
-                $validation->addError("fork detected; conflict on %s and %s", $event->hash, $next);
+            } elseif ($event->hash !== $next->hash) {
+                $validation->addError("fork detected; conflict on '%s' and '%s'", $event->hash, $next->hash);
             }
+            
+            $next = next($following);
             
             if ($validation->failed()) {
                 break;
@@ -85,53 +88,41 @@ class EventManger
     public function handleNewEvent(Event $event)
     {
         $validation = $event->validate();
-        if ($this->chain->getLastEvent()->hash !== $event->previous) {
-            $validation->addError("event %s doesn't fit on chain", $event->hash);
+        
+        if ($event->previous !== $this->chain->getLatestHash()) {
+            $validation->addError("event '%s' doesn't fit on chain", $event->hash);
         }
         
         if ($validation->failed()) {
             return $validation;
         }
         
-        $body = $event->getBody();
-        
         $resource = $this->resourceManager->extractFrom($event);
+        $this->addResource($resource, $event);
         
-        if ($resource instanceof Identity) {
-            $this->addIdentity(Identity::create()->setValues($body), $event);
-        } else {
-            $this->resourceManager->store($resource);
-        }
-        
-        $this->events->add($event);
+        $this->chain->events->add($event);
         
         return $validation;
     }
     
     /**
-     * Add a new identity to the chain
+     * Add or update a resource
      * 
-     * @param Identity $identity
-     * @param Event $event
-     * @return type
+     * @param Resource $resource
+     * @param Event    $event
      */
-    public function addIdentity(Identity $identity, Event $event)
+    public function addResource(Resource $resource, Event $event)
     {
-        if (count($this->chain->events) > 0) {
-            $eventIdentity = $this->chain->getIdentity($event->signkey);
-            $privilege = $eventIdentity->getPrivilege($identity);
-
-            if (!$privilege) {
-                return; // Not allowed to add / edit identity
-            }
-
-            if (isset($privilege->only)) {
-                $identity->withOnly(...$privilege->only);
-            } elseif (isset($privilege->not)) {
-                $identity->without(...$privilege->not);
-            }
+        $identities = $this->chain->identities->filterOnSignkey($event->signkey);
+        $privileges = array_filter($identities->getPrivileges($resource));
+        
+        if (empty($privileges)) {
+            return; // Not allowed, so ignore
         }
         
-        $this->chain->addIdentity($identity);
+        $resource->applyPrivileges($privileges);
+        
+        $this->resourceManager->store($resource);
+        $this->chain->registerResource($resource);
     }
 }

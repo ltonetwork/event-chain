@@ -29,6 +29,7 @@ class EventChain extends MongoDocument
      */
     public $resources = [];
     
+    
     /**
      * Get the initial hash which is based on the event chain id
      */
@@ -37,6 +38,17 @@ class EventChain extends MongoDocument
         $base58 = new StephenHill\Base58();
         
         return $base58->encode(hash('sha256', $this->id, true));
+    }
+    
+    /**
+     * Get the latest hash.
+     * Expecting a new event to use this as previous property.
+     * 
+     * @return string
+     */
+    public function getLatestHash()
+    {
+        return count($this->events) > 0 ? $this->getLastEvent()->hash : $this->getInitialHash();
     }
     
     /**
@@ -182,5 +194,24 @@ class EventChain extends MongoDocument
         }
         
         return $events;
+    }
+    
+    /**
+     * Register that a resource is used in this chain
+     * 
+     * @param Resource $resource
+     */
+    public function registerResource(Resource $resource)
+    {
+        if ($resource instanceof Identity) {
+            $this->identities->set($resource);
+            return;
+        }
+        
+        $id = $resource->getId(false);
+        
+        if (!in_array($id, $this->resources)) {
+            $this->resources[] = $id;
+        }
     }
 }
