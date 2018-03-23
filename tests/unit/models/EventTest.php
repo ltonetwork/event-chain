@@ -3,7 +3,7 @@
 /**
  * @covers Event
  */
-class EventTest extends \PHPUnit_Framework_TestCase
+class EventTest extends \Codeception\Test\Unit
 {
     /**
      * @coversNothing

@@ -47,11 +47,36 @@ class EventChain extends MongoDocument
      */
     public function getFirstEvent()
     {
-        if (!isset($this->events[0])) {
+        if (count($this->events) === 0) {
             throw new UnderflowException("chain has no events");
         }
         
         return $this->events[0];
+    }
+    
+    /**
+     * Get the last event of the chain.
+     * 
+     * @return Event
+     * @throws UnderflowException
+     */
+    public function getLastEvent()
+    {
+        if (count($this->events) === 0) {
+            throw new UnderflowException("chain has no events");
+        }
+        
+        return $this->events[count($this->events) - 1];
+    }
+    
+    /**
+     * Check if this chain has the genisis event or is empty
+     * 
+     * @return boolean
+     */
+    public function isPartial()
+    {
+        return count($this->events) > 0 && $this->getFirstEvent()->previous !== $this->getInitialHash();
     }
     
     /**

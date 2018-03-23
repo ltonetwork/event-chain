@@ -24,18 +24,19 @@ class EventManger
      */
     public function __construct(EventChain $chain, ResourceManager $resourceManager)
     {
-        if (!$chain->hasGenesisEvent()) {
-            throw new UnexpectedValueException("Event chain doesn't have the genesis event");
+        if ($chain->isPartial()) {
+            throw new UnexpectedValueException("Event chain doesn't contain the genesis event");
         }
         
         $this->chain = $chain;
-        $this->projector = $resourceManager ?: new ResourceManager();
+        $this->resourceManager = $resourceManager ?: new ResourceManager();
     }
     
     /**
      * Add new events
      * 
      * @param EventChain $newEvents
+     * @return ValidationResult
      */
     public function add(EventChain $newEvents)
     {
@@ -60,30 +61,38 @@ class EventManger
         foreach ($newEvents->events as $event) {
             $next = next($following);
             
-            if (isset($next) && $event->hash !== $next) {
+            if ($next === false) {
+                $handled = $this->handleNewEvent($event);
+                $validation->add($handled, "event '$event->hash';");
+            } elseif ($event->hash !== $next) {
                 $validation->addError("fork detected; conflict on %s and %s", $event->hash, $next);
-            } else {
-                $validation->add($event->validate());
-            }
-
-            if (!$validation->isSuccess()) {
-                break;
             }
             
-            $this->handleNewEvent($event);
+            if ($validation->failed()) {
+                break;
+            }
         }
         
         return $validation;
     }
     
     /**
-     * Add an event to the event chain
+     * Add an event to the event chain.
      * 
      * @param Event $event
      * @return ValidationResult
      */
-    protected function handleNewEvent(Event $event)
+    public function handleNewEvent(Event $event)
     {
+        $validation = $event->validate();
+        if ($this->chain->getLastEvent()->hash !== $event->previous) {
+            $validation->addError("event %s doesn't fit on chain", $event->hash);
+        }
+        
+        if ($validation->failed()) {
+            return $validation;
+        }
+        
         $body = $event->getBody();
         
         $resource = $this->resourceManager->extractFrom($event);
@@ -95,6 +104,8 @@ class EventManger
         }
         
         $this->events->add($event);
+        
+        return $validation;
     }
     
     /**
@@ -104,7 +115,7 @@ class EventManger
      * @param Event $event
      * @return type
      */
-    protected function addIdentity(Identity $identity, Event $event)
+    public function addIdentity(Identity $identity, Event $event)
     {
         if (count($this->chain->events) > 0) {
             $eventIdentity = $this->chain->getIdentity($event->signkey);

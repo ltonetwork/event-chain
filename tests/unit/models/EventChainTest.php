@@ -3,7 +3,7 @@
 /**
  * @covers EventChain
  */
-class EventChainTest extends \PHPUnit_Framework_TestCase
+class EventChainTest extends \Codeception\Test\Unit
 {
     /**
      * @coversNothing
@@ -30,11 +30,11 @@ class EventChainTest extends \PHPUnit_Framework_TestCase
     
     public function testGetInitialHash()
     {
-        $eventChain = EventChain::create()->setValues([
+        $chain = EventChain::create()->setValues([
             'id' => 'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya'
         ]);
         
-        $this->assertSame("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U", $eventChain->getInitialHash());
+        $this->assertSame("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U", $chain->getInitialHash());
     }
 
     public function testGetFirstEvent()
@@ -42,11 +42,11 @@ class EventChainTest extends \PHPUnit_Framework_TestCase
         $event1 = $this->createMock(Event::class);
         $event2 = $this->createMock(Event::class);
         
-        $eventChain = EventChain::create()->setValues([
+        $chain = EventChain::create()->setValues([
             'events' => [ $event1, $event2 ]
         ]);
         
-        $this->assertSame($event1, $eventChain->getFirstEvent());
+        $this->assertSame($event1, $chain->getFirstEvent());
     }
 
     /**
@@ -54,21 +54,83 @@ class EventChainTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetFirstEventUnderflow()
     {
-        $eventChain = EventChain::create()->setValues([
+        $chain = EventChain::create()->setValues([
             'events' => [ ]
         ]);
         
-        $eventChain->getFirstEvent();
+        $chain->getFirstEvent();
     }
 
-    public function testValidateNoEvents()
+    public function testGetLastEvent()
     {
-        $eventChain = EventChain::create()->setValues([
+        $event1 = $this->createMock(Event::class);
+        $event2 = $this->createMock(Event::class);
+        
+        $chain = EventChain::create()->setValues([
+            'events' => [ $event1, $event2 ]
+        ]);
+        
+        $this->assertSame($event2, $chain->getLastEvent());
+    }
+
+    /**
+     * @expectedException UnderflowException
+     */
+    public function testGetLastEventUnderflow()
+    {
+        $chain = EventChain::create()->setValues([
+            'events' => [ ]
+        ]);
+        
+        $chain->getLastEvent();
+    }
+
+    public function testIsPartialFalse()
+    {
+        $event = $this->createMock(Event::class);
+        $event->previous = "7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U";
+        $event->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
+        
+        $chain = EventChain::create()->setValues([
+            'id' => 'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
+            'events' => [ $event ]
+        ]);
+        
+        $this->assertFalse($chain->isPartial());
+    }
+    
+    public function testIsPartialTrue()
+    {
+        $event = $this->createMock(Event::class);
+        $event->previous = "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj";
+        $event->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
+        
+        $chain = EventChain::create()->setValues([
+            'id' => '3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj',
+            'events' => [ $event ]
+        ]);
+        
+        $this->assertTrue($chain->isPartial());
+    }
+    
+    public function testIsPartialNoEvents()
+    {
+        $chain = EventChain::create()->setValues([
             'id' => 'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
             'events' => [ ]
         ]);
         
-        $validation = $eventChain->validate();
+        $this->assertFalse($chain->isPartial());
+    }
+    
+    public function testValidateNoEvents()
+    {
+        $chain = EventChain::create()->setValues([
+            'id' => 'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
+            'events' => [ ]
+        ]);
+        
+        $validation = $chain->validate();
         
         $this->assertEquals(['no events'], $validation->getErrors());
     }
@@ -79,12 +141,12 @@ class EventChainTest extends \PHPUnit_Framework_TestCase
         $event->previous = "7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U";
         $event->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
         
-        $eventChain = EventChain::create()->setValues([
+        $chain = EventChain::create()->setValues([
             'id' => 'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
             'events' => [ $event ]
         ]);
         
-        $validation = $eventChain->validate();
+        $validation = $chain->validate();
         
         $this->assertEquals([], $validation->getErrors());
     }
@@ -95,12 +157,12 @@ class EventChainTest extends \PHPUnit_Framework_TestCase
         $event->previous = "FPipjZ9irhdq2Byq1RWC5yrEvVRFhvZckZPzuaYRDubL";
         $event->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
         
-        $eventChain = EventChain::create()->setValues([
+        $chain = EventChain::create()->setValues([
             'id' => '2JkYmWa9gyT32xT2gWvkGbLHXziw6Qy517KzEvUttigtmM',
             'events' => [ $event ]
         ]);
         
-        $validation = $eventChain->validate();
+        $validation = $chain->validate();
         
         $this->assertEquals(['invalid id'], $validation->getErrors());
     }
@@ -117,12 +179,12 @@ class EventChainTest extends \PHPUnit_Framework_TestCase
         $event2->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
         $event2->hash = "J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS";
         
-        $eventChain = EventChain::create()->setValues([
+        $chain = EventChain::create()->setValues([
             'id' =>  'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
             'events' => [ $event1, $event2 ]
         ]);
         
-        $validation = $eventChain->validate();
+        $validation = $chain->validate();
         
         $this->assertEquals([], $validation->getErrors());
     }
@@ -139,12 +201,12 @@ class EventChainTest extends \PHPUnit_Framework_TestCase
         $event3->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
         $event3->hash = "3HZd1nBeva2fLUUEygGakdCQr84dcUz6J3wGTUsHdnhq";
         
-        $eventChain = EventChain::create()->setValues([
+        $chain = EventChain::create()->setValues([
             'id' =>  'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
             'events' => [ $event1, $event3 ]
         ]);
         
-        $validation = $eventChain->validate();
+        $validation = $chain->validate();
         
         $this->assertEquals([
             "broken chain; previous of '3HZd1nBeva2fLUUEygGakdCQr84dcUz6J3wGTUsHdnhq' is 'J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS', expected '3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj'"
@@ -157,7 +219,7 @@ class EventChainTest extends \PHPUnit_Framework_TestCase
         $event2 = $this->createMock(Event::class);
         $identity = $this->createMock(Identity::class);
         
-        $eventChain = EventChain::create()->setValues([
+        $chain = EventChain::create()->setValues([
             'events' => [ $event1, $event2 ],
             'identities' => [ $identity ],
             'resources' => [
@@ -166,12 +228,12 @@ class EventChainTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
         
-        $emptyChain = $eventChain->withoutEvents();
+        $emptyChain = $chain->withoutEvents();
         
         $this->assertInstanceOf(EventChain::class, $emptyChain);
-        $this->assertNotSame($eventChain, $emptyChain);
+        $this->assertNotSame($chain, $emptyChain);
         
-        $this->assertEquals($eventChain->id, $emptyChain->id);
+        $this->assertEquals($chain->id, $emptyChain->id);
         $this->assertCount(0, $emptyChain->events);
         $this->assertCount(0, $emptyChain->identities);
         $this->assertCount(0, $emptyChain->resources);
@@ -230,12 +292,12 @@ class EventChainTest extends \PHPUnit_Framework_TestCase
         $events[2]->previous = "J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS";
         $events[2]->hash = "3HZd1nBeva2fLUUEygGakdCQr84dcUz6J3wGTUsHdnhq";
         
-        $eventChain = EventChain::create()->setValues([
+        $chain = EventChain::create()->setValues([
             'id' =>  'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
             'events' => $events
         ]);
         
-        $following = $eventChain->getEventsAfter($hash);
+        $following = $chain->getEventsAfter($hash);
         $this->assertInternalType('array', $following);
         
         $actual = array_map(function($event) { return $event->hash; }, $following);
@@ -261,11 +323,11 @@ class EventChainTest extends \PHPUnit_Framework_TestCase
         $events[2]->previous = "J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS";
         $events[2]->hash = "3HZd1nBeva2fLUUEygGakdCQr84dcUz6J3wGTUsHdnhq";
         
-        $eventChain = EventChain::create()->setValues([
+        $chain = EventChain::create()->setValues([
             'id' =>  'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
             'events' => $events
         ]);
         
-        $eventChain->getEventsAfter("Aw2Rum85dWFcUKnY6wZPmpoJXK54zENePuLPKjvjhviU");
+        $chain->getEventsAfter("Aw2Rum85dWFcUKnY6wZPmpoJXK54zENePuLPKjvjhviU");
     }
 }
