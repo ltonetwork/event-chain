@@ -1,12 +1,40 @@
 <?php
 
 /**
- * @internal private key: FYrAcgvAgxBGL3gvpbecySCowCg3hfPP3rS6U6qXffBs
- * 
  * @covers Event
  */
 class EventTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @coversNothing
+     */
+    public function testCreateKeyPair()
+    {
+        $seed = hash('sha256', "a seed", true);
+        
+        $keypair = sodium\crypto_sign_seed_keypair($seed);
+        $publickey = sodium\crypto_sign_publickey($keypair);
+        $secretkey = sodium\crypto_sign_secretkey($keypair);
+        
+        $base58 = new StephenHill\Base58();
+        
+        $this->assertEquals("8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj", $base58->encode($publickey));
+        $this->assertEquals("3s8rY83hdyfn2pLQu3yH6DXtK9QGsjPw7TXKPRfTLCQeVR4gGkR7LDig5ABFEKFVyavr8zprpzqBFKhUEvfNaXGV",
+                $base58->encode($secretkey));
+    }
+    
+    public function testAddReceipt()
+    {
+        $receipt = $this->createMock(Receipt::class);
+
+        $event = Event::create();
+        
+        $ret = $event->addReceipt($receipt);
+        
+        $this->assertSame($ret, $event);
+        $this->assertSame($receipt, $event->receipt);
+    }
+    
     /**
      * Test getting a hash
      */
@@ -16,10 +44,10 @@ class EventTest extends \PHPUnit_Framework_TestCase
             "body" => 'A54BREAPQiWqZo3k9RQJ1U4yZBjyDj37aciJMiAJfNACHVoZVDYi3Q2qhqE',
             "timestamp" => new DateTime("2018-01-01T00:00:00+00:00"),
             "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
-            "signkey" => "Cd5ZmfWYjuKVLVZA7YszxiGWdpVewQWTWurYDpWejohP"
+            "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj"
         ]);
         
-        $this->assertEquals('2kTjNfrftKdG5iPv743SdJgToxqqUQ5j7C3YU4pUraDm', $event->getHash());
+        $this->assertEquals('ArxW6PhABV2JUd7VeqfWGjVJ4hyXEhCztKRP1gJKLchH', $event->getHash());
     }
     
     public function testGetBody()
@@ -28,7 +56,7 @@ class EventTest extends \PHPUnit_Framework_TestCase
             "body" => 'A54BREAPQiWqZo3k9RQJ1U4yZBjyDj37aciJMiAJfNACHVoZVDYi3Q2qhqE'
         ]);
         
-        $expected = (object)[
+        $expected = [
             "foo" => "bar",
             "good" => 1,
             "color" => "red"
@@ -39,61 +67,100 @@ class EventTest extends \PHPUnit_Framework_TestCase
     
     public function testVerifySignature()
     {
-        $this->markTestSkipped("verify signature not implemented");
-        
         $event = Event::create()->setValues([
             "body" => 'A54BREAPQiWqZo3k9RQJ1U4yZBjyDj37aciJMiAJfNACHVoZVDYi3Q2qhqE',
             "timestamp" => new DateTime("2018-01-01T00:00:00+00:00"),
             "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
-            "signkey" => "Cd5ZmfWYjuKVLVZA7YszxiGWdpVewQWTWurYDpWejohP",
-            "signature" => ""
+            "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
+            "signature" => "3S72dRFjpdnbrdBneRpBxzGb99eEE6X3wCnKC4GiN2MwE1i3Xx1zVtzFeeUVwq3qMTECn8HzEJPJZCgU2iEE7227"
         ]);
         
         $this->assertTrue($event->verifySignature());
     }
     
-    public function testVerifySignatureFail()
+    public function verifySignatureFailProvider()
     {
-        $this->markTestSkipped("verify signature not implemented");
-        
+        return [
+            [
+                "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
+                "5rFR7MV6S7vjwMMsGGKVZ3im57jfsFxrCT3HyoFbuxjTi86JFBQBLupWdPXfgVGTf1ZeL74LP2fxZbr2Czb8MnvT"
+            ],
+            [
+                "DptF5xtqwsPVLuSdEgMrVmQ2pYPjmCuwudYE5e23vGTT",
+                "3S72dRFjpdnbrdBneRpBxzGb99eEE6X3wCnKC4GiN2MwE1i3Xx1zVtzFeeUVwq3qMTECn8HzEJPJZCgU2iEE7227"
+            ],
+            [ "abcd", "3S72dRFjpdnbrdBneRpBxzGb99eEE6X3wCnKC4GiN2MwE1i3Xx1zVtzFeeUVwq3qMTECn8HzEJPJZCgU2iEE7227" ],
+            [ "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj", "abcd" ],
+            [ "", "3S72dRFjpdnbrdBneRpBxzGb99eEE6X3wCnKC4GiN2MwE1i3Xx1zVtzFeeUVwq3qMTECn8HzEJPJZCgU2iEE7227" ],
+            [ "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj", "" ],
+            [ null, "3S72dRFjpdnbrdBneRpBxzGb99eEE6X3wCnKC4GiN2MwE1i3Xx1zVtzFeeUVwq3qMTECn8HzEJPJZCgU2iEE7227" ],
+            [ "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj", null ],
+            [ null, null ],
+            [ "", "" ]
+        ];
+    }
+    
+    /**
+     * @dataProvider verifySignatureFailProvider
+     * 
+     * @param string $signkey
+     * @param string $signature
+     */
+    public function testVerifySignatureFail($signkey, $signature)
+    {
         $event = Event::create()->setValues([
             "body" => 'A54BREAPQiWqZo3k9RQJ1U4yZBjyDj37aciJMiAJfNACHVoZVDYi3Q2qhqE',
             "timestamp" => new DateTime("2017-11-09T00:00:00+00:00"), // Back dated
             "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
-            "signkey" => "Cd5ZmfWYjuKVLVZA7YszxiGWdpVewQWTWurYDpWejohP",
-            "signature" => ""
+            "signkey" => $signkey,
+            "signature" => $signature
         ]);
         
         $this->assertFalse($event->verifySignature());
     }
     
-    public function testValidateSuccess()
+    public function testValidate()
     {
-        $event = Event::create()->setValues([
+        $receipt = $this->createMock(Receipt::class);
+        $receipt->expects($this->once())->method('validate')->willReturn(\Jasny\ValidationResult::success());
+        $receipt->targetHash = "ArxW6PhABV2JUd7VeqfWGjVJ4hyXEhCztKRP1gJKLchH";
+        
+        $event = $this->createPartialMock(Event::class, ['verifySignature']);
+        $event->expects($this->once())->method('verifySignature')->willReturn(true);
+        
+        $event->setValues([
             "body" => 'A54BREAPQiWqZo3k9RQJ1U4yZBjyDj37aciJMiAJfNACHVoZVDYi3Q2qhqE',
             "timestamp" => new DateTime("2018-01-01T00:00:00+00:00"),
             "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
-            "signkey" => "Cd5ZmfWYjuKVLVZA7YszxiGWdpVewQWTWurYDpWejohP",
-            "signature" => "Cd5ZmfWYjuKVLVZA7YszxiGWdpVewQWTWurYDpWejohP",
-            "hash" => "2kTjNfrftKdG5iPv743SdJgToxqqUQ5j7C3YU4pUraDm"
+            "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
+            "hash" => "ArxW6PhABV2JUd7VeqfWGjVJ4hyXEhCztKRP1gJKLchH",
+            "signature" => "",
+            "receipt" => $receipt
         ]);
         
-        $previous = "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW";
-        
-        $validation = $event->validate(compact('identity', 'previous'));
+        $validation = $event->validate();
         
         $this->assertEquals([], $validation->getErrors());
     }
     
     public function testValidateFailed()
     {
-        $event = Event::create()->setValues([
-            "body" => 'abc',
+        $receipt = $this->createMock(Receipt::class);
+        $receipt->expects($this->once())->method('validate')
+                ->willReturn(\Jasny\ValidationResult::error('some error'));
+        $receipt->targetHash = "ArxW6PhABV2JUd7VeqfWGjVJ4hyXEhCztKRP1gJKLchH";
+        
+        $event = $this->createPartialMock(Event::class, ['verifySignature']);
+        $event->expects($this->once())->method('verifySignature')->willReturn(false);
+        
+        $event->setValues([
+            "body" => "abc",
             "timestamp" => new DateTime("2018-01-01T00:00:00+00:00"),
             "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
-            "signkey" => "Cd5ZmfWYjuKVLVZA7YszxiGWdpVewQWTWurYDpWejohP",
+            "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
+            "hash" => "EdqM52SpXCn5c1uozuvuH5o9Tcr41kYeCWz4Ymu6ngbt",
             "signature" => "",
-            "hash" => "EdqM52SpXCn5c1uozuvuH5o9Tcr41kYeCWz4Ymu6ngbt"
+            "receipt" => $receipt
         ]);
 
         
@@ -109,7 +176,8 @@ class EventTest extends \PHPUnit_Framework_TestCase
             'body is not base58 encoded json',
             'invalid signature',
             'invalid hash',
-            "event does not fit chain after $previous"
+            "invalid receipt; some error",
+            "invalid receipt; hash doesn't match"
         ], $validation->getErrors());
     }
     

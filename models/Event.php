@@ -87,6 +87,8 @@ class Event extends MongoSubDocument implements Identifiable
     public function addReceipt(Receipt $receipt)
     {
         $this->receipt = $receipt;
+        
+        return $this;
     }
     
     /**
@@ -96,12 +98,14 @@ class Event extends MongoSubDocument implements Identifiable
      */
     protected function getMessage()
     {
-        return join("\n", [
+        $message = join("\n", [
             $this->body,
             $this->timestamp ? $this->timestamp->format('c') : '',
             $this->previous,
             $this->signkey
         ]);
+        
+        return $message;
     }
     
     /**
@@ -146,7 +150,9 @@ class Event extends MongoSubDocument implements Identifiable
         $signature = $base58->decode($this->signature);
         $signkey = $base58->decode($this->signkey);
         
-        return sodium\crypto_sign_verify_detached($this->signature, $this->getMessage(), $signkey);
+        return strlen($signature) === sodium\CRYPTO_SIGN_BYTES &&
+            strlen($signkey) === sodium\CRYPTO_SIGN_PUBLICKEYBYTES &&
+            sodium\crypto_sign_verify_detached($signature, $this->getMessage(), $signkey);
     }
     
     /**
@@ -162,7 +168,7 @@ class Event extends MongoSubDocument implements Identifiable
             $validation->addError('body is not base58 encoded json');
         }
         
-        if (isset($opts['identity']) && !$this->verifySignature($opts['identity'])) {
+        if (isset($this->signature) && !$this->verifySignature()) {
             $validation->addError('invalid signature');
         }
         
@@ -170,8 +176,12 @@ class Event extends MongoSubDocument implements Identifiable
             $validation->addError('invalid hash');
         }
         
-        if (isset($this->receipt) && $this->receipt->targetHash !== $this->hash) {
-            $validation->add(ValidationResult::error("hash doesn't match"), "Invalid receipt");
+        if (isset($this->receipt)) {
+            $validation->add($this->receipt->validate(), "invalid receipt;");
+            
+            if ($this->receipt->targetHash !== $this->hash) {
+                $validation->add(ValidationResult::error("hash doesn't match"), "invalid receipt;");
+            }
         }
         
         return $validation;
