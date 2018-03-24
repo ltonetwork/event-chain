@@ -1,19 +1,13 @@
 <?php
 
 use Jasny\DB\Entity\Identifiable;
-use Jasny\DB\Entity\Redactable;
 
 /**
  * Identity entity
  */
-class Identity extends MongoSubDocument implements Identifiable, Resource
+class Identity extends MongoSubDocument implements Resource, Identifiable
 {
-    use Redactable\Implementation;
-    
-    /**
-     * The JSON schema of an identity
-     */
-    const SCHEMA = 'http://specs.livecontracts.io/draft-01/identity/schema.json#';
+    use ResourceBase;
     
     /**
      * Unique identifier
@@ -58,32 +52,4 @@ class Identity extends MongoSubDocument implements Identifiable, Resource
      * @var Privilege[]|EntitySet
      */
     public $privileges;
-    
-    
-    /**
-     * Get the unique identifier of the Identity
-     * 
-     * @param boolean $withVersion  Not used, identities aren't versioned
-     * @return string
-     */
-    public function getId($withVersion = false)
-    {
-        return parent::getId();
-    }
-    
-    /**
-     * Apply privilege, removing properties if needed.
-     * 
-     * @param Privilege $privilege
-     */
-    public function applyPrivilege(Privilege $privilege)
-    {
-        if (isset($privilege->only)) {
-            $this->withOnly(...$privilege->only);
-        }
-        
-        if (isset($privilege->not)) {
-            $this->without(...$privilege->not);
-        }
-    }
 }

@@ -1,5 +1,7 @@
 <?php
 
+use Jasny\DB\EntitySet;
+
 /**
  * @covers EventChain
  */
@@ -363,12 +365,14 @@ class EventChainTest extends \Codeception\Test\Unit
     
     public function testRegisterResource()
     {
-        $resource = $this->createMock(Resource::class);
-        $resource->expects($this->once())->method('getId')->with(false)->willReturn('lt:/foos/123');
+        $resource = $this->createMock(ExternalResource::class);
+        $resource->expects($this->once())->method('getId')->willReturn('lt:/foos/123?v=22');
         
         $chain = EventChain::create();
         $chain->identities = $this->createMock(IdentitySet::class);
         $chain->identities->expects($this->never())->method('set');
+        $chain->comments = $this->createMock(EntitySet::class);
+        $chain->comments->expects($this->never())->method('add');
         
         $chain->registerResource($resource);
         
@@ -377,12 +381,14 @@ class EventChainTest extends \Codeception\Test\Unit
     
     public function testRegisterResourceExisting()
     {
-        $resource = $this->createMock(Resource::class);
-        $resource->expects($this->once())->method('getId')->with(false)->willReturn('lt:/foos/123');
+        $resource = $this->createMock(ExternalResource::class);
+        $resource->expects($this->once())->method('getId')->willReturn('lt:/foos/123?v=22');
         
         $chain = EventChain::create();
         $chain->identities = $this->createMock(IdentitySet::class);
         $chain->identities->expects($this->never())->method('set');
+        $chain->comments = $this->createMock(EntitySet::class);
+        $chain->comments->expects($this->never())->method('add');
         $chain->resources = ['lt:/foos/123', 'lt:/bars/333'];
         
         $chain->registerResource($resource);
@@ -397,6 +403,23 @@ class EventChainTest extends \Codeception\Test\Unit
         $chain = EventChain::create();
         $chain->identities = $this->createMock(IdentitySet::class);
         $chain->identities->expects($this->once())->method('set')->with($this->identicalTo($resource));
+        $chain->comments = $this->createMock(EntitySet::class);
+        $chain->comments->expects($this->never())->method('add');
+        
+        $chain->registerResource($resource);
+        
+        $this->assertEquals([], $chain->resources);
+    }
+    
+    public function testRegisterResourceComment()
+    {
+        $resource = $this->createMock(Comment::class);
+        
+        $chain = EventChain::create();
+        $chain->identities = $this->createMock(IdentitySet::class);
+        $chain->identities->expects($this->never())->method('set');
+        $chain->comments = $this->createMock(EntitySet::class);
+        $chain->comments->expects($this->once())->method('add')->with($this->identicalTo($resource));
         
         $chain->registerResource($resource);
         

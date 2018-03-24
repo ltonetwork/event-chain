@@ -7,7 +7,6 @@ coverage:
     enabled: true
     remote: false
     include:
-        - lib/*
         - models/*
 modules:
     enabled:

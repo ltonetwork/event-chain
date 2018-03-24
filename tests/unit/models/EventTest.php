@@ -63,6 +63,10 @@ class EventTest extends \Codeception\Test\Unit
         ];
         
         $this->assertEquals($expected, $event->getBody());
+        
+        // Second time from cache
+        $event->body = "";
+        $this->assertEquals($expected, $event->getBody());        
     }
     
     public function testVerifySignature()
@@ -123,18 +127,18 @@ class EventTest extends \Codeception\Test\Unit
     {
         $receipt = $this->createMock(Receipt::class);
         $receipt->expects($this->once())->method('validate')->willReturn(\Jasny\ValidationResult::success());
-        $receipt->targetHash = "ArxW6PhABV2JUd7VeqfWGjVJ4hyXEhCztKRP1gJKLchH";
+        $receipt->targetHash = "9Xxs7AZbogzxWkitjpZ7KFuJRjkrDY8dML2AwyWS1sFg";
         
         $event = $this->createPartialMock(Event::class, ['verifySignature']);
         $event->expects($this->once())->method('verifySignature')->willReturn(true);
         
         $event->setValues([
-            "body" => 'A54BREAPQiWqZo3k9RQJ1U4yZBjyDj37aciJMiAJfNACHVoZVDYi3Q2qhqE',
+            "body" => 'pvabUdSJtsf1ftYbgmNjUrMbnScRk2fJhGR3jk9t8td9xPJJzLqNFm8pr6ZpA7UQv1CVSHjKuarH8cNCDc524gh1WU',
             "timestamp" => new DateTime("2018-01-01T00:00:00+00:00"),
             "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
             "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
-            "hash" => "ArxW6PhABV2JUd7VeqfWGjVJ4hyXEhCztKRP1gJKLchH",
-            "signature" => "",
+            "hash" => "9Xxs7AZbogzxWkitjpZ7KFuJRjkrDY8dML2AwyWS1sFg",
+            "signature" => "_stub_",
             "receipt" => $receipt
         ]);
         
@@ -179,6 +183,25 @@ class EventTest extends \Codeception\Test\Unit
             "invalid receipt; some error",
             "invalid receipt; hash doesn't match"
         ], $validation->getErrors());
+    }
+    
+    public function testValidateNoSchema()
+    {
+        $event = $this->createPartialMock(Event::class, ['verifySignature']);
+        $event->expects($this->once())->method('verifySignature')->willReturn(true);
+        
+        $event->setValues([
+            "body" => 'A54BREAPQiWqZo3k9RQJ1U4yZBjyDj37aciJMiAJfNACHVoZVDYi3Q2qhqE',
+            "timestamp" => new DateTime("2018-01-01T00:00:00+00:00"),
+            "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
+            "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
+            "hash" => "ArxW6PhABV2JUd7VeqfWGjVJ4hyXEhCztKRP1gJKLchH",
+            "signature" => "_stub_",
+        ]);
+        
+        $validation = $event->validate();
+        
+        $this->assertEquals(['body is does not contain the $schema property'], $validation->getErrors());
     }
     
     public function testValidateRequired()

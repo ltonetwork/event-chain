@@ -1,5 +1,7 @@
 <?php
 
+use Jasny\DB\Entity\Identifiable;
+
 /**
  * EventChain entity
  */
@@ -207,11 +209,18 @@ class EventChain extends MongoDocument
             $this->identities->set($resource);
             return;
         }
+
+        if ($resource instanceof Comment) {
+            $this->comments->add($resource);
+            return;
+        }
         
-        $id = $resource->getId(false);
-        
-        if (!in_array($id, $this->resources)) {
-            $this->resources[] = $id;
+        if ($resource instanceof Identifiable) {
+            $id = jasny\str_before($resource->getId(), '?'); // No (version) arguments
+
+            if (!in_array($id, $this->resources)) {
+                $this->resources[] = $id;
+            }
         }
     }
 }

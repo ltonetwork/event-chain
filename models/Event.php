@@ -15,7 +15,14 @@ class Event extends MongoSubDocument implements Identifiable
      * @required
      */
     public $body;
-    
+
+    /**
+     * The extracted body (cached) as associated array
+     * 
+     * @var array|boolean
+     */
+    protected $cachedBody = false;
+
     /**
      * Time when the event was signed.
      * 
@@ -75,6 +82,8 @@ class Event extends MongoSubDocument implements Identifiable
             throw new BadMethodCallException("Event is immutable");
         }
         
+        $this->cachedBody = false; // Clear cached body
+        
         return parent::setValues($values);
     }
     
@@ -128,10 +137,20 @@ class Event extends MongoSubDocument implements Identifiable
      */
     public function getBody()
     {
+        if ($this->cachedBody !== false) {
+            return $this->cachedBody;
+        }
+        
+        if (!isset($this->body)) {
+            return null;
+        }
+        
         $base58 = new StephenHill\Base58();
         $json = $base58->decode($this->body);
         
-        return $json ? json_decode($json, true) : null;
+        $this->cachedBody = $json ? json_decode($json, true) : null;
+        
+        return $this->cachedBody;
     }
     
     /**
@@ -164,8 +183,13 @@ class Event extends MongoSubDocument implements Identifiable
     {
         $validation = parent::validate();
         
-        if (isset($this->body) && $this->getBody() === null) {
+        $body = $this->getBody();
+        if (isset($this->body) && $body === null) {
             $validation->addError('body is not base58 encoded json');
+        }
+
+        if (isset($body) && !isset($body['$schema'])) {
+            $validation->addError('body is does not contain the $schema property');
         }
         
         if (isset($this->signature) && !$this->verifySignature()) {

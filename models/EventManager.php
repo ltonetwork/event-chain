@@ -121,6 +121,7 @@ class EventManager
         }
         
         $resource->applyPrivilege($privilege);
+        $resource->setIdentity($identities[0]);
         
         $this->resourceManager->store($resource);
         $this->chain->registerResource($resource);

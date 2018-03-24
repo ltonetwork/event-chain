@@ -289,14 +289,17 @@ class EventManagerTest extends \Codeception\Test\Unit
         $event = $this->createMockEvents()[0];
         $event->signkey = "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj";
         
+        $identity = $this->createMock(Identity::class);
         $privilege = $this->createMock(Privilege::class);
         
         $resource = $this->createMock(Resource::class);
         $resource->expects($this->once())->method('applyPrivilege')->with($this->identicalTo($privilege));
+        $resource->expects($this->once())->method('setIdentity')->with($this->identicalTo($identity));
         
-        $filteredIdentities = $this->createMock(IdentitySet::class);
+        $filteredIdentities = $this->createPartialMock(IdentitySet::class, ['getPrivilege']);
         $filteredIdentities->expects($this->once())->method('getPrivilege')
             ->with($this->identicalTo($resource))->willReturn($privilege);
+        $filteredIdentities[0] = $identity;
         
         $identitySet = $this->createMock(IdentitySet::class);
         $identitySet->expects($this->once())->method('filterOnSignkey')->with($event->signkey)
@@ -321,6 +324,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         
         $resource = $this->createMock(Resource::class);
         $resource->expects($this->never())->method('applyPrivilege');
+        $resource->expects($this->never())->method('setIdentity');
         
         $filteredIdentities = $this->createMock(IdentitySet::class);
         $filteredIdentities->expects($this->once())->method('getPrivilege')
