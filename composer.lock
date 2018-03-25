@@ -473,16 +473,16 @@
         },
         {
             "name": "jasny/db",
-            "version": "v2.4.10",
+            "version": "v2.4.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jasny/db.git",
-                "reference": "4069d98c7297d8d6914df4b148ee62e954fe2948"
+                "reference": "dba58ada469ae369f5b96d08141f54870e420061"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasny/db/zipball/4069d98c7297d8d6914df4b148ee62e954fe2948",
-                "reference": "4069d98c7297d8d6914df4b148ee62e954fe2948",
+                "url": "https://api.github.com/repos/jasny/db/zipball/dba58ada469ae369f5b96d08141f54870e420061",
+                "reference": "dba58ada469ae369f5b96d08141f54870e420061",
                 "shasum": ""
             },
             "require": {
@@ -518,7 +518,7 @@
                 "database",
                 "db"
             ],
-            "time": "2016-12-19T13:17:56+00:00"
+            "time": "2018-03-25T17:55:41+00:00"
         },
         {
             "name": "jasny/db-mongo",

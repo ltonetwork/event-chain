@@ -23,10 +23,16 @@ class ExternalResource implements Resource, Identifiable, Dynamic
     public $id;
 
     /**
-     * Date/time the scenario was created
+     * Date/time the (version of the) resource was created
      * @var DateTime
      */
     public $timestamp;
+    
+    /**
+     * The identity that created the (version of the) resource
+     * @var type
+     */
+    public $identity;
     
     
     /**
@@ -53,6 +59,7 @@ class ExternalResource implements Resource, Identifiable, Dynamic
      * Set version by hashing the body
      * 
      * @param string $body  Base58 JSON encoded body
+     * @return $this
      */
     public function setVersionFrom($body)
     {
@@ -62,6 +69,8 @@ class ExternalResource implements Resource, Identifiable, Dynamic
         $version = substr($base58->encode($hash), 0, 8);
         
         $this->id = jasny\str_before($this->id, '?') . '?v=' . $version;
+        
+        return $this;
     }
 
     /**
@@ -81,5 +90,20 @@ class ExternalResource implements Resource, Identifiable, Dynamic
         ] + array_without($data, '$schema'));
         
         $resource->setVersionFrom($event->body);
+        
+        return $resource;
+    }
+    
+    /**
+     * Set the identity that created this (version of the) resource
+     * 
+     * @param Identity $identity
+     * @return $this
+     */
+    public function setIdentity(Identity $identity)
+    {
+        $this->identity = $identity;
+        
+        return $this;
     }
 }

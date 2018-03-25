@@ -19,6 +19,8 @@ class ResourceManager
         'http://specs.livecontracts.io/draft-01/13-comment/schema.json#' => Comment::class
     ];
     
+    
+    
     /**
      * Class constructor
      * 
@@ -34,7 +36,7 @@ class ResourceManager
     /**
      * Extract a resource from an event.
      * 
-     * @param Event       $event
+     * @param Event $event
      * @return Resource
      */
     public function extractFrom(Event $event)
@@ -64,6 +66,8 @@ class ResourceManager
      */
     public function store(Resource $resource)
     {
+        $schema = $resource->schema;
+        
         
     }
 }
