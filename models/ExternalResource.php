@@ -8,7 +8,9 @@ use Jasny\DB\Entity\Dynamic;
  */
 class ExternalResource implements Resource, Identifiable, Dynamic
 {
-    use ResourceBase;
+    use ResourceBase {
+        fromEvent as private fromEventBase;
+    }
 
     /**
      * JSON Schema
@@ -22,12 +24,6 @@ class ExternalResource implements Resource, Identifiable, Dynamic
      */
     public $id;
 
-    /**
-     * Date/time the (version of the) resource was created
-     * @var DateTime
-     */
-    public $timestamp;
-    
     /**
      * The identity that created the (version of the) resource
      * @var type
@@ -81,14 +77,7 @@ class ExternalResource implements Resource, Identifiable, Dynamic
      */
     public static function fromEvent(Event $event)
     {
-        $data = $event->getBody();
-        
-        $resource = new static();
-        $resource->setValues([
-            'schema' => $data['$schema'],
-            'timestamp' => $event->timestamp
-        ] + array_without($data, '$schema'));
-        
+        $resource = self::fromEventBase($event);
         $resource->setVersionFrom($event->body);
         
         return $resource;

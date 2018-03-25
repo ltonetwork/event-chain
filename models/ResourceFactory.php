@@ -3,13 +3,13 @@
 /**
  * Service to extract the resource from an event
  */
-class ResourceManager
+class ResourceFactory
 {
     /**
      * Map schema to resource class
      * @var array 
      */
-    public $mapping = [
+    protected $mapping = [
         'http://specs.livecontracts.io/draft-01/02-identity/schema.json#' => Identity::class,
         'http://specs.livecontracts.io/draft-01/03-template/schema.json#' => ExternalResource::class,
         'http://specs.livecontracts.io/draft-01/04-scenario/schema.json#' => ExternalResource::class,
@@ -20,7 +20,6 @@ class ResourceManager
     ];
     
     
-    
     /**
      * Class constructor
      * 
@@ -29,7 +28,20 @@ class ResourceManager
     public function __construct(array $mapping = null)
     {
         if (isset($mapping)) {
+            array_walk($mapping, [$this, 'assertClassIsResource']);
             $this->mapping = $mapping;
+        }
+    }
+    
+    /**
+     * Check that each class implements the Resource interface
+     * 
+     * @throws UnexpectedValueException
+     */
+    protected function assertClassIsResource($class)
+    {
+        if (!is_a($class, Resource::class, true)) {
+            throw new UnexpectedValueException("$class is not a Resource");
         }
     }
     
@@ -50,24 +62,11 @@ class ResourceManager
         $schema = $body['$schema'];
         
         if (!isset($this->mapping[$schema])) {
-            trigger_error("Unrecognized schema '$schema' for event '$event->hash'", E_USER_WARNING);
-            return;
+            throw new UnexpectedValueException("Unrecognized schema '$schema' for event '$event->hash'");
         }
         
         $class = $this->mapping[$schema];
         
         return $class::fromEvent($event);
-    }
-    
-    /**
-     * Store a resource (on an external system)
-     * 
-     * @param Resource $resource
-     */
-    public function store(Resource $resource)
-    {
-        $schema = $resource->schema;
-        
-        
     }
 }

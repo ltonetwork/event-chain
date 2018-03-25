@@ -13,24 +13,29 @@ class EventManager
     protected $chain;
     
     /**
-     * @var ResourceManager
+     * @var ResourceFactory
      */
-    protected $resourceManager;
+    protected $resourceFactory;
     
+    /**
+     * @var ResourceStorage
+     */
+    protected $resourceStorage;
     
     /**
      * Class constructor
      * 
      * @param EventChain $chain
      */
-    public function __construct(EventChain $chain, ResourceManager $resourceManager)
+    public function __construct(EventChain $chain, ResourceFactory $resourceFactory, ResourceStorage $resourceStorage)
     {
         if ($chain->isPartial()) {
             throw new UnexpectedValueException("Event chain doesn't contain the genesis event");
         }
         
         $this->chain = $chain;
-        $this->resourceManager = $resourceManager;
+        $this->resourceFactory = $resourceFactory;
+        $this->resourceStorage = $resourceStorage;
     }
     
     /**
@@ -97,7 +102,7 @@ class EventManager
             return $validation;
         }
         
-        $resource = $this->resourceManager->extractFrom($event);
+        $resource = $this->resourceFactory->extractFrom($event);
         $this->addResource($resource, $event);
         
         $this->chain->events->add($event);
@@ -123,7 +128,7 @@ class EventManager
         $resource->applyPrivilege($privilege);
         $resource->setIdentity($identities[0]);
         
-        $this->resourceManager->store($resource);
+        $this->resourceStorage->store($resource);
         $this->chain->registerResource($resource);
     }
 }

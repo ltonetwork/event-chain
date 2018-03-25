@@ -8,10 +8,12 @@ use Jasny\DB\Entity;
 trait ResourceBase
 {
     use Entity\Implementation,
-        Entity\Redactable\Implementation
+        Entity\Redactable\Implementation,
+        Entity\Meta\Implementation
     {
         Entity\Implementation::setValues as private setValuesRaw;
         Entity\Implementation::getValues as private getUnredactedValues;
+        Entity\Implementation::jsonSerializeFilter insteadof Entity\Meta\Implementation;
     }
     
     /**
@@ -20,6 +22,19 @@ trait ResourceBase
      * @var string
      */
     public $schema;
+    
+    /**
+     * The hash of the event
+     * @var string 
+     */
+    public $event;
+    
+    /**
+     * Date/time the (version of the) resource was created
+     * @var DateTime
+     */
+    public $timestamp;
+    
     
     /**
      * Set the values of the resource
@@ -38,7 +53,10 @@ trait ResourceBase
             unset($values['$schema']);
         }
         
-        return $this->setValuesRaw($values);
+        $this->setValuesRaw($values);
+        $this->cast();
+        
+        return $this;
     }
     
     /**
@@ -74,12 +92,12 @@ trait ResourceBase
     public function applyPrivilege(Privilege $privilege)
     {
         if (isset($privilege->only)) {
-            $only = array_merge(['schema', 'id', 'timestamp', 'identity'], $privilege->only);
+            $only = array_merge(['schema', 'id', 'event', 'timestamp', 'identity'], $privilege->only);
             $this->withOnly(...$only);
         }
         
         if (isset($privilege->not)) {
-            $not = array_diff($privilege->not, ['schema', 'id', 'timestamp', 'identity']);
+            $not = array_diff($privilege->not, ['schema', 'id', 'event', 'timestamp', 'identity']);
             $this->without(...$not);
         }
         
@@ -94,11 +112,13 @@ trait ResourceBase
      */
     public function setIdentity(Identity $identity)
     {
-        // Do nothing
+        if (property_exists(get_class($this), 'identity')) {
+            $this->identity = $identity;
+        }
         
         return $this;
     }
-    
+
     /**
      * Extract a resource from an event
      * 
@@ -107,8 +127,13 @@ trait ResourceBase
      */
     public static function fromEvent(Event $event)
     {
+        $data = $event->getBody();
+        
         $resource = new static();
-        $resource->setValues($event->getBody());
+        $resource->setValues([
+            'event' => $event->hash,
+            'timestamp' => $event->timestamp
+        ] + $data);
         
         return $resource;
     }

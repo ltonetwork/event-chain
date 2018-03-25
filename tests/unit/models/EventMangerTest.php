@@ -17,9 +17,10 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain = $this->createMock(EventChain::class);
         $chain->method('isPartial')->willReturn(true);
         
-        $resourceManager = $this->createMock(ResourceManager::class);
+        $resourceFactory = $this->createMock(ResourceFactory::class);
+        $resourceStorage = $this->createMock(ResourceStorage::class);
         
-        new EventManager($chain, $resourceManager);
+        new EventManager($chain, $resourceFactory, $resourceStorage);
     }
     
     /**
@@ -44,18 +45,23 @@ class EventManagerTest extends \Codeception\Test\Unit
      * Create a partial mock EventManager
      * 
      * @param EventChain      $chain
-     * @param ResourceManager $resourceManager
+     * @param ResourceFactory $resourceFactory
+     * @param ResourceStorage $resourceStorage
      * @param array|null      $methods
      * @return EventManager|MockObject
      */
-    protected function createEventManager(EventChain $chain, ResourceManager $resourceManager = null, $methods = null)
-    {
-        if (!isset($resourceManager)) {
-            $resourceManager = $this->createMock(ResourceManager::class);
-        }
-        
+    protected function createEventManager(
+        EventChain $chain,
+        $methods = null,
+        ResourceFactory $resourceFactory = null,
+        ResourceStorage $resourceStorage = null
+    ) {
         return $this->getMockBuilder(EventManager::class)
-            ->setConstructorArgs([$chain, $resourceManager])
+            ->setConstructorArgs([
+                $chain, 
+                $resourceFactory ?: $this->createMock(ResourceFactory::class),
+                $resourceStorage ?: $this->createMock(ResourceStorage::class)
+            ])
             ->setMethods($methods)
             ->getMock();
     }
@@ -75,7 +81,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn([]);
         
-        $manager = $this->createEventManager($chain, null, ['handleNewEvent']);
+        $manager = $this->createEventManager($chain, ['handleNewEvent']);
         $manager->expects($this->exactly(2))->method('handleNewEvent')
             ->withConsecutive([$this->identicalTo($events[0])], [$this->identicalTo($events[1])])
             ->willReturn(ValidationResult::success());
@@ -104,7 +110,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn($chainEvents);
         
-        $manager = $this->createEventManager($chain, null, ['handleNewEvent']);
+        $manager = $this->createEventManager($chain, ['handleNewEvent']);
         $manager->expects($this->once())->method('handleNewEvent')
             ->with($this->identicalTo($events[1]))
             ->willReturn(ValidationResult::success());
@@ -142,7 +148,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain = $this->createMock(EventChain::class);
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
 
-        $manager = $this->createEventManager($chain, null, ['handleNewEvent']);
+        $manager = $this->createEventManager($chain, ['handleNewEvent']);
         $manager->expects($this->never())->method('handleNewEvent');
         
         $validation = $manager->add($newEvents);
@@ -166,7 +172,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->expects($this->once())->method('getEventsAfter')
             ->willThrowException(new OutOfBoundsException("not found"));
         
-        $manager = $this->createEventManager($chain, null, ['handleNewEvent']);
+        $manager = $this->createEventManager($chain, ['handleNewEvent']);
         $manager->expects($this->never())->method('handleNewEvent');
         
         $validation = $manager->add($newEvents);
@@ -194,7 +200,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn($chainEvents);
         
-        $manager = $this->createEventManager($chain, null, ['handleNewEvent']);
+        $manager = $this->createEventManager($chain, ['handleNewEvent']);
         $manager->expects($this->never())->method('handleNewEvent');
         
         $validation = $manager->add($newEvents);
@@ -219,11 +225,11 @@ class EventManagerTest extends \Codeception\Test\Unit
 
         $resource = $this->createMock(Resource::class);
         
-        $resourceManager = $this->createMock(ResourceManager::class);
-        $resourceManager->expects($this->once())->method('extractFrom')
+        $resourceFactory = $this->createMock(ResourceFactory::class);
+        $resourceFactory->expects($this->once())->method('extractFrom')
             ->with($this->identicalTo($event))->willReturn($resource);
                 
-        $manager = $this->createEventManager($chain, $resourceManager, ['addResource']);
+        $manager = $this->createEventManager($chain, ['addResource'], $resourceFactory);
         $manager->expects($this->once())->method('addResource')->with($this->identicalTo($resource));
         
         $validation = $manager->handleNewEvent($event);
@@ -246,10 +252,10 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->method('getLatestHash')->willReturn("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U");
         $chain->events = $eventSet;
 
-        $resourceManager = $this->createMock(ResourceManager::class);
-        $resourceManager->expects($this->never())->method('extractFrom');
+        $resourceFactory = $this->createMock(ResourceFactory::class);
+        $resourceFactory->expects($this->never())->method('extractFrom');
                 
-        $manager = $this->createEventManager($chain, $resourceManager, ['addResource']);
+        $manager = $this->createEventManager($chain, ['addResource'], $resourceFactory);
         $manager->expects($this->never())->method('addResource');
         
         $validation = $manager->handleNewEvent($event);
@@ -270,11 +276,10 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->method('getLatestHash')->willReturn("J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS");
         $chain->events = $eventSet;
 
-        $resourceManager = $this->createMock(ResourceManager::class);
-        $resourceManager->expects($this->never())->method('extractFrom');
-        $resourceManager->expects($this->never())->method('store');
+        $resourceFactory = $this->createMock(ResourceFactory::class);
+        $resourceFactory->expects($this->never())->method('extractFrom');
                 
-        $manager = $this->createEventManager($chain, $resourceManager, ['addResource']);
+        $manager = $this->createEventManager($chain, ['addResource'], $resourceFactory);
         $manager->expects($this->never())->method('addResource');
         
         $validation = $manager->handleNewEvent($event);
@@ -309,10 +314,10 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->expects($this->once())->method('registerResource')->with($this->identicalTo($resource));
         $chain->identities = $identitySet;
         
-        $resourceManager = $this->createMock(ResourceManager::class);
-        $resourceManager->expects($this->once())->method('store')->with($this->identicalTo($resource));
+        $resourceStorage = $this->createMock(ResourceStorage::class);
+        $resourceStorage->expects($this->once())->method('store')->with($this->identicalTo($resource));
 
-        $manager = $this->createEventManager($chain, $resourceManager);
+        $manager = $this->createEventManager($chain, null, null, $resourceStorage);
         
         $manager->addResource($resource, $event);
     }
@@ -338,10 +343,10 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->expects($this->never())->method('registerResource');
         $chain->identities = $identitySet;
         
-        $resourceManager = $this->createMock(ResourceManager::class);
-        $resourceManager->expects($this->never())->method('store');
+        $resourceStorage = $this->createMock(ResourceStorage::class);
+        $resourceStorage->expects($this->never())->method('store');
 
-        $manager = $this->createEventManager($chain, $resourceManager);
+        $manager = $this->createEventManager($chain, null, null, $resourceStorage);
         
         $manager->addResource($resource, $event);
     }

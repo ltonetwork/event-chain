@@ -1,6 +1,7 @@
 <?php
 
 use Jasny\DB\EntitySet;
+use Jasny\DB\Entity\Identifiable;
 
 /**
  * Set of identities
@@ -33,7 +34,6 @@ class IdentitySet extends EntitySet
     public function filterOnSignkey($signkey)
     {
         $filteredSet = clone $this;
-        $filteredSet->flags = $filteredSet->flags & ~static::ALLOW_DUPLICATES;
         
         $filteredSet->entities = array_filter($filteredSet->entities, function($entity) use ($signkey) {
             return in_array($signkey, $entity->signkeys);
@@ -41,13 +41,31 @@ class IdentitySet extends EntitySet
     }
     
     /**
-     * Get all privileges for a resource and combine them.
+     * Get all privileges for a resource and consolidate them.
      * 
      * @param Resource $resource
      * @return Privilege
      */
     public function getPrivilege(Resource $resource)
     {
+        $schema = $resource->schema;
+        $id = $resource instanceof Identifiable ? $resource->getId() : null;
         
+        $privileges = [];
+        
+        foreach ($this->entities as $identity) {
+            if (!isset($identity->privileges)) {
+                $privileges = [ new Privilege() ];
+                break;
+            }
+            
+            foreach ($identity->privileges as $privilege) {
+                if ($privilege->match($schema, $id)) {
+                    $privileges[] = $privilege;
+                }
+            }
+        }
+        
+        return !empty($privileges) ? Privilege::create($schema, $id)->consolidate($privileges) : null;
     }
 }

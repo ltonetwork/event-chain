@@ -71,7 +71,7 @@ class ResourceBaseTest extends \Codeception\Test\Unit
             [ ['foo', 'number'], null ],
             [ null, ['color', 'animal'] ],
             [ ['foo', 'number', 'animal'], ['animal'] ],
-            [ null, ['schema', 'id', 'identity', 'timestamp', 'color', 'animal'] ]
+            [ null, ['schema', 'id', 'identity', 'event', 'timestamp', 'color', 'animal'] ]
         ];
     }
     
@@ -90,6 +90,7 @@ class ResourceBaseTest extends \Codeception\Test\Unit
             '$schema' => 'http://example.com/schema.json#',
             'id' => '123456',
             'identity' => $identity,
+            'event' => "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj",
             'timestamp' => $timestamp,
             'foo' => 'bar',
             'color' => 'red',
@@ -110,6 +111,7 @@ class ResourceBaseTest extends \Codeception\Test\Unit
             'schema' => 'http://example.com/schema.json#',
             'id' => '123456',
             'identity' => $identity,
+            'event' => "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj",
             'timestamp' => $timestamp,
             'foo' => 'bar',
             'number' => 10

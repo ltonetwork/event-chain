@@ -1,11 +1,13 @@
 <?php
 
 use Jasny\DB\Entity;
+use Jasny\DB\Entity\Redactable;
+use Jasny\DB\Entity\Meta;
 
 /**
  * Resource interface
  */
-interface Resource extends Entity, Entity\Redactable
+interface Resource extends Entity, Redactable, Meta
 {
     /**
      * Apply privilege, removing properties if needed.
