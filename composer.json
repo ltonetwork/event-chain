@@ -1,5 +1,5 @@
 {
-    "name": "legalthings/legalevents-poc",
+    "name": "legalthings/legalevents",
     "version": "0.1.0",
     "description": "Event chain service",
     "require": {

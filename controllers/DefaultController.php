@@ -16,7 +16,8 @@ class DefaultController extends Jasny\Controller
             'name' => App::name(),
             'version' => App::version(),
             'description' => App::description(),
-            'env' => App::env()
+            'env' => App::env(),
+            'url' => defined('BASE_URL') ? BASE_URL : null
         ];
 
         $this->output($info, 'json');

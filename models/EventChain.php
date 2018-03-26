@@ -7,6 +7,8 @@ use Jasny\DB\Entity\Identifiable;
  */
 class EventChain extends MongoDocument
 {
+    const ADDRESS_VERSION = 1;
+    
     /**
      * Unique identifier
      * @var string
@@ -111,7 +113,7 @@ class EventChain extends MongoDocument
         $vars = unpack('Cversion/H16random/H40keyhash/H8checksum', $decodedId);
         
         return
-            $vars['version'] === 1 &&
+            $vars['version'] === static::ADDRESS_VERSION &&
             $vars['keyhash'] === substr($signkeyHashed, 0, 40) &&
             $vars['checksum'] === substr(bin2hex($decodedId), -8);
     }

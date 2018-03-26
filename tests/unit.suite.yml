@@ -8,6 +8,7 @@ coverage:
     remote: false
     include:
         - models/*
+        - lib/NodeConfig.php
 modules:
     enabled:
         - Asserts
