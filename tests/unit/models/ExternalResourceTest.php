@@ -23,7 +23,7 @@ class ExternalResourceTest extends \Codeception\Test\Unit
     {
         return [
             ['lt:/foos/123'],
-            ['lt:/foos/123?v=GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn']
+            ['lt:/foos/123?v=GKot5hBs']
         ];
     }
     

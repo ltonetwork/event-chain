@@ -22,7 +22,7 @@ class ResourceStorage
      * @param array             $mapping     URI to URL mapping
      * @param GuzzleHttp\Client $httpClient
      */
-    public function __construct($mapping, GuzzleHttp\Client $httpClient)
+    public function __construct(array $mapping, GuzzleHttp\Client $httpClient)
     {
         $this->mapping = $mapping;
         $this->httpClient = $httpClient;
@@ -56,7 +56,7 @@ class ResourceStorage
             return;
         }
         
-        $url = $this->getURL($resource->id);
+        $url = $this->getURL($resource->getId());
         
         $this->httpClient->post($url, ['json' => $resource, 'http_errors' => true]);
     }
