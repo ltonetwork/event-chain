@@ -11,6 +11,7 @@ trait ResourceBase
         Entity\Redactable\Implementation,
         Entity\Meta\Implementation
     {
+        Entity\Meta\Implementation::cast as private metaCast;
         Entity\Implementation::setValues as private setValuesRaw;
         Entity\Implementation::getValues as private getUnredactedValues;
         Entity\Implementation::jsonSerializeFilter insteadof Entity\Meta\Implementation;
@@ -35,6 +36,17 @@ trait ResourceBase
      */
     public $timestamp;
     
+    
+    /**
+     * Cast properties
+     * @codeCoverageIgnore
+     * 
+     * @return $this
+     */
+    public function cast()
+    {
+        return $this->metaCast();
+    }
     
     /**
      * Set the values of the resource

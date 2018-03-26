@@ -119,16 +119,28 @@ class EventManager
     public function addResource(Resource $resource, Event $event)
     {
         $identities = $this->chain->identities->filterOnSignkey($event->signkey);
-        $privilege = $identities->getPrivilege($resource);
+        $privileges = $identities->getPrivileges($resource);
         
-        if ($privilege === null) {
+        if (empty($privileges)) {
             return; // Not allowed, so ignore
         }
         
-        $resource->applyPrivilege($privilege);
+        $resource->applyPrivilege($this->consolidatedPrivilege($resource, $privileges));
         $resource->setIdentity($identities[0]);
         
         $this->resourceStorage->store($resource);
         $this->chain->registerResource($resource);
+    }
+    
+    /**
+     * Create a consolidated privilege from an array of privileges
+     * 
+     * @param Resource    $resource
+     * @param Privilege[] $privileges
+     * @return Privilege
+     */
+    protected function consolidatedPrivilege(Resource $resource, array $privileges)
+    {
+        return Privilege::create($resource)->consolidate($privileges);
     }
 }

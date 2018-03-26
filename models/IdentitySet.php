@@ -35,18 +35,20 @@ class IdentitySet extends EntitySet
     {
         $filteredSet = clone $this;
         
-        $filteredSet->entities = array_filter($filteredSet->entities, function($entity) use ($signkey) {
+        $filteredSet->entities = array_values(array_filter($filteredSet->entities, function($entity) use ($signkey) {
             return in_array($signkey, $entity->signkeys);
-        });
+        }));
+        
+        return $filteredSet;
     }
     
     /**
-     * Get all privileges for a resource and consolidate them.
+     * Get all privileges for a resource.
      * 
      * @param Resource $resource
-     * @return Privilege
+     * @return Privilege[]
      */
-    public function getPrivilege(Resource $resource)
+    public function getPrivileges(Resource $resource)
     {
         $schema = $resource->schema;
         $id = $resource instanceof Identifiable ? $resource->getId() : null;
@@ -66,6 +68,6 @@ class IdentitySet extends EntitySet
             }
         }
         
-        return !empty($privileges) ? Privilege::create($schema, $id)->consolidate($privileges) : null;
+        return $privileges;
     }
 }

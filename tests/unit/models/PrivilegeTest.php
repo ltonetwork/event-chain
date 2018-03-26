@@ -184,4 +184,28 @@ class PrivilegeTest extends \Codeception\Test\Unit
         $this->assertAttributeEquals($only, 'only', $privilege);
         $this->assertAttributeEquals($not, 'not', $privilege);
     }
+    
+    
+    public function testCreateFromResource()
+    {
+        $resource = $this->createMock(Resource::class);
+        $resource->schema = "http://example.com/foo/schema.json#";
+        
+        $privilege = Privilege::create($resource);
+        
+        $this->assertAttributeEquals("http://example.com/foo/schema.json#", 'schema', $privilege);
+        $this->assertAttributeEquals(null, 'id', $privilege);
+    }
+    
+    public function testCreateFromIdentifiableResource()
+    {
+        $resource = $this->createMock(ExternalResource::class);
+        $resource->expects($this->once())->method('getId')->willReturn('lt:/foo/123');
+        $resource->schema = "http://example.com/foo/schema.json#";
+        
+        $privilege = Privilege::create($resource);
+        
+        $this->assertAttributeEquals("http://example.com/foo/schema.json#", 'schema', $privilege);
+        $this->assertAttributeEquals('lt:/foo/123', 'id', $privilege);
+    }
 }
