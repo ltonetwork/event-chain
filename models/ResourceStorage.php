@@ -19,7 +19,7 @@ class ResourceStorage
     /**
      * Class constructor
      * 
-     * @param array             $mapping  URI to URL mapping
+     * @param array             $mapping     URI to URL mapping
      * @param GuzzleHttp\Client $httpClient
      */
     public function __construct($mapping, GuzzleHttp\Client $httpClient)
@@ -31,7 +31,7 @@ class ResourceStorage
     /**
      * Get an URL from a URI
      * 
-     * @param type $uri
+     * @param string $uri
      * @return string
      */
     public function getURL($uri)

@@ -82,17 +82,4 @@ class ExternalResource implements Resource, Identifiable, Dynamic
         
         return $resource;
     }
-    
-    /**
-     * Set the identity that created this (version of the) resource
-     * 
-     * @param Identity $identity
-     * @return $this
-     */
-    public function setIdentity(Identity $identity)
-    {
-        $this->identity = $identity;
-        
-        return $this;
-    }
 }
