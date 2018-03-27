@@ -57,13 +57,11 @@ class AccountFactoryTest extends \Codeception\Test\Unit
      */
     public function testCreateAddressSign($expected, $network)
     {
-        $this->markTestSkipped("Sign key unknown");
-        
         $base58 = new \StephenHill\Base58();
 
         $factory = new AccountFactory($network, 0);
         
-        $publickey = $base58->decode("????");
+        $publickey = $base58->decode("BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp");
         $address = $factory->createAddress($publickey, "sign");
         
         $this->assertEquals($expected, $base58->encode($address));
@@ -135,10 +133,12 @@ class AccountFactoryTest extends \Codeception\Test\Unit
         
         $this->assertInstanceOf(Account::class, $account);
         
-        // TEST SIGN KEYS
+        $this->assertEquals("BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp", $base58->encode($account->sign->publickey));
+        $this->assertEquals("pLX2GgWzkjiiPp2SsowyyHZKrF4thkq1oDLD7tqBpYDwfMvRsPANMutwRvTVZHrw8VzsKjiN8EfdGA9M84smoEz",
+            $base58->encode($account->sign->secretkey));
         
-        $this->assertEquals("3kMEhU5z3v8bmer1ERFUUhW58Dtuhyo9hE5vrhjqAWYT", $base58->encode($account->encrypt->secretkey));
         $this->assertEquals("HBqhfdFASRQ5eBBpu2y6c6KKi1az6bMx8v1JxX4iW1Q8", $base58->encode($account->encrypt->publickey));
+        $this->assertEquals("3kMEhU5z3v8bmer1ERFUUhW58Dtuhyo9hE5vrhjqAWYT", $base58->encode($account->encrypt->secretkey));
         
         $this->assertEquals("3PPbMwqLtwBGcJrTA5whqJfY95GqnNnFMDX", $base58->encode($account->address));
     }

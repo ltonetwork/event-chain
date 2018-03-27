@@ -73,7 +73,7 @@ class AccountFactory
     }
     
     /**
-     * Create Curve25519 encrypt keypairs
+     * Create X25519 encrypt keypairs
      * 
      * @param string $seed
      * @return object
@@ -118,6 +118,9 @@ class AccountFactory
     {
         $seed = $this->createAccountSeed($seedText);
         
+        $base58 = new StephenHill\Base58();
+        $seed58 = $base58->encode($seed);
+        
         $account = new Account();
         
         $account->sign = $this->createSignKeys($seed);
@@ -131,7 +134,7 @@ class AccountFactory
     /**
      * Convert sign keys to encrypt keys.
      * 
-     * @param object $sign
+     * @param object|string $sign
      * @return object
      */
     public function convertSignToEncrypt($sign)
