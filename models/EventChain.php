@@ -1,6 +1,7 @@
 <?php
 
 use Jasny\DB\Entity\Identifiable;
+use LTO\Keccak;
 
 /**
  * EventChain entity
@@ -86,7 +87,7 @@ class EventChain extends MongoDocument
     }
     
     /**
-     * Check if this chain has the genisis event or is empty
+     * Check if this chain has the genisis event or is empty.
      * 
      * @return boolean
      */
@@ -94,6 +95,17 @@ class EventChain extends MongoDocument
     {
         return count($this->events) > 0 && $this->getFirstEvent()->previous !== $this->getInitialHash();
     }
+    
+    /**
+     * Check if the chain has events.
+     * 
+     * @return boolean
+     */
+    public function isEmpty()
+    {
+        return count($this->events) === 0;
+    }
+    
     
     /**
      * Check if id is valid

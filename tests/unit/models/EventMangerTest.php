@@ -47,9 +47,9 @@ class EventManagerTest extends \Codeception\Test\Unit
      * Create a partial mock EventManager
      * 
      * @param EventChain      $chain
+     * @param array|null      $methods
      * @param ResourceFactory $resourceFactory
      * @param ResourceStorage $resourceStorage
-     * @param array|null      $methods
      * @return EventManager|MockObject
      */
     protected function createEventManager(
@@ -79,6 +79,7 @@ class EventManagerTest extends \Codeception\Test\Unit
 
         $chain = $this->createMock(EventChain::class);
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
+        $chain->method('isEmpty')->willReturn(false);
         $chain->method('isPartial')->willReturn(false);
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn([]);
@@ -108,6 +109,7 @@ class EventManagerTest extends \Codeception\Test\Unit
 
         $chain = $this->createMock(EventChain::class);
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
+        $chain->method('isEmpty')->willReturn(false);
         $chain->method('isPartial')->willReturn(false);
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn($chainEvents);
@@ -170,6 +172,7 @@ class EventManagerTest extends \Codeception\Test\Unit
 
         $chain = $this->createMock(EventChain::class);
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
+        $chain->method('isEmpty')->willReturn(false);
         $chain->method('isPartial')->willReturn(false);
         $chain->expects($this->once())->method('getEventsAfter')
             ->willThrowException(new OutOfBoundsException("not found"));
@@ -198,6 +201,7 @@ class EventManagerTest extends \Codeception\Test\Unit
 
         $chain = $this->createMock(EventChain::class);
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
+        $chain->method('isEmpty')->willReturn(false);
         $chain->method('isPartial')->willReturn(false);
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn($chainEvents);
@@ -315,6 +319,7 @@ class EventManagerTest extends \Codeception\Test\Unit
             ->willReturn($filteredIdentities);
         
         $chain = $this->createMock(EventChain::class);
+        $chain->expects($this->once())->method('isEmpty')->willReturn(false);
         $chain->expects($this->once())->method('registerResource')->with($this->identicalTo($resource));
         $chain->identities = $identitySet;
         
@@ -324,6 +329,33 @@ class EventManagerTest extends \Codeception\Test\Unit
         $manager = $this->createEventManager($chain, ['consolidatedPrivilege'], null, $resourceStorage);
         $manager->expects($this->once())->method('consolidatedPrivilege')
             ->with($this->identicalTo($resource), $this->identicalTo($privileges))->willReturn($privilege);
+        
+        $manager->addResource($resource, $event);
+    }
+
+    public function testAddResourceInitialIdentity()
+    {
+        $event = $this->createMockEvents()[0];
+        $event->signkey = "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj";
+        
+        $resource = $this->createMock(Identity::class);
+        $resource->schema = "http://example.com/identity/schema.json#";
+        $resource->expects($this->never())->method('applyPrivilege');
+        $resource->expects($this->never())->method('setIdentity');
+        
+        $identitySet = $this->createMock(IdentitySet::class);
+        $identitySet->expects($this->never())->method('filterOnSignkey');
+        
+        $chain = $this->createMock(EventChain::class);
+        $chain->expects($this->once())->method('isEmpty')->willReturn(true);
+        $chain->expects($this->once())->method('registerResource')->with($this->identicalTo($resource));
+        $chain->identities = $identitySet;
+        
+        $resourceStorage = $this->createMock(ResourceStorage::class);
+        $resourceStorage->expects($this->once())->method('store')->with($this->identicalTo($resource));
+
+        $manager = $this->createEventManager($chain, ['consolidatedPrivilege'], null, $resourceStorage);
+        $manager->expects($this->never())->method('consolidatedPrivilege');
         
         $manager->addResource($resource, $event);
     }
@@ -347,6 +379,7 @@ class EventManagerTest extends \Codeception\Test\Unit
             ->willReturn($filteredIdentities);
         
         $chain = $this->createMock(EventChain::class);
+        $chain->expects($this->once())->method('isEmpty')->willReturn(false);
         $chain->expects($this->never())->method('registerResource');
         $chain->identities = $identitySet;
         

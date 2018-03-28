@@ -79,6 +79,8 @@ class EventManager
             if ($validation->failed()) {
                 break;
             }
+            
+            $this->chain->save();
         }
         
         return $validation;
@@ -110,6 +112,34 @@ class EventManager
         return $validation;
     }
     
+
+    /**
+     * Apply privilege to a resource.
+     * Returns false if identity has no privileges to resource.
+     * 
+     * @param Resource $resource
+     * @param Event $event
+     * @return boolean
+     */
+    protected function applyPrivilegeToResource(Resource $resource, Event $event)
+    {
+        if ($this->chain->isEmpty()) {
+            return true;
+        }
+        
+        $identities = $this->chain->identities->filterOnSignkey($event->signkey);
+        $privileges = $identities->getPrivileges($resource);
+
+        if (empty($privileges)) {
+            return false;
+        }
+
+        $resource->applyPrivilege($this->consolidatedPrivilege($resource, $privileges));
+        $resource->setIdentity($identities[0]);
+        
+        return true;
+    }
+
     /**
      * Add or update a resource
      * 
@@ -118,15 +148,9 @@ class EventManager
      */
     public function addResource(Resource $resource, Event $event)
     {
-        $identities = $this->chain->identities->filterOnSignkey($event->signkey);
-        $privileges = $identities->getPrivileges($resource);
-        
-        if (empty($privileges)) {
+        if (!$this->applyPrivilegeToResource($resource, $event)) {
             return; // Not allowed, so ignore
         }
-        
-        $resource->applyPrivilege($this->consolidatedPrivilege($resource, $privileges));
-        $resource->setIdentity($identities[0]);
         
         $this->resourceStorage->store($resource);
         $this->chain->registerResource($resource);

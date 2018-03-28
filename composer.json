@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "description": "Event chain service",
     "require": {
-        "php": ">=5.4.0",
+        "php": ">=5.6.0",
         "ext-json": "*",
         "ext-mongo": "*",
         "ext-libsodium": "1.*",
@@ -32,7 +32,8 @@
         "kriswallsmith/assetic": "^1.4",
         "hashids/hashids": "~2.0.0",
         "stephenhill/base58": "^1.1",
-        "guzzlehttp/guzzle": "^6.3"
+        "guzzlehttp/guzzle": "^6.3",
+        "legalthings/lto-api": "^0.1.1"
     },
     "require-dev" : {
         "jasny/php-code-quality" : "^2.0.0",

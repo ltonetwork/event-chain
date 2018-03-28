@@ -26,6 +26,7 @@ use Assetic\Factory\AssetFactory;
 use Assetic\Cache\FilesystemCache as AssetFilesystemCache;
 use Jasny\Assetic\AssetCacheWorker;
 use Jasny\Assetic\PersistentAssetWriter;
+use GuzzleHttp\ClientInterface;
 
 /**
  * The Application container.
@@ -52,8 +53,7 @@ class AppContainer extends Picotainer
             $this->getErrorHandlerEntry() +
             $this->getAsseticEntry() +
             $this->getViewEntry() +
-            $this->getEmailFactoryEntry() +
-            $this->getSocialEntry();
+            $this->getEmailFactoryEntry();
             
         parent::__construct($entries, $delegateLookupContainer);
     }
@@ -275,34 +275,15 @@ class AppContainer extends Picotainer
             }
         ];
     }
-
-
-    /**
-     * Get social network connection entries
-     *
-     * @return callback[]
-     */
-    protected function getSocialEntry()
+    
+    protected function getHttpClient()
     {
         return [
-            'social:facebook' => function (ContainerInterface $container) {
-                $config = $container->get('config')->facebook;
-                if (!$config) {
-                    throw new \RuntimeException("Facebook is not enabled");
-                }
-                
-                $conn = new Social\Facebook\Connection($config->clientId, $config->clientSecret, $_SESSION);
-                $conn->apiVersion = 'v2.9';
-
-                return $conn;
+            GuzzleHttp\ClientInterface::class => function() {
+                return $client = new GuzzleHttp\Client(['timeout' => 2]);
             },
-            'social:google' => function (ContainerInterface $container) {
-                $config = $container->get('config')->google;
-                if (!$config) {
-                    throw new \RuntimeException("Google is not enabled");
-                }
-                
-                return new Social\Google\Connection(null, $config->clientId, $config->clientSecret, $_SESSION);
+            'httpClient' => function (ContainerInterface $container) {
+                return $container->get(GuzzleHttp\ClientInterface::class); // Alias
             }
         ];
     }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "67a51c2db9235e02e99580e4ad541980",
+    "content-hash": "2c00ce4e7fb7e445f6795288f4769a6a",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -1420,6 +1420,49 @@
             "time": "2016-11-11T18:43:20+00:00"
         },
         {
+            "name": "legalthings/lto-api",
+            "version": "v0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/legalthings/lto-api.php.git",
+                "reference": "c8583543904ceb8bf4e05e1c28ece23ca0131d7f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/legalthings/lto-api.php/zipball/c8583543904ceb8bf4e05e1c28ece23ca0131d7f",
+                "reference": "c8583543904ceb8bf4e05e1c28ece23ca0131d7f",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-libsodium": "1.*",
+                "paragonie/random_compat": "^2.0",
+                "php": "~5.6",
+                "stephenhill/base58": "^1.1"
+            },
+            "require-dev": {
+                "jasny/php-code-quality": "^2.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "LTO\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "LegalThings",
+                    "email": "info@legalthings.io"
+                }
+            ],
+            "description": "LegalThings One client",
+            "time": "2018-03-28T14:14:39+00:00"
+        },
+        {
             "name": "monolog/monolog",
             "version": "1.23.0",
             "source": {
@@ -1641,6 +1684,54 @@
                 "psr-messages"
             ],
             "time": "2017-09-28T21:21:24+00:00"
+        },
+        {
+            "name": "paragonie/random_compat",
+            "version": "v2.0.11",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/paragonie/random_compat.git",
+                "reference": "5da4d3c796c275c55f057af5a643ae297d96b4d8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/5da4d3c796c275c55f057af5a643ae297d96b4d8",
+                "reference": "5da4d3c796c275c55f057af5a643ae297d96b4d8",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.*|5.*"
+            },
+            "suggest": {
+                "ext-libsodium": "Provides a modern crypto API that can be used to generate random bytes."
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "lib/random.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Paragon Initiative Enterprises",
+                    "email": "security@paragonie.com",
+                    "homepage": "https://paragonie.com"
+                }
+            ],
+            "description": "PHP 5.x polyfill for random_bytes() and random_int() from PHP 7",
+            "keywords": [
+                "csprng",
+                "pseudorandom",
+                "random"
+            ],
+            "time": "2017-09-27T21:40:39+00:00"
         },
         {
             "name": "phpmailer/phpmailer",

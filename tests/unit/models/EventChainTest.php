@@ -1,6 +1,7 @@
 <?php
 
 use Jasny\DB\EntitySet;
+use LTO\Keccak;
 
 /**
  * @covers EventChain
@@ -116,6 +117,21 @@ class EventChainTest extends \Codeception\Test\Unit
         $chain->getLastEvent();
     }
 
+    public function testIsEmptyTrue()
+    {
+        $chain = new EventChain();
+        
+        $this->assertTrue($chain->isEmpty());
+    }
+
+    public function testIsEmptyFalse()
+    {
+        $chain = new EventChain();
+        $chain->events[] = $this->createMock(Event::class);
+        
+        $this->assertFalse($chain->isEmpty());
+    }
+    
     public function testIsPartialFalse()
     {
         $event = $this->createMock(Event::class);
