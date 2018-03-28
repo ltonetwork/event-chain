@@ -105,7 +105,16 @@ class EventManager
         }
         
         $resource = $this->resourceFactory->extractFrom($event);
-        $this->addResource($resource, $event);
+        
+        $auth = $this->applyPrivilegeToResource($resource, $event);
+        $validation->add($auth);
+        
+        if ($validation->failed()) {
+            return $validation;
+        }
+        
+        $this->resourceStorage->store($resource);
+        $this->chain->registerResource($resource);
         
         $this->chain->events->add($event);
         
@@ -118,42 +127,28 @@ class EventManager
      * Returns false if identity has no privileges to resource.
      * 
      * @param Resource $resource
-     * @param Event $event
+     * @param Event    $event
      * @return boolean
      */
-    protected function applyPrivilegeToResource(Resource $resource, Event $event)
+    public function applyPrivilegeToResource(Resource $resource, Event $event)
     {
         if ($this->chain->isEmpty()) {
-            return true;
+            return $resource instanceof Identity ?
+                ValidationResult::success() :
+                ValidationResult::error("initial resource must be an identity");
         }
         
         $identities = $this->chain->identities->filterOnSignkey($event->signkey);
         $privileges = $identities->getPrivileges($resource);
 
         if (empty($privileges)) {
-            return false;
+            return ValidationResult::error("no privileges for event");
         }
 
         $resource->applyPrivilege($this->consolidatedPrivilege($resource, $privileges));
         $resource->setIdentity($identities[0]);
         
-        return true;
-    }
-
-    /**
-     * Add or update a resource
-     * 
-     * @param Resource $resource
-     * @param Event    $event
-     */
-    public function addResource(Resource $resource, Event $event)
-    {
-        if (!$this->applyPrivilegeToResource($resource, $event)) {
-            return; // Not allowed, so ignore
-        }
-        
-        $this->resourceStorage->store($resource);
-        $this->chain->registerResource($resource);
+        return ValidationResult::success();
     }
     
     /**
