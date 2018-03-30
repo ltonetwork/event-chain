@@ -6,11 +6,11 @@ display_errors: false
 db:
   default:
     client: mongodb://localhost:27017
-    database: project
+    database: legalevent
 
 rollbar: false
 
 email:
-  From: test@example.com
-  FromName: Test
+  From: info@legalthings.io
+  FromName: LegalThings
   Mailer: mail

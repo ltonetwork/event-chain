@@ -9,4 +9,3 @@ $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson(['name' => 'legalthings/legalevents']);
 $I->seeResponseContainsJson(['env' => 'tests']);
-$I->seeResponseContainsJson(['url' => 'http://localhost']);

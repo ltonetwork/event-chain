@@ -1,14 +1,13 @@
 db:
   default:
     client: mongodb://localhost:27017
-    database: project_tests
+    database: legalevent_tests
 
 email:
-  From: test@example.com
-  FromName: Test
+  From: legalthings@example.com
+  FromName: LegalThings
   keep: true
   Mailer: mock
 
-secret:
-  signup: signupSecret
-  session: sessionSecret
+endpoints:
+  "http://specs.livecontracts.io/draft-01/12-response/schema.json#": "http://legalflow.localhost/responses/"

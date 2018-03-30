@@ -12,4 +12,4 @@ bower_components
 /bin
 /c3.php
 /config/settings.local.yml
-/config/settings.*.local.yml
+/config/settings.*.local.ymlconfig/node.yml

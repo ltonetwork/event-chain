@@ -26,7 +26,8 @@ use Assetic\Factory\AssetFactory;
 use Assetic\Cache\FilesystemCache as AssetFilesystemCache;
 use Jasny\Assetic\AssetCacheWorker;
 use Jasny\Assetic\PersistentAssetWriter;
-use GuzzleHttp\ClientInterface;
+use LTO\AccountFactory;
+use LTO\Account;
 
 /**
  * The Application container.
@@ -52,7 +53,10 @@ class AppContainer extends Picotainer
             $this->getErrorHandlerEntry() +
             $this->getAsseticEntry() +
             $this->getViewEntry() +
-            $this->getEmailFactoryEntry();
+            $this->getEmailFactoryEntry() +
+            $this->getHttpClientEntry() +
+            $this->getAccountFactoryEntry() +
+            $this->getNodeEntry();
             
         parent::__construct($entries, $delegateLookupContainer);
     }
@@ -263,7 +267,12 @@ class AppContainer extends Picotainer
         ];
     }
     
-    protected function getHttpClient()
+    /**
+     * Get the Guzzle HTTP client entry
+     * 
+     * @return callback[]
+     */
+    protected function getHttpClientEntry()
     {
         return [
             GuzzleHttp\ClientInterface::class => function() {
@@ -271,6 +280,39 @@ class AppContainer extends Picotainer
             },
             'httpClient' => function (ContainerInterface $container) {
                 return $container->get(GuzzleHttp\ClientInterface::class); // Alias
+            }
+        ];
+    }
+    
+    /**
+     * Get account factory entry
+     * 
+     * @return callback[]
+     */
+    protected function getAccountFactoryEntry()
+    {
+        return [
+            AccountFactory::class => function(ContainerInterface $container) {
+                $config = $container->get('config');
+                
+                return new AccountFactory(isset($config->network) ? $config->network : 'T');
+            }
+        ];
+    }
+    
+    /**
+     * Get node account entry
+     * 
+     * @return callback[]
+     */
+    protected function getNodeEntry()
+    {
+        return [
+            'node' => function(ContainerInterface $container) {
+                $factory = $container->get(AccountFactory::class);
+                $data = Jasny\arrayify(new Jasny\Config('config/node.yml'));
+                
+                return $factory->create($data);
             }
         ];
     }
