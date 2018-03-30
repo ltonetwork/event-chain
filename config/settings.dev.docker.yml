@@ -1,0 +1,16 @@
+log: browser
+debug: true
+cache: false
+display_errors: false
+
+db:
+  default:
+    client: mongodb://mongo:27017
+    database: project
+
+rollbar: false
+
+email:
+  From: test@example.com
+  FromName: Test
+  Mailer: mail
