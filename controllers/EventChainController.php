@@ -1,8 +1,6 @@
 <?php
 
-use LTO\AccountFactory;
-use LTO\HTTPSignature;
-use LTO\HTTPSignatureException;
+use LTO\Account;
 
 /**
  * Event chain controller
@@ -10,11 +8,6 @@ use LTO\HTTPSignatureException;
 class EventChainController extends Jasny\Controller
 {
     use Jasny\Controller\RouteAction;
-    
-    /**
-     * @var AccountFactory
-     */
-    protected $accountFactory;
     
     /**
      * @var ResourceFactory 
@@ -39,8 +32,6 @@ class EventChainController extends Jasny\Controller
     {
         $this->resourceFactory = new ResourceFactory();
         $this->resourceStorage = new ResourceStorage(Jasny\arrayify(App::config()->endpoints), App::httpClient());
-        
-        $this->accountFactory = App::getContainer()->get(AccountFactory::class);
     }
 
     /**
@@ -48,24 +39,11 @@ class EventChainController extends Jasny\Controller
      */
     public function before()
     {
-        $requiredHeaders = /*$this->isPostRequest()
-            ? ['(request-target)', 'date', 'content-type', 'content-length', 'digest']
-            :*/ ['(request-target)', 'date'];
-
-        $httpSignature = new HTTPSignature($this->getRequest(), $requiredHeaders);
-
-        try {
-            $httpSignature->useAccountFactory($this->accountFactory)->verify();
-            $this->account = $httpSignature->getAccount();
-        } catch (HTTPSignatureException $e) {
-            $this->setResponseHeader(
-                "WWW-Authenticate",
-                sprintf('Signature algorithm="ed25519-sha256",headers="%s"', join(' ', $requiredHeaders))
-            );
-            
-            $this->output($e->getMessage(), 'text/plain');
+        $this->account = $this->getRequest()->getAttribute('account');
+        
+        if (!isset($this->account)) {
             $this->requireAuth();
-            
+            $this->output('http request not signed', 'text/plain');
             $this->cancel();
         }
     }
@@ -75,7 +53,7 @@ class EventChainController extends Jasny\Controller
      */
     public function listAction()
     {
-        $events = EventChain::fetchAll(['identity' => $this->account]);
+        $events = EventChain::fetchAll(['identity' => $this->account->getPublicSignKey()]);
         
         $this->output($events, 'json');
     }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f39e773277b0243de7fcdda4d195b268",
+    "content-hash": "0e51e5f31603eeaf74762045a4b8957d",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -4597,18 +4597,10 @@
             "time": "2018-01-29T19:49:41+00:00"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "9999999-dev",
-            "package": "jasny/auth"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "jasny/mvc": 10,
-        "jasny/auth": 20,
         "jasny/codeception-module": 20
     },
     "prefer-stable": false,

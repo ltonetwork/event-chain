@@ -7,6 +7,14 @@ namespace Helper;
 class Api extends \Codeception\Module
 {
     /**
+     * @return \Codeception\Module
+     */
+    public function getJasnyModule()
+    {
+        return $this->getModule('\Jasny\Codeception\Module');
+    }
+    
+    /**
      * Adds Signature authentication via ED25519 secret key.
      *
      * @param string $secretkey
@@ -15,12 +23,25 @@ class Api extends \Codeception\Module
      */
     public function amSignatureAuthenticated($secretkey)
     {
-        $module = $this->getModule(Jasny\Codeception\Module::class);
+        $module = $this->getJasnyModule();
         
-        $account = $module->get(\LTO\AccountFactory::class)->create($secretkey);
-        $module->get('auth')->account = $account;
+        $accountFactory = $module->container->get(\LTO\AccountFactory::class);
+        $account = $accountFactory->create($secretkey, 'base64');
+        
+        $module->client->setBaseRequest($module->client->getBaseRequest()->withAttribute('account', $account));
     }
     
+    /**
+     * Removes Signature authentication.
+     *
+     * @part json
+     * @part xml
+     */
+    public function amNotSignatureAuthenticated()
+    {
+        $module = $this->getJasnyModule();
+        $module->client->setBaseRequest($module->client->getBaseRequest()->withAttribute('account', null));
+    }
     
     /**
      * Set responses for Guzzle mock
@@ -30,9 +51,9 @@ class Api extends \Codeception\Module
      */
     public function responseToHttpRequestWith(...$responses)
     {
-        $module = $this->getModule(Jasny\Codeception\Module::class);
+        $module = $this->getJasnyModule();
         
-        $mock = $module->container->get(GuzzleHttp\Handler\MockHandler::class);
+        $mock = $module->container->get(\GuzzleHttp\Handler\MockHandler::class);
         $mock->append(...$responses);
     }
 
@@ -44,8 +65,8 @@ class Api extends \Codeception\Module
      */
     public function seeNumHttpRequestWare($count)
     {
-        $module = $this->getModule(Jasny\Codeception\Module::class);
-        $history = $module->get('httpHistory');
+        $module = $this->getJasnyModule();
+        $history = $module->container->get('httpHistory');
         
         $this->assertEquals($count, count($history));
     }
@@ -58,8 +79,8 @@ class Api extends \Codeception\Module
      */
     public function grabHttpRequest($i = -1)
     {
-        $module = $this->getModule(Jasny\Codeception\Module::class);
-        $history = $module->get('httpHistory');
+        $module = $this->getJasnyModule();
+        $history = $module->container->get('httpHistory');
         
         if ($i < 0) {
             $i = count($history) + $i;

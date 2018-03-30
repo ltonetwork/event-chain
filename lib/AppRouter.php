@@ -2,7 +2,7 @@
 
 use Psr\Container\ContainerInterface;
 use Jasny\Router;
-use Jasny\ErrorHandlerInterface;
+use LTO\AccountFactory;
 
 /**
  * Application router.
@@ -20,30 +20,21 @@ class AppRouter extends Router
     public function withMiddleware(ContainerInterface $container)
     {
         return $this
+            ->withHTTPSignatureMiddleware($container)
             ->withDetermineRouteMiddleware();
     }
-    
+
     /**
-     * Add middleware to show a nice error page instead of a blank screen
-     * 
+     * @param ContainerInterface $container
      * @return $this
      */
-    protected function withErrorHandlerMiddleware(ContainerInterface $container)
+    protected function withHTTPSignatureMiddleware(ContainerInterface $container)
     {
-        $errorHandler = $container->get(ErrorHandlerInterface::class);
+        $accountFactory = $container->get(AccountFactory::class);
         
-        return $this->add($errorHandler->asMiddleware());
+        return $this->add(new HTTPSignatureMiddleware($accountFactory));
     }
-    
-    /**
-     * Add middleware to show a nice error page instead of a blank screen
-     * 
-     * @return $this
-     */
-    protected function withErrorPageMiddleware(ContainerInterface $container)
-    {
-        return App::env('tests') ? $this : $this->add(new Router\Middleware\ErrorPage($this));
-    }
+
 
     /**
      * Determine the routes at forehand
