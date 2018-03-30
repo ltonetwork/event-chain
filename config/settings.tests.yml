@@ -10,4 +10,4 @@ email:
   Mailer: mock
 
 endpoints:
-  "http://specs.livecontracts.io/draft-01/12-response/schema.json#": "http://legalflow.localhost/responses/"
+  "ltri:/processes/": "http://legalflow.localhost/responses/"

@@ -2,5 +2,5 @@
 ---
 /:                     { controller: default, action: info }
 
-/event-chains:         { controller: event-chain, action: list }
-/event-chains/post:    { controller: event-chain, action: add }
+/event-chains +GET:    { controller: event-chain, action: list }
+/event-chains +POST:   { controller: event-chain, action: add }

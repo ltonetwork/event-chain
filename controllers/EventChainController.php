@@ -48,9 +48,9 @@ class EventChainController extends Jasny\Controller
      */
     public function before()
     {
-        $requiredHeaders = $this->isPostRequest()
+        $requiredHeaders = /*$this->isPostRequest()
             ? ['(request-target)', 'date', 'content-type', 'content-length', 'digest']
-            : ['(request-target)', 'date'];
+            :*/ ['(request-target)', 'date'];
 
         $httpSignature = new HTTPSignature($this->getRequest(), $requiredHeaders);
 

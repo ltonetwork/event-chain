@@ -24,9 +24,6 @@ $overwrite = [
     AssetWriter::class => function() {
         return Stub::make(AssetWriter::class, ['writeManagerAssets' => function () {}]);
     },
-    'auth' => function() {
-        return (object)['account' => null];
-    },
     'httpHistory' => function() use (&$httpTriggerHistory) {
         return $httpTriggerHistory;
     },
