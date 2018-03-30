@@ -13,7 +13,6 @@
         "jasny/php-functions" : "^3.0",
         "jasny/twig-extensions": "1.*",
         "jasny/validation-result" : "^1.0.0",
-        "jasny/auth": "dev-master as 0.1",
         "jasny/view": "^1.1.0",
         "jasny/error-handler": "^0.2.0",
         "jasny/social": "^0.4.3",
