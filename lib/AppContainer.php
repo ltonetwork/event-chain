@@ -47,7 +47,6 @@ class AppContainer extends Picotainer
         $entries +=
             $this->getConfigEntry() +
             $this->getPSR7Entries() +
-            $this->getAuthEntry() +
             $this->getRouterEntry() +
             $this->getLoggerEntry() +
             $this->getErrorHandlerEntry() +
@@ -85,18 +84,6 @@ class AppContainer extends Picotainer
             },
             ResponseInterface::class => function () {
                 return new Response();
-            }
-        ];
-    }
-    
-    protected function getAuthEntry()
-    {
-        return [
-            Jasny\Auth::class => function () {
-                return new Auth();
-            },
-            'auth' => function (ContainerInterface $container) {
-                return $container->get(Jasny\Auth::class); // Alias
             }
         ];
     }
