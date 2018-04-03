@@ -26,7 +26,7 @@ class Event extends MongoSubDocument implements Identifiable
     /**
      * Time when the event was signed.
      * 
-     * @var DateTime
+     * @var int
      * @required
      */
     public $timestamp;
@@ -109,7 +109,7 @@ class Event extends MongoSubDocument implements Identifiable
     {
         $message = join("\n", [
             $this->body,
-            $this->timestamp ? $this->timestamp->format('c') : '',
+            $this->timestamp,
             $this->previous,
             $this->signkey
         ]);

@@ -29,6 +29,12 @@ class EventChain extends MongoDocument
     public $identities = [];
 
     /**
+     * Projected comments
+     * @var Comment[]|Jasny\DB\EntitySet
+     */
+    public $comments = [];
+    
+    /**
      * Resources that are part of this chain
      * @var array
      */

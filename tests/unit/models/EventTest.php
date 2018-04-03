@@ -34,20 +34,36 @@ class EventTest extends \Codeception\Test\Unit
         $this->assertSame($ret, $event);
         $this->assertSame($receipt, $event->receipt);
     }
-    
-    /**
-     * Test getting a hash
-     */
-    public function testGetHash()
+
+    public function testGetMessage()
     {
         $event = Event::create()->setValues([
             "body" => 'A54BREAPQiWqZo3k9RQJ1U4yZBjyDj37aciJMiAJfNACHVoZVDYi3Q2qhqE',
-            "timestamp" => new DateTime("2018-01-01T00:00:00+00:00"),
+            "timestamp" => (new DateTime("2018-01-01T00:00:00+00:00"))->getTimestamp(),
             "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
             "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj"
         ]);
         
-        $this->assertEquals('ArxW6PhABV2JUd7VeqfWGjVJ4hyXEhCztKRP1gJKLchH', $event->getHash());
+        $expected = join("\n", [
+            "A54BREAPQiWqZo3k9RQJ1U4yZBjyDj37aciJMiAJfNACHVoZVDYi3Q2qhqE",
+            "1514764800",
+            "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
+            "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj"
+        ]);
+        
+        $this->assertEquals($expected, $event->getMessage());
+    }
+   
+    public function testGetHash()
+    {
+        $event = Event::create()->setValues([
+            "body" => 'A54BREAPQiWqZo3k9RQJ1U4yZBjyDj37aciJMiAJfNACHVoZVDYi3Q2qhqE',
+            "timestamp" => (new DateTime("2018-01-01T00:00:00+00:00"))->getTimestamp(),
+            "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
+            "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj"
+        ]);
+        
+        $this->assertEquals('H8qGksJvpAS77cjoTDfmabuob4KHtQCQeqS5s915WQmd', $event->getHash());
     }
     
     public function testGetBody()
@@ -73,10 +89,10 @@ class EventTest extends \Codeception\Test\Unit
     {
         $event = Event::create()->setValues([
             "body" => 'A54BREAPQiWqZo3k9RQJ1U4yZBjyDj37aciJMiAJfNACHVoZVDYi3Q2qhqE',
-            "timestamp" => new DateTime("2018-01-01T00:00:00+00:00"),
+            "timestamp" => (new DateTime("2018-01-01T00:00:00+00:00"))->getTimestamp(),
             "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
             "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
-            "signature" => "3S72dRFjpdnbrdBneRpBxzGb99eEE6X3wCnKC4GiN2MwE1i3Xx1zVtzFeeUVwq3qMTECn8HzEJPJZCgU2iEE7227"
+            "signature" => "3pkDcJ9gvT5iXy5F9DkVgv79nPrq8r24EK7ih1ibKszyohn6sgBJx8E5mpCXkm9HyUJjhV1dspUW6mrpuMj5CQjK"
         ]);
         
         $this->assertTrue($event->verifySignature());
@@ -114,7 +130,7 @@ class EventTest extends \Codeception\Test\Unit
     {
         $event = Event::create()->setValues([
             "body" => 'A54BREAPQiWqZo3k9RQJ1U4yZBjyDj37aciJMiAJfNACHVoZVDYi3Q2qhqE',
-            "timestamp" => new DateTime("2017-11-09T00:00:00+00:00"), // Back dated
+            "timestamp" => (new DateTime("2017-11-09T00:00:00+00:00"))->getTimestamp(), // Back dated
             "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
             "signkey" => $signkey,
             "signature" => $signature
@@ -127,21 +143,21 @@ class EventTest extends \Codeception\Test\Unit
     {
         $receipt = $this->createMock(Receipt::class);
         $receipt->expects($this->once())->method('validate')->willReturn(\Jasny\ValidationResult::success());
-        $receipt->targetHash = "9Xxs7AZbogzxWkitjpZ7KFuJRjkrDY8dML2AwyWS1sFg";
+        $receipt->targetHash = "H3gbBd2sUczYCEqPK6LUPvVLqKqHdRNFEaaqAQe83mRQ";
         
         $event = $this->createPartialMock(Event::class, ['verifySignature']);
         $event->expects($this->once())->method('verifySignature')->willReturn(true);
         
         $event->setValues([
             "body" => 'pvabUdSJtsf1ftYbgmNjUrMbnScRk2fJhGR3jk9t8td9xPJJzLqNFm8pr6ZpA7UQv1CVSHjKuarH8cNCDc524gh1WU',
-            "timestamp" => new DateTime("2018-01-01T00:00:00+00:00"),
+            "timestamp" => (new DateTime("2018-01-01T00:00:00+00:00"))->getTimestamp(),
             "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
             "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
-            "hash" => "9Xxs7AZbogzxWkitjpZ7KFuJRjkrDY8dML2AwyWS1sFg",
+            "hash" => "H3gbBd2sUczYCEqPK6LUPvVLqKqHdRNFEaaqAQe83mRQ",
             "signature" => "_stub_",
             "receipt" => $receipt
         ]);
-        
+ 
         $validation = $event->validate();
         
         $this->assertEquals([], $validation->getErrors());
@@ -159,7 +175,7 @@ class EventTest extends \Codeception\Test\Unit
         
         $event->setValues([
             "body" => "abc",
-            "timestamp" => new DateTime("2018-01-01T00:00:00+00:00"),
+            "timestamp" => (new DateTime("2018-01-01T00:00:00+00:00"))->getTimestamp(),
             "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
             "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
             "hash" => "EdqM52SpXCn5c1uozuvuH5o9Tcr41kYeCWz4Ymu6ngbt",
@@ -192,10 +208,10 @@ class EventTest extends \Codeception\Test\Unit
         
         $event->setValues([
             "body" => 'A54BREAPQiWqZo3k9RQJ1U4yZBjyDj37aciJMiAJfNACHVoZVDYi3Q2qhqE',
-            "timestamp" => new DateTime("2018-01-01T00:00:00+00:00"),
+            "timestamp" => (new DateTime("2018-01-01T00:00:00+00:00"))->getTimestamp(),
             "previous" => "72gRWx4C1Egqz9xvUBCYVdgh7uLc5kmGbjXFhiknNCTW",
             "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
-            "hash" => "ArxW6PhABV2JUd7VeqfWGjVJ4hyXEhCztKRP1gJKLchH",
+            "hash" => "H8qGksJvpAS77cjoTDfmabuob4KHtQCQeqS5s915WQmd",
             "signature" => "_stub_",
         ]);
         
