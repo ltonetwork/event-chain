@@ -39,6 +39,7 @@ class EventChainController extends Jasny\Controller
      */
     public function before()
     {
+        $this->byDefaultSerializeTo('json');
         $this->account = $this->getRequest()->getAttribute('account');
         
         if (!isset($this->account)) {
@@ -78,7 +79,7 @@ class EventChainController extends Jasny\Controller
         $handled = $manager->add($newChain);
         
         if ($handled->failed()) {
-            return $this->badRequest($validation->getErrors());
+            return $this->badRequest($handled->getErrors());
         }
         
         $this->output($chain);

@@ -8,9 +8,3 @@ $I->amSignatureAuthenticated("PIw+8VW129YY/6tRfThI3ZA0VygH4cYWxIayUZbdA3I9CKUdmq
 $I->sendGET('/event-chains');
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
-
-$I->seeResponseContainsJson([
-    [
-        'id' => 'abc'
-    ]
-]);

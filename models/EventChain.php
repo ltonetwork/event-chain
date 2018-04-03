@@ -8,7 +8,7 @@ use LTO\Keccak;
  */
 class EventChain extends MongoDocument
 {
-    const ADDRESS_VERSION = 1;
+    const ADDRESS_VERSION = 40;
     
     /**
      * Unique identifier
@@ -36,13 +36,17 @@ class EventChain extends MongoDocument
     
     
     /**
-     * Get the initial hash which is based on the event chain id
+     * Get the initial hash which is based on the event chain id.
+     * 
+     * @return string
      */
     public function getInitialHash()
     {
         $base58 = new StephenHill\Base58();
         
-        return $base58->encode(hash('sha256', $this->id, true));
+        $rawId = $base58->decode($this->id);
+        
+        return $base58->encode(hash('sha256', $rawId, true));
     }
     
     /**
@@ -150,6 +154,11 @@ class EventChain extends MongoDocument
         return $validation;
     }
     
+    /**
+     * Validate chain integrity
+     * 
+     * @return \Jasny\ValidationResult
+     */
     protected function validateIntegrity()
     {
         $validation = new Jasny\ValidationResult();

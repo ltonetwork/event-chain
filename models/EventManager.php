@@ -109,6 +109,8 @@ class EventManager
         $auth = $this->applyPrivilegeToResource($resource, $event);
         $validation->add($auth);
         
+        $validation->add($resource->validate());
+        
         if ($validation->failed()) {
             return $validation;
         }

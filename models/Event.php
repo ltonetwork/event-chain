@@ -105,7 +105,7 @@ class Event extends MongoSubDocument implements Identifiable
      * 
      * @return string
      */
-    protected function getMessage()
+    public function getMessage()
     {
         $message = join("\n", [
             $this->body,

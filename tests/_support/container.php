@@ -30,7 +30,7 @@ $overwrite = [
     GuzzleHttp\Handler\MockHandler::class => function() {
         return new GuzzleHttp\Handler\MockHandler();
     },
-    GuzzleHttp\Client::class => function(ContainerInterface $container) use (&$httpTriggerHistory) {
+    GuzzleHttp\ClientInterface::class => function(ContainerInterface $container) use (&$httpTriggerHistory) {
         $mock = $container->get(GuzzleHttp\Handler\MockHandler::class);
         
         $handler = GuzzleHttp\HandlerStack::create($mock);

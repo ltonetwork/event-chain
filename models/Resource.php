@@ -3,11 +3,12 @@
 use Jasny\DB\Entity;
 use Jasny\DB\Entity\Redactable;
 use Jasny\DB\Entity\Meta;
+use Jasny\DB\Entity\Validation;
 
 /**
  * Resource interface
  */
-interface Resource extends Entity, Redactable, Meta
+interface Resource extends Entity, Redactable, Meta, Validation
 {
     /**
      * Apply privilege, removing properties if needed.

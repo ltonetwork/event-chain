@@ -10,4 +10,5 @@ email:
   Mailer: mock
 
 endpoints:
-  "ltri:/processes/": "http://legalflow.localhost/responses/"
+  "lt:/scenarios/": "http://legalflow/scenarios/"
+  "lt:/processes/": "http://legalflow/responses/"

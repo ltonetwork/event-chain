@@ -52,4 +52,14 @@ class Identity extends MongoSubDocument implements Resource, Identifiable
      * @var Privilege[]|EntitySet
      */
     public $privileges;
+    
+    /**
+     * Get id property
+     * 
+     * @return string
+     */
+    public static function getIdProperty()
+    {
+        return 'id';
+    }
 }

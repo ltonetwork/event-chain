@@ -9,7 +9,8 @@ trait ResourceBase
 {
     use Entity\Implementation,
         Entity\Redactable\Implementation,
-        Entity\Meta\Implementation
+        Entity\Meta\Implementation,
+        Entity\Validation\MetaImplementation
     {
         Entity\Meta\Implementation::cast as private metaCast;
         Entity\Implementation::setValues as private setValuesRaw;
@@ -23,12 +24,6 @@ trait ResourceBase
      * @var string
      */
     public $schema;
-    
-    /**
-     * The hash of the event
-     * @var string 
-     */
-    public $event;
     
     /**
      * Date/time the (version of the) resource was created
@@ -143,10 +138,22 @@ trait ResourceBase
         
         $resource = new static();
         $resource->setValues([
-            'event' => $event->hash,
             'timestamp' => $event->timestamp
         ] + $data);
         
         return $resource;
+    }
+    
+    /**
+     * JSON Serialize
+     * 
+     * @return object
+     */
+    public function jsonSerializeFilterSchema(stdClass $object)
+    {
+        $object->{'$schema'} = $object->schema;
+        unset($object->schema);
+        
+        return $object;
     }
 }

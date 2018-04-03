@@ -59,7 +59,7 @@ class HTTPSignatureMiddleware
             $httpSignature->useAccountFactory($this->accountFactory)->verify();
             
             $this->account = $httpSignature->getAccount();
-            $requestWithAccount = $request->withAttribute('account', $httpSignature);
+            $nextRequest = $request->withAttribute('account', $httpSignature);
         } catch (HTTPSignatureException $e) {
             $response->getBody()->write($e->getMessage());
             
@@ -68,7 +68,7 @@ class HTTPSignatureMiddleware
                 ->withHeader('Content-Type', 'text/plain');
         }
         
-        return $next($requestWithAccount, $response);
+        return $next($nextRequest, $response);
     }
     
     /**
@@ -83,17 +83,15 @@ class HTTPSignatureMiddleware
     {
         if (
             $request->getAttribute('account') === null &&
-            (
-                !$request->hasHeader('authorization') ||
-                !jasny\str_starts_with(strtolower($request->getHeaderLine('authorization')), 'signature ')
-            )
+            $request->hasHeader('authorization') &&
+            jasny\str_starts_with(strtolower($request->getHeaderLine('authorization')), 'signature ')
         ) {
             $nextResponse = $this->handle($request, $response, $next);
         } else {
             $nextResponse = $next($request, $response);
         }
         
-        if ($nextResponse->getStatusCode() === 401 && !$nextResponse->hasHeader("WWW-Authenticate")) {
+        if ($nextResponse->getStatusCode() === 401 && !$nextResponse->hasHeader("www-authenticate")) {
             $requiredHeaders = $this->getRequiredHeaders($request);
             
             $nextResponse = $nextResponse->withHeader(

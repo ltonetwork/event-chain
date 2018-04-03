@@ -7,7 +7,7 @@ coverage:
 modules:
     config:
         MongoDb:
-           dsn: 'mongodb://localhost:27017/project_tests'
+           dsn: 'mongodb://localhost:27017/legalevent_tests'
            user: ''
            password: ''
            dump: 'tests/_data/dump.js'

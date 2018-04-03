@@ -1,6 +1,8 @@
 <?php
 
 use Jasny\DB\Mongo;
+use Jasny\DB\Entity;
+use Jasny\DB\Data;
 use Jasny\DB\Entity\Enrichable;
 
 /**
@@ -53,6 +55,46 @@ abstract class MongoDocument extends Mongo\Document implements Enrichable
     }
     
     /**
+     * Cast to data.
+     * Overwrite to support subdocument
+     * 
+     * @return array
+     */
+    public function toData()
+    {
+        $values = call_user_func('get_object_vars', $this); // `call_user_func` is used to only get public properties
+        
+        foreach ($values as &$item) {
+            if ($item instanceof Entity\Identifiable && !$item instanceof MongoSubDocument) {
+                $item = static::childEntityToId($item);
+            } elseif (
+                $item instanceof EntitySet &&
+                is_a($item->getEntityClass(), Entity\Identifiable::class, true) &&
+                !is_a($item->getEntityClass(), MongoSubDocument::class, true)
+            ) {
+                $item = array_map(function($child) {
+                    return static::childEntityToId($child);
+                }, $item);
+            } elseif ($item instanceof Data) {
+                $item = $item->toData();
+            }
+        }
+        
+        if ($this instanceof Sorted && method_exists($this, 'prepareDataForSort')) {
+            $values += static::prepareDataForSort($this);
+        }
+
+        $casted = static::castForDB($values);
+        $data = static::mapToFields($casted);
+        
+        if (array_key_exists('_id', $data) && is_null($data['_id'])) {
+            unset($data['_id']);
+        }
+        
+        return $data;
+    }
+    
+    /**
      * Get the persisted value of a field
      * 
      * @param string $property
@@ -72,5 +114,5 @@ abstract class MongoDocument extends Mongo\Document implements Enrichable
     public static function isValidMongoId($id)
     {
         return $id instanceof MongoId || (is_string($id) && strlen($id) === 24 && ctype_xdigit($id));
-    }    
+    }
 }

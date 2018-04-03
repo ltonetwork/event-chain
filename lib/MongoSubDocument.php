@@ -17,6 +17,23 @@ class MongoSubDocument extends BasicEntity implements ChangeAware, Meta, Validat
     {
         MetaImplementation::cast as private metaCast;
     }
+
+    /**
+     * Class constructor
+     */
+    public function __construct()
+    {
+        $this->cast();
+    }
+    
+    /**
+     * @ignore
+     * @return $this
+     */
+    public function expand()
+    {
+        return $this;
+    }
     
     /**
      * Create entity
@@ -36,5 +53,16 @@ class MongoSubDocument extends BasicEntity implements ChangeAware, Meta, Validat
     public function cast()
     {
         return $this->metaCast();
+    }
+    
+    
+    /**
+     * Get the field map
+     * 
+     * @return array
+     */
+    public static function getFieldMap()
+    {
+        return [];
     }
 }

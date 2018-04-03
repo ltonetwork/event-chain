@@ -226,6 +226,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $eventSet->expects($this->once())->method('add')->with($event);
         
         $resource = $this->createMock(Resource::class);
+        $resource->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
         
         $chain = $this->createMock(EventChain::class);
         $chain->method('getLatestHash')->willReturn("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U");
@@ -260,6 +261,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $eventSet->expects($this->never())->method('add');
         
         $resource = $this->createMock(Resource::class);
+        $resource->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
         
         $chain = $this->createMock(EventChain::class);
         $chain->method('getLatestHash')->willReturn("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U");

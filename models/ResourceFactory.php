@@ -15,7 +15,7 @@ class ResourceFactory
         'http://specs.livecontracts.io/draft-01/04-scenario/schema.json#' => ExternalResource::class,
         'http://specs.livecontracts.io/draft-01/08-form/schema.json#' => ExternalResource::class,
         'http://specs.livecontracts.io/draft-01/10-document/schema.json#' => ExternalResource::class,
-        'http://specs.livecontracts.io/draft-01/12-response/schema.json#' => ExternalResource::class,
+        'http://specs.livecontracts.io/draft-01/12-response/schema.json#' => ResponseResource::class,
         'http://specs.livecontracts.io/draft-01/13-comment/schema.json#' => Comment::class
     ];
     
