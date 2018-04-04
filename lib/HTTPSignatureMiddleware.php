@@ -4,6 +4,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use LTO\HTTPSignature;
 use LTO\AccountFactory;
+use LTO\HTTPSignatureException;
 
 /**
  * Description of HTTPSignatureMiddleware
@@ -46,7 +47,7 @@ class HTTPSignatureMiddleware
     {
         return /*$request->getMethod() === 'POST'
             ? ['(request-target)', 'date', 'content-type', 'content-length', 'digest']
-            :*/ ['(request-target)', 'date'];
+            :*/ ['(request-target)', 'x-date'];
     }
     
     /**
@@ -86,7 +87,7 @@ class HTTPSignatureMiddleware
             $this->account = $httpSignature->getAccount();
             $nextRequest = $request->withAttribute('account', $httpSignature);
         } catch (HTTPSignatureException $e) {
-            $response->getBody()->write($e->getMessage());
+            $response->getBody()->write($e->getMessage() . "\n\nmessage:\n" . $httpSignature->getMessage());
             
             return $response
                 ->withStatus(401)
