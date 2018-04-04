@@ -16,16 +16,24 @@ class HTTPSignatureMiddleware
      * @var AccountFactory
      */
     protected $accountFactory;
+
+    /**
+     * Rewrite request path
+     * @var string
+     */
+    protected $baseRewrite;
     
     
     /**
      * Class constructor
      * 
      * @param AccountFactory $accountFactory
+     * @param string         $baseRewrite
      */
-    public function __construct(AccountFactory $accountFactory)
+    public function __construct(AccountFactory $accountFactory, $baseRewrite = null)
     {
         $this->accountFactory = $accountFactory;
+        $this->baseRewrite = $baseRewrite;
     }
     
     /**
@@ -42,6 +50,22 @@ class HTTPSignatureMiddleware
     }
     
     /**
+     * Rewrite the path (in case of proxy)
+     * 
+     * @param ServerRequestInterface $request
+     * @return ServerRequestInterface
+     */
+    protected function baseRewrite(ServerRequestInterface $request)
+    {
+        if (!empty($this->baseRewrite)) {
+            $uri = $request->getUri()->withPath($this->baseRewrite . $uri->getPath());
+            $request = $request->withUri($uri);
+        }
+        
+        return $request;
+    }
+    
+    /**
      * Handle signed request
      * 
      * @param ServerRequestInterface  $request
@@ -53,7 +77,8 @@ class HTTPSignatureMiddleware
     {
         $requiredHeaders = $this->getRequiredHeaders($request);
     
-        $httpSignature = new HTTPSignature($request, $requiredHeaders);
+        $signatureRequest = $this->baseRewrite($request);
+        $httpSignature = new HTTPSignature($signatureRequest, $requiredHeaders);
 
         try {
             $httpSignature->useAccountFactory($this->accountFactory)->verify();
