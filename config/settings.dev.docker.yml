@@ -16,4 +16,5 @@ email:
   Mailer: mail
 
 endpoints:
-  "ltri:/processes/": "http://legalflow/responses/"
+  "lt:/scenarios/": "http://legalflow/scenarios/"
+  "lt:/processes/": "http://legalflow/responses/"
