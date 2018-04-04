@@ -47,7 +47,7 @@ class HTTPSignatureMiddleware
     {
         return /*$request->getMethod() === 'POST'
             ? ['(request-target)', 'date', 'content-type', 'content-length', 'digest']
-            :*/ ['(request-target)', 'x-date'];
+            :*/ ['(request-target)', 'date'];
     }
     
     /**
@@ -59,8 +59,9 @@ class HTTPSignatureMiddleware
     protected function baseRewrite(ServerRequestInterface $request)
     {
         if (!empty($this->baseRewrite)) {
-            $uri = $request->getUri()->withPath($this->baseRewrite . $uri->getPath());
-            $request = $request->withUri($uri);
+            $uri = $request->getUri();
+            $newUri = $uri->withPath($this->baseRewrite . $uri->getPath());
+            $request = $request->withUri($newUri);
         }
         
         return $request;

@@ -1372,16 +1372,16 @@
         },
         {
             "name": "legalthings/lto-api",
-            "version": "v0.1.5",
+            "version": "v0.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/legalthings/lto-api.php.git",
-                "reference": "20c832b8723968e031d61f88c24c101befa47cf0"
+                "reference": "6daf29f6d107d48cc16acb01448af03c64104520"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/legalthings/lto-api.php/zipball/20c832b8723968e031d61f88c24c101befa47cf0",
-                "reference": "20c832b8723968e031d61f88c24c101befa47cf0",
+                "url": "https://api.github.com/repos/legalthings/lto-api.php/zipball/6daf29f6d107d48cc16acb01448af03c64104520",
+                "reference": "6daf29f6d107d48cc16acb01448af03c64104520",
                 "shasum": ""
             },
             "require": {
@@ -1412,7 +1412,7 @@
                 }
             ],
             "description": "LegalThings One client",
-            "time": "2018-04-04T10:08:55+00:00"
+            "time": "2018-04-04T12:34:15+00:00"
         },
         {
             "name": "monolog/monolog",
