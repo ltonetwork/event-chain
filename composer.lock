@@ -1372,16 +1372,16 @@
         },
         {
             "name": "legalthings/lto-api",
-            "version": "v0.1.4",
+            "version": "v0.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/legalthings/lto-api.php.git",
-                "reference": "a59753d1038ac622dccd4915a728905b6671724f"
+                "reference": "20c832b8723968e031d61f88c24c101befa47cf0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/legalthings/lto-api.php/zipball/a59753d1038ac622dccd4915a728905b6671724f",
-                "reference": "a59753d1038ac622dccd4915a728905b6671724f",
+                "url": "https://api.github.com/repos/legalthings/lto-api.php/zipball/20c832b8723968e031d61f88c24c101befa47cf0",
+                "reference": "20c832b8723968e031d61f88c24c101befa47cf0",
                 "shasum": ""
             },
             "require": {
@@ -1412,7 +1412,7 @@
                 }
             ],
             "description": "LegalThings One client",
-            "time": "2018-04-03T15:16:47+00:00"
+            "time": "2018-04-04T10:08:55+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -3121,7 +3121,7 @@
                 }
             ],
             "description": "Codeception Module for Jasny MVC",
-            "time": "2017-05-26 04:20:34"
+            "time": "2017-05-26T04:20:34+00:00"
         },
         {
             "name": "jasny/php-code-quality",
