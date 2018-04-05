@@ -65,7 +65,7 @@ $I->expectHttpRequest(function (Request $request) use ($I) {
     $I->assertEquals('http://legalflow/processes/111837c9-ff00-48e3-8c2d-63454a9dc234/done', (string)$request->getUri());
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
 
-    $json = '{"id": "CtBfprZ4zktW4mVhh1hhU76AvqEa3vtpc5vN6gkDX5W9f", "lastHash": "8sB5ebgL3SCgH9gzPFj3AYqg5rNmrr7JZnXPw1qdGvXj"}';
+    $json = '{"id": "CtBfprZ4zktW4mVhh1hhU76AvqEa3vtpc5vN6gkDX5W9f", "lastHash": "8xJMEqxj1yUqqvHZwhfec8VPvSs1XRXWFQq1ZafEFAsR"}';
     $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
     
     return new Response(200);
