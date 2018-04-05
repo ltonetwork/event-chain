@@ -32,7 +32,7 @@ class AppRouter extends Router
     {
         $accountFactory = $container->get(AccountFactory::class);
         
-        return $this->add(new HTTPSignatureMiddleware($accountFactory, constant('BASE_REWRITE')));
+        return $this->add(new HTTPSignatureMiddleware($accountFactory, defined('BASE_REWRITE') ? BASE_REWRITE : null));
     }
 
 

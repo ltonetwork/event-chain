@@ -26,7 +26,7 @@ class ExternalResource implements Resource, Identifiable, Dynamic
 
     /**
      * The identity that created the (version of the) resource
-     * @var type
+     * @var Identity
      */
     public $identity;
     
