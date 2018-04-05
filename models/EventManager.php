@@ -83,6 +83,10 @@ class EventManager
             $this->chain->save();
         }
         
+        if ($validation->succeeded()) {
+            $this->resourceStorage->done($this->chain);
+        }
+        
         return $validation;
     }
     

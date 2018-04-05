@@ -60,13 +60,24 @@ $I->expectHttpRequest(function (Request $request) use ($I) {
     return new Response(200);
 });
 
+// Process done
+$I->expectHttpRequest(function (Request $request) use ($I) {
+    $I->assertEquals('http://legalflow/processes/111837c9-ff00-48e3-8c2d-63454a9dc234/done', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+
+    $json = '{"id": "CtBfprZ4zktW4mVhh1hhU76AvqEa3vtpc5vN6gkDX5W9f", "lastHash": "8sB5ebgL3SCgH9gzPFj3AYqg5rNmrr7JZnXPw1qdGvXj"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+    
+    return new Response(200);
+});
+
 $I->haveHttpHeader('Content-Type', 'application/json');
 $I->sendPOST('/event-chains', $data);
 
 $I->dontSee("broken chain");
 $I->seeResponseCodeIs(200);
 
-$I->seeNumHttpRequestWare(2);
+$I->seeNumHttpRequestWare(3);
 
 $I->seeInCollection('event_chains', [
     "_id" => "CtBfprZ4zktW4mVhh1hhU76AvqEa3vtpc5vN6gkDX5W9f"

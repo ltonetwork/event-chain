@@ -31,8 +31,9 @@ class AppRouter extends Router
     protected function withHTTPSignatureMiddleware(ContainerInterface $container)
     {
         $accountFactory = $container->get(AccountFactory::class);
+        $baseRewrite = defined('BASE_REWRITE') ? BASE_REWRITE : null;
         
-        return $this->add(new HTTPSignatureMiddleware($accountFactory, defined('BASE_REWRITE') ? BASE_REWRITE : null));
+        return $this->add(new HTTPSignatureMiddleware($accountFactory, $baseRewrite));
     }
 
 
