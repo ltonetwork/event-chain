@@ -22,13 +22,13 @@ class EventChainTest extends \Codeception\Test\Unit
         
         $packed = pack('CH16H40', EventChain::ADDRESS_VERSION, '0000000000000000', $signkeyHashed);
         $chksum = substr(Keccak::hash(sodium\crypto_generichash($packed), 256), 0, 8);
-        $this->assertEquals("e812244a", $chksum);
+        $this->assertEquals("ebd9a5be", $chksum);
         
         $idBinary = pack('CH16H40H8', EventChain::ADDRESS_VERSION, '0000000000000000', $signkeyHashed, $chksum);
         $this->assertEquals(33, strlen($idBinary));
         
         $id = $base58->encode($idBinary);
-        $this->assertEquals('CtBfprZ4zktW4mVhh1hhU76AvqEa3vtpc5vN6gkDX5W9f', $id);
+        $this->assertEquals('L1hGimV7Pp2CWTUViTuxakPRSq61ootWsh9FuLrU35Lay', $id);
     }
     
     public function testGetInitialHash()
@@ -189,7 +189,7 @@ class EventChainTest extends \Codeception\Test\Unit
         $event->signkey = "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y";
         
         $chain = EventChain::create()->setValues([
-            'id' => 'CtBfprZ4zktW4mVhh1hhU76AvqEa3vtpc5vN6gkDX5W9f',
+            'id' => '7juAGSAfJJ2Th9SXGpm3u9XcLtMZzFaExbnCrnUAi1kn',
             'events' => [ $event ]
         ]);
         
