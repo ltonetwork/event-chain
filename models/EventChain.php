@@ -8,7 +8,7 @@ use LTO\Keccak;
  */
 class EventChain extends MongoDocument
 {
-    const ADDRESS_VERSION = 40;
+    const ADDRESS_VERSION = 0x40;
     
     /**
      * Unique identifier
