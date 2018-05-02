@@ -19,18 +19,21 @@ class EventChain extends MongoDocument
     /**
      * List of event
      * @var Event[]|Jasny\DB\EntitySet
+     * @snapshot
      */
     public $events = [];
     
     /**
      * Projected identities
      * @var Identity[]|IdentitySet
+     * @snapshot
      */
     public $identities = [];
 
     /**
      * Projected comments
      * @var Comment[]|Jasny\DB\EntitySet
+     * @snapshot
      */
     public $comments = [];
     

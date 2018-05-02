@@ -92,6 +92,23 @@ foreach ($data['events'] as &$event) {
 }
 $I->assertMongoDocumentEquals($data['events'], $dbRecord->events);
 
+$identities = [
+    [
+        "schema" => "http://specs.livecontracts.io/draft-01/02-identity/schema.json#",
+        "id" => "0c1d7eac-18ec-496a-8713-8e6e5f098686",
+        "signkeys" => [
+            "user" => "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
+        ],
+        "name" => "John Doe",
+        "email" => "john.doe@example.com",
+        "privileges" => null,
+        "encryptkey" => "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
+        "node" => '',
+        'timestamp' => '2018-03-30T16:01:40+00:00'
+    ]
+];
+$I->assertMongoDocumentEquals($identities, $dbRecord->identities);
+
 $resources = [
     "lt:/scenarios/fe659ffa-537d-461a-abd7-aa0f3643d5ee",
     "lt:/processes/111837c9-ff00-48e3-8c2d-63454a9dc234"

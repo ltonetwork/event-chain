@@ -56,21 +56,22 @@ abstract class MongoDocument extends Mongo\Document implements Enrichable
     
     /**
      * Cast to data.
-     * Overwrite to support subdocument
+     * Overwrite to support snapshot.
      * 
      * @return array
      */
     public function toData()
     {
         $values = call_user_func('get_object_vars', $this); // `call_user_func` is used to only get public properties
+        $meta = static::meta();
         
-        foreach ($values as &$item) {
-            if ($item instanceof Entity\Identifiable && !$item instanceof MongoSubDocument) {
+        foreach ($values as $property => &$item) {
+            if ($item instanceof Entity\Identifiable && !$meta->ofProperty($property)['snapshot']) {
                 $item = static::childEntityToId($item);
             } elseif (
                 $item instanceof EntitySet &&
                 is_a($item->getEntityClass(), Entity\Identifiable::class, true) &&
-                !is_a($item->getEntityClass(), MongoSubDocument::class, true)
+                !$meta->ofProperty($property)['snapshot']
             ) {
                 $item = array_map(function($child) {
                     return static::childEntityToId($child);
