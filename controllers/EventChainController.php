@@ -39,14 +39,14 @@ class EventChainController extends Jasny\Controller
      */
     public function before()
     {
-//        $this->byDefaultSerializeTo('json');
-//        $this->account = $this->getRequest()->getAttribute('account');
-//        
-//        if (!isset($this->account)) {
-//            $this->requireAuth();
-//            $this->output('http request not signed', 'text/plain');
-//            $this->cancel();
-//        }
+        $this->byDefaultSerializeTo('json');
+        $this->account = $this->getRequest()->getAttribute('account');
+        
+        if (!isset($this->account)) {
+            $this->requireAuth();
+            $this->output('http request not signed', 'text/plain');
+            $this->cancel();
+        }
     }
     
     /**

@@ -59,12 +59,12 @@ class ExternalResource implements Resource, Identifiable, Dynamic
      */
     public function setVersionFrom($body)
     {
-//        $base58 = new \StephenHill\Base58();
-//        
-//        $hash = hash('sha256', $body, true);
-//        $version = substr($base58->encode($hash), 0, 8);
-//        
-//        $this->id = jasny\str_before($this->id, '?') . '?v=' . $version;
+        $base58 = new \StephenHill\Base58();
+        
+        $hash = hash('sha256', $body, true);
+        $version = substr($base58->encode($hash), 0, 8);
+        
+        $this->id = jasny\str_before($this->id, '?') . '?v=' . $version;
         
         return $this;
     }
