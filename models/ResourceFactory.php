@@ -10,13 +10,13 @@ class ResourceFactory
      * @var array 
      */
     protected $mapping = [
-        'http://specs.livecontracts.io/draft-01/02-identity/schema.json#' => Identity::class,
-        'http://specs.livecontracts.io/draft-01/03-template/schema.json#' => ExternalResource::class,
-        'http://specs.livecontracts.io/draft-01/04-scenario/schema.json#' => ExternalResource::class,
-        'http://specs.livecontracts.io/draft-01/08-form/schema.json#' => ExternalResource::class,
-        'http://specs.livecontracts.io/draft-01/10-document/schema.json#' => ExternalResource::class,
-        'http://specs.livecontracts.io/draft-01/12-response/schema.json#' => ResponseResource::class,
-        'http://specs.livecontracts.io/draft-01/13-comment/schema.json#' => Comment::class
+        'https://specs.livecontracts.io/v0.1.0/identity/schema.json#' => Identity::class,
+        'https://specs.livecontracts.io/v0.1.0/template/schema.json#' => ExternalResource::class,
+        'https://specs.livecontracts.io/v0.1.0/scenario/schema.json#' => ExternalResource::class,
+        'https://specs.livecontracts.io/v0.1.0/form/schema.json#' => ExternalResource::class,
+        'https://specs.livecontracts.io/v0.1.0/document/schema.json#' => ExternalResource::class,
+        'https://specs.livecontracts.io/v0.1.0/response/schema.json#' => ResponseResource::class,
+        'https://specs.livecontracts.io/v0.1.0/comment/schema.json#' => Comment::class
     ];
     
     
