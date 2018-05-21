@@ -135,7 +135,7 @@ class EventChain extends MongoDocument
         $signkeyHashed = substr(Keccak::hash(sodium\crypto_generichash($signkey, null, 32), 256), 0, 40);
         
         $decodedId = $base58->decode($this->id);
-        $vars = unpack('Cversion/H16random/H40keyhash/H8checksum', $decodedId);
+        $vars = unpack('Cversion/H40nonce/H40keyhash/H8checksum', $decodedId);
         
         return
             $vars['version'] === static::ADDRESS_VERSION &&
