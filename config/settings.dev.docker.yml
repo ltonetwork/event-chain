@@ -6,7 +6,7 @@ display_errors: false
 db:
   default:
     client: mongodb://mongo:27017
-    database: project
+    database: legalevent
 
 rollbar: false
 
@@ -19,3 +19,7 @@ endpoints:
   "lt:/scenarios/*":      "http://legalflow/scenarios/"
   "lt:/processes/*":      "http://legalflow/responses/"
   "lt:/processes/*/done": "http://legalflow/processes/$2/done"
+  
+environment_variables:
+  MONGO_DB: db.default.client
+  MONGO_DB_PREFIX: db.default.prefix
