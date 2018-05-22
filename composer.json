@@ -32,7 +32,8 @@
         "hashids/hashids": "~2.0.0",
         "stephenhill/base58": "^1.1",
         "guzzlehttp/guzzle": "^6.3",
-        "legalthings/lto-api": "^0.1.1"
+        "legalthings/lto-api": "^0.1.1",
+        "jasny/dotkey": "^1.0"
     },
     "require-dev" : {
         "jasny/php-code-quality" : "^2.0.0",

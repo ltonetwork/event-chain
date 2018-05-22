@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "6c35c4b13e1c3598abc8122ef094ba75",
+    "content-hash": "bb3dfbd302d21d7e493bcca51c4a3c06",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -700,6 +700,53 @@
                 "mongodb"
             ],
             "time": "2016-12-06T19:38:28+00:00"
+        },
+        {
+            "name": "jasny/dotkey",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jasny/dotkey.git",
+                "reference": "034a3c30ef07ddb276da51c24ab5500316d35ff2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jasny/dotkey/zipball/034a3c30ef07ddb276da51c24ab5500316d35ff2",
+                "reference": "034a3c30ef07ddb276da51c24ab5500316d35ff2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8",
+                "satooshi/php-coveralls": "^0.6.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jasny\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnold Daniels",
+                    "email": "arnold@jasny.net",
+                    "homepage": "http://www.jasny.net"
+                }
+            ],
+            "description": "Access objects and arrays through dot notation",
+            "keywords": [
+                "array",
+                "json",
+                "object",
+                "query"
+            ],
+            "time": "2016-07-01T13:42:21+00:00"
         },
         {
             "name": "jasny/error-handler",
@@ -3124,7 +3171,7 @@
                 }
             ],
             "description": "Codeception Module for Jasny MVC",
-            "time": "2017-05-26 04:20:34"
+            "time": "2017-05-26T04:20:34+00:00"
         },
         {
             "name": "jasny/php-code-quality",

@@ -38,6 +38,7 @@ class AppConfig extends Config
         
         $this->addEnvironmentVariables();
         $this->addAppVersion();
+        $this->addDBPrefix();
     }
 
     /**
@@ -108,6 +109,17 @@ class AppConfig extends Config
         
         if (!isset($this->app->version)) {
             $this->app->version = is_dir('.git') ? trim(`git rev-parse HEAD`) : date('YmdHis', filectime(getcwd()));
+        }
+    }
+    
+    /**
+     * Add prefix in database name
+     */
+    protected function addDBPrefix()
+    {
+        if (isset($this->db->default->prefix)) {
+            $this->db->default->database = $this->db->default->prefix . $this->db->default->database;
+            unset($this->db->default->prefix);
         }
     }
 }
