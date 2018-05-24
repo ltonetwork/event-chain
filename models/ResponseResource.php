@@ -25,6 +25,10 @@ class ResponseResource extends ExternalResource
      */
     public function getId()
     {
+        if (!isset($this->process->id)) {
+            throw new BadMethodCallException("Process id not set");
+        }
+
         return $this->process->id;
     }
 
@@ -58,6 +62,10 @@ class ResponseResource extends ExternalResource
     public function validate()
     {
         $validation = parent::validate();
+        
+        if (!isset($this->process->id)) {
+            $validation->addError("process id not set");
+        }
         
         if (isset($this->actor->id) && $this->actor->id !== $this->identity->id) {
             $validation->addError("actor id doesn't match identity id");
