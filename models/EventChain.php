@@ -127,14 +127,18 @@ class EventChain extends MongoDocument
      */
     public function isValidId()
     {
-        $firstEvent = $this->getFirstEvent();
-        
         $base58 = new StephenHill\Base58();
+        $decodedId = $base58->decode($this->id);
+        
+        if (strlen($decodedId) !== 45) {
+            return false;
+        }
+
+        $firstEvent = $this->getFirstEvent();
         
         $signkey = $base58->decode($firstEvent->signkey);
         $signkeyHashed = substr(Keccak::hash(sodium\crypto_generichash($signkey, null, 32), 256), 0, 40);
         
-        $decodedId = $base58->decode($this->id);
         $vars = unpack('Cversion/H40nonce/H40keyhash/H8checksum', $decodedId);
         
         return

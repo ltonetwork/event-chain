@@ -195,23 +195,34 @@ class EventChainTest extends \Codeception\Test\Unit
         
         $validation = $chain->validate();
         
-        $this->assertEquals([], $validation->getErrors());
+        $this->assertSame([], $validation->getErrors());
     }
-    
-    public function testValidateIdFail()
+
+    public function invalidIdProvider()
+    {
+        return [
+            ['JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya'],
+            ['CtBfprZ4zktW4mVhh1hhU76AvqEa3vtpc5vN6gkDX5W9f']
+        ];
+    }
+
+    /**
+     * @dataProvider invalidIdProvider
+     */
+    public function testValidateIdFail($id)
     {
         $event = $this->createMock(Event::class);
         $event->previous = "7juAGSAfJJ2Th9SXGpm3u9XcLtMZzFaExbnCrnUAi1kn";
         $event->signkey = "7TecQdLbPuxt3mWukbZ1g1dTZeA6rxgjMxfS9MRURaEP";
         
         $chain = EventChain::create()->setValues([
-            'id' => 'CtBfprZ4zktW4mVhh1hhU76AvqEa3vtpc5vN6gkDX5W9f',
+            'id' => $id,
             'events' => [ $event ]
         ]);
         
         $validation = $chain->validate();
         
-        $this->assertEquals(['invalid id'], $validation->getErrors());
+        $this->assertSame(['invalid id'], $validation->getErrors());
     }
     
     public function testValidateIntegrity()

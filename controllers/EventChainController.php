@@ -86,4 +86,19 @@ class EventChainController extends Jasny\Controller
         return $this->ok();
     }
     
+    /**
+     * Output a single event chain
+     * 
+     * @param string $id
+     */
+    public function getAction($id)
+    {
+        $event = EventChain::fetch($id);
+        
+        if (!isset($event)) {
+            return $this->notFound("Event not found");
+        }
+
+        $this->output($event, 'json');
+    }
 }

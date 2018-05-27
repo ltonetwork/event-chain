@@ -1,12 +1,10 @@
-log: browser
-debug: true
 cache: false
 display_errors: false
 
 db:
   default:
     client: mongodb://mongo:27017
-    database: project
+    database: legalevents
 
 rollbar: false
 
@@ -19,3 +17,4 @@ endpoints:
   "lt:/scenarios/*":      "http://legalflow/scenarios/"
   "lt:/processes/*":      "http://legalflow/responses/"
   "lt:/processes/*/done": "http://legalflow/processes/$2/done"
+

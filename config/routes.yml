@@ -4,3 +4,5 @@
 
 /event-chains +GET:    { controller: event-chain, action: list }
 /event-chains +POST:   { controller: event-chain, action: add }
+/event-chains/* +GET:  { controller: event-chain, action: get, id: $2 }
+
