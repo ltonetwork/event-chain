@@ -12,9 +12,9 @@ class EventTest extends \Codeception\Test\Unit
     {
         $seed = hash('sha256', "a seed", true);
         
-        $keypair = sodium\crypto_sign_seed_keypair($seed);
-        $publickey = sodium\crypto_sign_publickey($keypair);
-        $secretkey = sodium\crypto_sign_secretkey($keypair);
+        $keypair = sodium_crypto_sign_seed_keypair($seed);
+        $publickey = sodium_crypto_sign_publickey($keypair);
+        $secretkey = sodium_crypto_sign_secretkey($keypair);
         
         $base58 = new StephenHill\Base58();
         

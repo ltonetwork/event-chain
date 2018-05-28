@@ -1,7 +1,7 @@
 <?php
 
 use Jasny\DB\EntitySet;
-use LTO\Keccak;
+use kornrunner\Keccak;
 
 /**
  * @covers EventChain
@@ -17,11 +17,11 @@ class EventChainTest extends \Codeception\Test\Unit
         
         $signkey = $base58->decode("FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y");
         
-        $signkeyHashed = substr(Keccak::hash(sodium\crypto_generichash($signkey, null, 32), 256), 0, 40);
+        $signkeyHashed = substr(Keccak::hash(sodium_crypto_generichash($signkey, null, 32), 256), 0, 40);
         $this->assertEquals("cfe2a4058d1329ffa541554fc0ce58c8376c7782", $signkeyHashed);
         
         $packed = pack('CH16H40', EventChain::ADDRESS_VERSION, '0000000000000000', $signkeyHashed);
-        $chksum = substr(Keccak::hash(sodium\crypto_generichash($packed), 256), 0, 8);
+        $chksum = substr(Keccak::hash(sodium_crypto_generichash($packed), 256), 0, 8);
         $this->assertEquals("ebd9a5be", $chksum);
         
         $idBinary = pack('CH16H40H8', EventChain::ADDRESS_VERSION, '0000000000000000', $signkeyHashed, $chksum);

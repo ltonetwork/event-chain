@@ -169,9 +169,9 @@ class Event extends MongoSubDocument implements Identifiable
         $signature = $base58->decode($this->signature);
         $signkey = $base58->decode($this->signkey);
         
-        return strlen($signature) === sodium\CRYPTO_SIGN_BYTES &&
-            strlen($signkey) === sodium\CRYPTO_SIGN_PUBLICKEYBYTES &&
-            sodium\crypto_sign_verify_detached($signature, $this->getMessage(), $signkey);
+        return strlen($signature) === SODIUM_CRYPTO_SIGN_BYTES &&
+            strlen($signkey) === SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES &&
+            sodium_crypto_sign_verify_detached($signature, $this->getMessage(), $signkey);
     }
     
     /**

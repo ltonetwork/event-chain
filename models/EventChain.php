@@ -1,7 +1,7 @@
 <?php
 
 use Jasny\DB\Entity\Identifiable;
-use LTO\Keccak;
+use kornrunner\Keccak;
 
 /**
  * EventChain entity
@@ -137,7 +137,7 @@ class EventChain extends MongoDocument
         $firstEvent = $this->getFirstEvent();
         
         $signkey = $base58->decode($firstEvent->signkey);
-        $signkeyHashed = substr(Keccak::hash(sodium\crypto_generichash($signkey, null, 32), 256), 0, 40);
+        $signkeyHashed = substr(Keccak::hash(sodium_crypto_generichash($signkey, null, 32), 256), 0, 40);
         
         $vars = unpack('Cversion/H40nonce/H40keyhash/H8checksum', $decodedId);
         
