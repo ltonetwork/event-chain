@@ -44,8 +44,5 @@ class AppRouter extends Router
      */
     protected function withDetermineRouteMiddleware()
     {
-        $routes = $this->getRoutes(); // Not expecting the routes to change later.
-        
-        return $this->add(new Router\Middleware\DetermineRoute($routes));
     }
 }

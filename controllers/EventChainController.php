@@ -1,6 +1,7 @@
 <?php
 
 use LTO\Account;
+use Psr\Container\ContainerInterface;
 
 /**
  * Event chain controller
@@ -24,14 +25,15 @@ class EventChainController extends Jasny\Controller
      * @var Account
      */
     protected $account;
-    
+
+
     /**
      * Class constructor
      */
-    public function __construct()
+    public function __construct(ContainerInterface $container)
     {
-        $this->resourceFactory = new ResourceFactory();
-        $this->resourceStorage = new ResourceStorage(Jasny\arrayify(App::config()->endpoints), App::httpClient());
+        $this->resourceFactory = $container->get('models:resources.factory');
+        $this->resourceStorage = $container->get('models:resources.storage');
     }
 
     /**
@@ -48,7 +50,8 @@ class EventChainController extends Jasny\Controller
             $this->cancel();
         }
     }
-    
+
+
     /**
      * List all the event chains the authorized user is an identity in
      */

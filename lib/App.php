@@ -3,12 +3,10 @@
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Rollbar\Rollbar;
+use Jasny\Config;
 
 /**
- * Service locator for the application.
- * This is actually a wrapper around a container, so if you want to switch to / mix with dependency injection you can.
- * 
+ * Application
  * @codeCoverageIgnore
  */
 class App
@@ -25,8 +23,7 @@ class App
     private function __construct()
     {
     }
-    
-    
+
     /**
      * Get the app container
      * 
@@ -41,62 +38,33 @@ class App
         
         return self::$container;
     }
-    
+
     /**
-     * Set or replace the app container
-     * 
+     * Set the container
+     *
      * @param ContainerInterface $container
      */
     public static function setContainer(ContainerInterface $container)
     {
         self::$container = $container;
-        
-        self::configureLocale();
-        self::configureDatabase();
+
+        self::initDB();
     }
 
     /**
-     * Set application locale
+     * Initialize the DB
      */
-    protected static function configureLocale()
+    protected static function initDB()
     {
-        if (!isset(self::config()->locale)) {
-            return;
-        }
-        
-        $locale = self::config()->locale;
-        
-        $locale_charset = setlocale(LC_ALL, "$locale.UTF-8", $locale);
-        Locale::setDefault($locale_charset);
-        putenv("LC_ALL=$locale_charset");
-    }
-    
-    /**
-     * Configure the database connections.
-     * @internal Jasny\DB v2 uses it's own service locator and doesn't support dependency injection yet.
-     */
-    protected static function configureDatabase()
-    {
-        if (!isset(self::config()->db)) {
-            return;
-        }
-        
-        Jasny\DB::$config = self::config()->db;
-    }
-    
-    /**
-     * Remove the container and reset other globals
-     */
-    public static function reset()
-    {
-        self::$container = null;
         Jasny\DB::resetGlobalState();
+        Jasny\DB::configure(self::config()->db);
     }
-    
-    
+
+
     /**
      * Get and invoke an item from the app container.
      * Will return the item if it is not callable.
+     * @deprecated
      * 
      * @param string $name
      * @param array  $arguments
@@ -104,42 +72,14 @@ class App
      */
     public static function __callStatic($name, array $arguments)
     {
+        trigger_error("Using App as service locator is deprecated", E_USER_WARNING);
+
         $item = self::getContainer()->get($name);
         
         return is_callable($item) ? $item(...$arguments) : $item;
     }
     
-    
-    /**
-     * Get the application name
-     * 
-     * @return string
-     */
-    public static function name()
-    {
-        return isset(self::config()->app->name) ? self::config()->app->name : null;
-    }
 
-    /**
-     * Get the application name
-     * 
-     * @return string
-     */
-    public static function version()
-    {
-        return isset(self::config()->app->version) ? self::config()->app->version : null;
-    }
-
-    /**
-     * Get the application description
-     * 
-     * @return string
-     */
-    public static function description()
-    {
-        return isset(self::config()->app->description) ? self::config()->app->description : null;
-    }
-    
     /**
      * Get the application environment.
      * 
@@ -148,11 +88,21 @@ class App
      */
     public static function env($check = null)
     {
-        $env = getenv('APPLICATION_ENV') ?: 'dev';
+        $env = self::getContainer()->get('env');
         
         return !isset($check) || $check === $env || strpos($env, $check . '.') === 0 ? $env : false;
     }
-    
+
+    /**
+     * Get the application configuration
+     *
+     * @return Config
+     */
+    public static function config()
+    {
+        return self::getContainer()->get('config');
+    }
+
     
     /**
      * Initialize the application
@@ -160,75 +110,21 @@ class App
     public static function init()
     {
         self::setContainer(new AppContainer());
-        
-        self::initRollbar();
-        self::initDisplayErrors();
 
-        self::sessionStart();
-    }
-    
-    /**
-     * Get rollbar interface.
-     * @internal Global with no way to reset, do not use in tests.
-     */
-    protected static function initRollbar()
-    {
-        if (Rollbar::logger() === null && !empty(self::config()->rollbar)) {
-            $config = [
-                'code_version' => 'v' . self::version(),
-                'environment' => self::env(null, false),
-                'host' => preg_replace('/^www\./', '', $_SERVER['HTTP_HOST'])
-            ];
-            $config += (array)self::config()->rollbar;
-
-            Rollbar::init($config);
-        }
+        self::initGlobal();
     }
 
     /**
-     * Set the display errors ini setting.
-     * @internal This is changing the global runtime.
+     * Init global environment
      */
-    protected static function initDisplayErrors()
+    protected static function initGlobal()
     {
-        $config = self::config();
-        
-        if (!empty($config->debug)) {
-            error_reporting(E_ALL & ~E_STRICT);
-            
-            $display_errors = isset($config->display_errors)
-                ? $config->display_errors
-                : (isset($_SERVER['HTTP_X_DISPLAY_ERRORS']) ? $_SERVER['HTTP_X_DISPLAY_ERRORS'] : null);
+        $scripts = glob('declarations/global/*.php');
 
-            if (isset($display_errors)) {
-                ini_set('display_errors', $display_errors);
-            }
-        } else {
-            ini_set('display_error', false);
-            error_reporting(E_ALL & ~E_NOTICE & ~E_USER_NOTICE & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_STRICT);
-        }
-
-        if (!ini_get('display_errors')) {
-            $errorHandler = static::errorHandler();
-
-            $errorHandler->setLogger(self::getContainer()->get('logger'));
-            $errorHandler->converErrorsToExceptions();
-
-            if (!static::env('tests')) {
-                $errorHandler->logUncaught(E_ALL);
-            }
+        foreach ($scripts as $script) {
+            require_once $script;
         }
     }
-    
-    /**
-     * Start the session
-     */
-    public static function sessionStart()
-    {
-        session_name('plinkr_session');
-        session_start();
-    }
-    
     
     /**
      * Run the application
@@ -236,17 +132,21 @@ class App
     public static function run()
     {
         self::init();
+
+        $container = self::getContainer();
+
+        /* @var $router \Jasny\Router */
+        $router = $container->get('router');
+
+        $request = $container->get(ServerRequestInterface::class);
+        $response = $container->get(ResponseInterface::class);
         
-        $request = self::getContainer()->get(ServerRequestInterface::class);
-        $response = self::getContainer()->get(ResponseInterface::class);
-        
-        self::route($request, $response)->emit();
+        $router->handle($request, $response)->emit();
     }
     
     
     /**
-     * Send a message to the browsers console.
-     * Works with FireFox (using FirePHP) and Chrome (using Chrome Console)
+     * Send a message to the configured logger.
      * 
      * @param string|mixed $message
      */
@@ -260,7 +160,7 @@ class App
             $message = json_encode($message, JSON_PRETTY_PRINT);
         }
 
-        if (static::env('tests')) {
+        if (self::env('tests')) {
             Codeception\Util\Debug::debug($message);
             return;
         }

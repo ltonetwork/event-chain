@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "11ea6ed744bc5fad679f54494125fa70",
+    "content-hash": "06922b61ef9571a50c7ef4c3809987af",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -341,48 +341,6 @@
             "time": "2017-03-20T17:10:46+00:00"
         },
         {
-            "name": "jasny/assetic-extensions",
-            "version": "v1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jasny/assetic-extensions.git",
-                "reference": "a6447409ae8fb3a18c70018bfdaa7eac30891ed6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jasny/assetic-extensions/zipball/a6447409ae8fb3a18c70018bfdaa7eac30891ed6",
-                "reference": "a6447409ae8fb3a18c70018bfdaa7eac30891ed6",
-                "shasum": ""
-            },
-            "require": {
-                "kriswallsmith/assetic": "^1.4",
-                "php": ">=5.6.0"
-            },
-            "require-dev": {
-                "jasny/php-code-quality": "^2.1",
-                "psr/log": "^1.0",
-                "twig/twig": "^1.28 || ^2.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Jasny\\Assetic\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Arnold Daniels",
-                    "email": "arnold@jasny.net"
-                }
-            ],
-            "description": "Improved caching for Assetic",
-            "time": "2017-06-05T18:29:18+00:00"
-        },
-        {
             "name": "jasny/config",
             "version": "v1.3.2",
             "source": {
@@ -644,30 +602,35 @@
             "time": "2017-01-25T01:27:18+00:00"
         },
         {
-            "name": "jasny/formbuilder",
-            "version": "v0.1.0",
+            "name": "jasny/http-message",
+            "version": "v1.3.5",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jasny/formbuilder.git",
-                "reference": "6e82cf8d69250903691e9bf186fa933300661050"
+                "url": "https://github.com/jasny/http-message.git",
+                "reference": "bb4a76e48569f2ce22b6e7bbcd63aaf86afe0f05"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasny/formbuilder/zipball/6e82cf8d69250903691e9bf186fa933300661050",
-                "reference": "6e82cf8d69250903691e9bf186fa933300661050",
+                "url": "https://api.github.com/repos/jasny/http-message/zipball/bb4a76e48569f2ce22b6e7bbcd63aaf86afe0f05",
+                "reference": "bb4a76e48569f2ce22b6e7bbcd63aaf86afe0f05",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0"
+                "jasny/php-functions": "^2.2|^3.0",
+                "php": ">=5.6.0",
+                "psr/http-message": "^1.0"
+            },
+            "provide": {
+                "psr/http-message-implementation": "~1.0.0"
             },
             "require-dev": {
-                "gajus/dindent": "dev-master#cb8579d82d11873d5f650aab333c82f8f9eec62f"
+                "jasny/php-code-quality": "^2.1",
+                "mikey179/vfsstream": "^1.6"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Jasny\\FormBuilder": "src/",
-                    "Jasny\\FormGenerator": "src/"
+                "psr-4": {
+                    "Jasny\\HttpMessage\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -681,38 +644,13 @@
                     "homepage": "http://www.jasny.net"
                 }
             ],
-            "description": "A form builder for HTML5 forms",
+            "description": "PSR-7 implementation for handling HTTP requests",
             "keywords": [
-                "Forms",
-                "HTML5"
+                "http",
+                "mvc",
+                "psr-7"
             ],
-            "time": "2014-08-04T23:33:54+00:00"
-        },
-        {
-            "name": "jasny/iso",
-            "version": "v0.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jasny/iso.git",
-                "reference": "7170ac3fc673423f2a1a85ec4d3bc2548b25b139"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jasny/iso/zipball/7170ac3fc673423f2a1a85ec4d3bc2548b25b139",
-                "reference": "7170ac3fc673423f2a1a85ec4d3bc2548b25b139",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Jasny\\ISO": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "time": "2014-09-14T01:07:49+00:00"
+            "time": "2017-05-17T01:28:27+00:00"
         },
         {
             "name": "jasny/meta",
@@ -856,34 +794,6 @@
             "time": "2017-02-27T23:45:33+00:00"
         },
         {
-            "name": "jasny/social",
-            "version": "v0.4.8",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jasny/social.git",
-                "reference": "2ff5ac92f7fec6b43e227106ffd122a6ff4c8b44"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jasny/social/zipball/2ff5ac92f7fec6b43e227106ffd122a6ff4c8b44",
-                "reference": "2ff5ac92f7fec6b43e227106ffd122a6ff4c8b44",
-                "shasum": ""
-            },
-            "require": {
-                "ext-curl": "*",
-                "jasny/iso": "~0.2.0",
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Social": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "time": "2018-04-19T06:56:17+00:00"
-        },
-        {
             "name": "jasny/typecast",
             "version": "v2.1.1",
             "source": {
@@ -1015,60 +925,29 @@
             "time": "2018-03-05T10:32:01+00:00"
         },
         {
-            "name": "kriswallsmith/assetic",
-            "version": "v1.4.0",
+            "name": "legalthings/base58-compat",
+            "version": "v0.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/kriswallsmith/assetic.git",
-                "reference": "e911c437dbdf006a8f62c2f59b15b2d69a5e0aa1"
+                "url": "https://github.com/legalthings/base58-php-compat.git",
+                "reference": "3c334ca4fde31dab19a31b6e8632e495b86e39e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kriswallsmith/assetic/zipball/e911c437dbdf006a8f62c2f59b15b2d69a5e0aa1",
-                "reference": "e911c437dbdf006a8f62c2f59b15b2d69a5e0aa1",
+                "url": "https://api.github.com/repos/legalthings/base58-php-compat/zipball/3c334ca4fde31dab19a31b6e8632e495b86e39e5",
+                "reference": "3c334ca4fde31dab19a31b6e8632e495b86e39e5",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.1",
-                "symfony/process": "~2.1|~3.0"
+                "stephenhill/base58": "^1.1"
             },
-            "conflict": {
-                "twig/twig": "<1.27"
-            },
-            "require-dev": {
-                "leafo/lessphp": "^0.3.7",
-                "leafo/scssphp": "~0.1",
-                "meenie/javascript-packer": "^1.1",
-                "mrclay/minify": "<2.3",
-                "natxet/cssmin": "3.0.4",
-                "patchwork/jsqueeze": "~1.0|~2.0",
-                "phpunit/phpunit": "~4.8 || ^5.6",
-                "psr/log": "~1.0",
-                "ptachoire/cssembed": "~1.0",
-                "symfony/phpunit-bridge": "~2.7|~3.0",
-                "twig/twig": "~1.23|~2.0",
-                "yfix/packager": "dev-master"
-            },
-            "suggest": {
-                "leafo/lessphp": "Assetic provides the integration with the lessphp LESS compiler",
-                "leafo/scssphp": "Assetic provides the integration with the scssphp SCSS compiler",
-                "leafo/scssphp-compass": "Assetic provides the integration with the SCSS compass plugin",
-                "patchwork/jsqueeze": "Assetic provides the integration with the JSqueeze JavaScript compressor",
-                "ptachoire/cssembed": "Assetic provides the integration with phpcssembed to embed data uris",
-                "twig/twig": "Assetic provides the integration with the Twig templating engine"
+            "provide": {
+                "ext-base58": "0.1.0"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.4-dev"
-                }
-            },
             "autoload": {
-                "psr-0": {
-                    "Assetic": "src/"
-                },
                 "files": [
-                    "src/functions.php"
+                    "src/base58.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1077,19 +956,12 @@
             ],
             "authors": [
                 {
-                    "name": "Kris Wallsmith",
-                    "email": "kris.wallsmith@gmail.com",
-                    "homepage": "http://kriswallsmith.net/"
+                    "name": "LegalThings",
+                    "email": "info@legalthings.io"
                 }
             ],
-            "description": "Asset Management for PHP",
-            "homepage": "https://github.com/kriswallsmith/assetic",
-            "keywords": [
-                "assets",
-                "compression",
-                "minification"
-            ],
-            "time": "2016-11-11T18:43:20+00:00"
+            "description": "Userspace function as fallback for base58 extension",
+            "time": "2018-05-29T22:56:08+00:00"
         },
         {
             "name": "legalthings/lto-api",
@@ -1097,21 +969,21 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/legalthings/lto-api.php.git",
-                "reference": "1063355495afd4b9eda32f3409e5385b1ed15a8f"
+                "reference": "6a458c00c4395c275313b27fb0e4992197d06c86"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/legalthings/lto-api.php/zipball/1063355495afd4b9eda32f3409e5385b1ed15a8f",
-                "reference": "1063355495afd4b9eda32f3409e5385b1ed15a8f",
+                "url": "https://api.github.com/repos/legalthings/lto-api.php/zipball/6a458c00c4395c275313b27fb0e4992197d06c86",
+                "reference": "6a458c00c4395c275313b27fb0e4992197d06c86",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "ext-sodium": "2.*",
+                "ext-sodium": "2.* || 7.*",
                 "kornrunner/keccak": "^1.0",
+                "legalthings/base58-compat": "^0.1.0",
                 "php": "~7.1",
-                "psr/http-message": "^1.0",
-                "stephenhill/base58": "^1.1"
+                "psr/http-message": "^1.0"
             },
             "require-dev": {
                 "jasny/php-code-quality": "^2.3"
@@ -1136,7 +1008,7 @@
                 }
             ],
             "description": "LegalThings One client",
-            "time": "2018-05-21 21:41:21"
+            "time": "2018-05-30 16:19:47"
         },
         {
             "name": "mongodb/mongodb",
@@ -1328,104 +1200,6 @@
                 "di"
             ],
             "time": "2017-03-09T09:19:17+00:00"
-        },
-        {
-            "name": "oscarotero/psr7-middlewares",
-            "version": "v3.21.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/oscarotero/psr7-middlewares.git",
-                "reference": "639c87ddf9647224b9d3f93899276cc25a7a1aa9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/oscarotero/psr7-middlewares/zipball/639c87ddf9647224b9d3f93899276cc25a7a1aa9",
-                "reference": "639c87ddf9647224b9d3f93899276cc25a7a1aa9",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.5.0"
-            },
-            "require-dev": {
-                "aura/router": "^3.0",
-                "aura/session": "2.*",
-                "ext-mcrypt": "*",
-                "filp/whoops": "2.*",
-                "friendsofphp/php-cs-fixer": "^1.12",
-                "google/recaptcha": "^1.1",
-                "imagecow/imagecow": "^2.0",
-                "justinrainbow/json-schema": ">=3.0",
-                "league/route": "^2.0",
-                "m6web/firewall": "~1.0",
-                "matthiasmullie/scrapbook": "^1.0.1",
-                "maximebf/debugbar": "~1.11",
-                "micheh/psr7-cache": "^0.5.0",
-                "mikey179/vfsstream": "^1.6",
-                "mobiledetect/mobiledetectlib": "^2.8",
-                "monolog/monolog": "^1.17",
-                "mrclay/minify": "^2.2",
-                "neomerx/cors-psr7": "^1.0",
-                "nikic/fast-route": "^0.7",
-                "paragonie/csp-builder": "^1.3",
-                "phpunit/phpunit": ">=4.8",
-                "piwik/referrer-spam-blacklist": "^1.0",
-                "ramsey/uuid": "^3.1",
-                "relay/relay": "1.*",
-                "willdurand/geocoder": "^3.2",
-                "willdurand/negotiation": "~2.0",
-                "zendframework/zend-diactoros": "1.*"
-            },
-            "suggest": {
-                "aura/router": "To use AuraRouter",
-                "aura/session": "To use AuraSession",
-                "filp/whoops": "To use Whoops",
-                "google/recaptcha": "To use Recaptcha",
-                "imagecow/imagecow": "To use ImageTransformer",
-                "justinrainbow/json-schema": "To validate JSON with route-matched schemas.",
-                "league/route": "To use LeagueRoute",
-                "m6web/firewall": "To use Firewall",
-                "maximebf/debugbar": "To use DebugBar",
-                "micheh/psr7-cache": "To use Cache",
-                "mobiledetect/mobiledetectlib": "To use DetectDevice",
-                "mrclay/minify": "To use Minify",
-                "neomerx/cors-psr7": "To use Cors",
-                "nikic/fast-route": "To use FastRoute",
-                "paragonie/csp-builder": "To use Csp",
-                "piwik/referrer-spam-blacklist": "To use BlockSpam",
-                "psr/cache-implementation": "To use Cache",
-                "psr/log-implementation": "To use AccessLog",
-                "ramsey/uuid": "To use Uuid",
-                "willdurand/geocoder": "To use Geolocate",
-                "willdurand/negotiation": "To use FormatNegotiator, LanguageNegotiator and EncodingNegotiator"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Psr7Middlewares\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Oscar Otero",
-                    "email": "oom@oscarotero.com",
-                    "homepage": "http://oscarotero.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Collection of HTTP middlewares compatible with PSR-7",
-            "homepage": "https://github.com/oscarotero/psr7-middlewares",
-            "keywords": [
-                "http",
-                "middlewares",
-                "psr-7",
-                "psr-messages"
-            ],
-            "abandoned": "middlewares/*",
-            "time": "2017-09-28T21:21:24+00:00"
         },
         {
             "name": "psr/container",
@@ -1961,55 +1735,6 @@
                 "portable"
             ],
             "time": "2018-04-30T19:57:29+00:00"
-        },
-        {
-            "name": "symfony/process",
-            "version": "v3.4.11",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/process.git",
-                "reference": "4cbf2db9abcb01486a21b7a059e03a62fae63187"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/4cbf2db9abcb01486a21b7a059e03a62fae63187",
-                "reference": "4cbf2db9abcb01486a21b7a059e03a62fae63187",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.5.9|>=7.0.8"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.4-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\Process\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony Process Component",
-            "homepage": "https://symfony.com",
-            "time": "2018-05-16T08:49:21+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -2555,57 +2280,6 @@
             "time": "2017-05-26 04:20:34"
         },
         {
-            "name": "jasny/http-message",
-            "version": "v1.3.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jasny/http-message.git",
-                "reference": "bb4a76e48569f2ce22b6e7bbcd63aaf86afe0f05"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jasny/http-message/zipball/bb4a76e48569f2ce22b6e7bbcd63aaf86afe0f05",
-                "reference": "bb4a76e48569f2ce22b6e7bbcd63aaf86afe0f05",
-                "shasum": ""
-            },
-            "require": {
-                "jasny/php-functions": "^2.2|^3.0",
-                "php": ">=5.6.0",
-                "psr/http-message": "^1.0"
-            },
-            "provide": {
-                "psr/http-message-implementation": "~1.0.0"
-            },
-            "require-dev": {
-                "jasny/php-code-quality": "^2.1",
-                "mikey179/vfsstream": "^1.6"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Jasny\\HttpMessage\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Arnold Daniels",
-                    "email": "arnold@jasny.net",
-                    "homepage": "http://www.jasny.net"
-                }
-            ],
-            "description": "PSR-7 implementation for handling HTTP requests",
-            "keywords": [
-                "http",
-                "mvc",
-                "psr-7"
-            ],
-            "time": "2017-05-17T01:28:27+00:00"
-        },
-        {
             "name": "jasny/php-code-quality",
             "version": "v2.2.1",
             "source": {
@@ -2696,25 +2370,28 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.7.0",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e"
+                "reference": "478465659fd987669df0bd8a9bf22a8710e5f1b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e",
-                "reference": "3b8a3a99ba1f6a3952ac2747d989303cbd6b7a3e",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/478465659fd987669df0bd8a9bf22a8710e5f1b6",
+                "reference": "478465659fd987669df0bd8a9bf22a8710e5f1b6",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.6 || ^7.0"
+                "php": "^7.1"
+            },
+            "replace": {
+                "myclabs/deep-copy": "self.version"
             },
             "require-dev": {
                 "doctrine/collections": "^1.0",
                 "doctrine/common": "^2.6",
-                "phpunit/phpunit": "^4.1"
+                "phpunit/phpunit": "^7.1"
             },
             "type": "library",
             "autoload": {
@@ -2737,7 +2414,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2017-10-19T19:58:43+00:00"
+            "time": "2018-05-29T17:25:09+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -3675,16 +3352,16 @@
         },
         {
             "name": "symfony/browser-kit",
-            "version": "v4.0.11",
+            "version": "v4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/browser-kit.git",
-                "reference": "c43bfa0182363b3fd64331b5e64e467349ff4670"
+                "reference": "16355a5d0f1499c77efee5ff68d8ea61624d4da1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/browser-kit/zipball/c43bfa0182363b3fd64331b5e64e467349ff4670",
-                "reference": "c43bfa0182363b3fd64331b5e64e467349ff4670",
+                "url": "https://api.github.com/repos/symfony/browser-kit/zipball/16355a5d0f1499c77efee5ff68d8ea61624d4da1",
+                "reference": "16355a5d0f1499c77efee5ff68d8ea61624d4da1",
                 "shasum": ""
             },
             "require": {
@@ -3701,7 +3378,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.0-dev"
+                    "dev-master": "4.1-dev"
                 }
             },
             "autoload": {
@@ -3728,20 +3405,20 @@
             ],
             "description": "Symfony BrowserKit Component",
             "homepage": "https://symfony.com",
-            "time": "2018-03-19T22:35:49+00:00"
+            "time": "2018-04-06T10:52:03+00:00"
         },
         {
             "name": "symfony/console",
-            "version": "v4.0.11",
+            "version": "v4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "058f120b8e06ebcd7b211de5ffae07b2db00fbdd"
+                "reference": "2d5d973bf9933d46802b01010bd25c800c87c242"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/058f120b8e06ebcd7b211de5ffae07b2db00fbdd",
-                "reference": "058f120b8e06ebcd7b211de5ffae07b2db00fbdd",
+                "url": "https://api.github.com/repos/symfony/console/zipball/2d5d973bf9933d46802b01010bd25c800c87c242",
+                "reference": "2d5d973bf9933d46802b01010bd25c800c87c242",
                 "shasum": ""
             },
             "require": {
@@ -3769,7 +3446,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.0-dev"
+                    "dev-master": "4.1-dev"
                 }
             },
             "autoload": {
@@ -3796,20 +3473,20 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2018-05-16T09:05:32+00:00"
+            "time": "2018-05-30T07:26:09+00:00"
         },
         {
             "name": "symfony/css-selector",
-            "version": "v4.0.11",
+            "version": "v4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/css-selector.git",
-                "reference": "0383a1a4eb1ffcac28719975d3e01bfa14be8ab3"
+                "reference": "03ac71606ecb0b0ce792faa17d74cc32c2949ef4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/css-selector/zipball/0383a1a4eb1ffcac28719975d3e01bfa14be8ab3",
-                "reference": "0383a1a4eb1ffcac28719975d3e01bfa14be8ab3",
+                "url": "https://api.github.com/repos/symfony/css-selector/zipball/03ac71606ecb0b0ce792faa17d74cc32c2949ef4",
+                "reference": "03ac71606ecb0b0ce792faa17d74cc32c2949ef4",
                 "shasum": ""
             },
             "require": {
@@ -3818,7 +3495,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.0-dev"
+                    "dev-master": "4.1-dev"
                 }
             },
             "autoload": {
@@ -3849,20 +3526,20 @@
             ],
             "description": "Symfony CssSelector Component",
             "homepage": "https://symfony.com",
-            "time": "2018-05-11T15:58:37+00:00"
+            "time": "2018-05-30T07:26:09+00:00"
         },
         {
             "name": "symfony/dom-crawler",
-            "version": "v4.0.11",
+            "version": "v4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dom-crawler.git",
-                "reference": "cf13fe774cabf4d32e8e234ec6efe7821e8b6ec1"
+                "reference": "3350cacf151b48d903114ab8f7a4ccb23e07e10a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/cf13fe774cabf4d32e8e234ec6efe7821e8b6ec1",
-                "reference": "cf13fe774cabf4d32e8e234ec6efe7821e8b6ec1",
+                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/3350cacf151b48d903114ab8f7a4ccb23e07e10a",
+                "reference": "3350cacf151b48d903114ab8f7a4ccb23e07e10a",
                 "shasum": ""
             },
             "require": {
@@ -3879,7 +3556,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.0-dev"
+                    "dev-master": "4.1-dev"
                 }
             },
             "autoload": {
@@ -3906,20 +3583,20 @@
             ],
             "description": "Symfony DomCrawler Component",
             "homepage": "https://symfony.com",
-            "time": "2018-05-01T23:00:51+00:00"
+            "time": "2018-05-01T23:02:13+00:00"
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v4.0.11",
+            "version": "v4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
-                "reference": "63353a71073faf08f62caab4e6889b06a787f07b"
+                "reference": "2391ed210a239868e7256eb6921b1bd83f3087b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/63353a71073faf08f62caab4e6889b06a787f07b",
-                "reference": "63353a71073faf08f62caab4e6889b06a787f07b",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/2391ed210a239868e7256eb6921b1bd83f3087b5",
+                "reference": "2391ed210a239868e7256eb6921b1bd83f3087b5",
                 "shasum": ""
             },
             "require": {
@@ -3942,7 +3619,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.0-dev"
+                    "dev-master": "4.1-dev"
                 }
             },
             "autoload": {
@@ -3969,20 +3646,20 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2018-04-06T07:35:43+00:00"
+            "time": "2018-04-06T07:35:57+00:00"
         },
         {
             "name": "symfony/finder",
-            "version": "v4.0.11",
+            "version": "v4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
-                "reference": "8c633f5a815903a1fe6e3fc135f207267a8a79af"
+                "reference": "087e2ee0d74464a4c6baac4e90417db7477dc238"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/finder/zipball/8c633f5a815903a1fe6e3fc135f207267a8a79af",
-                "reference": "8c633f5a815903a1fe6e3fc135f207267a8a79af",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/087e2ee0d74464a4c6baac4e90417db7477dc238",
+                "reference": "087e2ee0d74464a4c6baac4e90417db7477dc238",
                 "shasum": ""
             },
             "require": {
@@ -3991,7 +3668,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.0-dev"
+                    "dev-master": "4.1-dev"
                 }
             },
             "autoload": {
@@ -4018,7 +3695,7 @@
             ],
             "description": "Symfony Finder Component",
             "homepage": "https://symfony.com",
-            "time": "2018-05-16T09:05:32+00:00"
+            "time": "2018-05-16T14:33:22+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -4078,6 +3755,55 @@
                 "shim"
             ],
             "time": "2018-04-26T10:06:28+00:00"
+        },
+        {
+            "name": "symfony/process",
+            "version": "v4.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/process.git",
+                "reference": "73445bd33b0d337c060eef9652b94df72b6b3434"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/process/zipball/73445bd33b0d337c060eef9652b94df72b6b3434",
+                "reference": "73445bd33b0d337c060eef9652b94df72b6b3434",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Process\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Process Component",
+            "homepage": "https://symfony.com",
+            "time": "2018-05-30T07:26:09+00:00"
         },
         {
             "name": "theseer/tokenizer",

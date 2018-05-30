@@ -13,7 +13,7 @@ class ResourceStorage
     protected $mapping;
     
     /**
-     * @var GuzzleHttp\Client 
+     * @var GuzzleHttp\ClientInterface
      */
     protected $httpClient;
     
@@ -30,7 +30,7 @@ class ResourceStorage
      * @param array             $mapping     URI to URL mapping
      * @param GuzzleHttp\Client $httpClient
      */
-    public function __construct(array $mapping, GuzzleHttp\Client $httpClient)
+    public function __construct(array $mapping, GuzzleHttp\ClientInterface $httpClient)
     {
         $this->mapping = $mapping;
         $this->httpClient = $httpClient;
