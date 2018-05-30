@@ -51,11 +51,9 @@ class EventChain extends MongoDocument
      */
     public function getInitialHash()
     {
-        $base58 = new StephenHill\Base58();
+        $rawId = base58_decode($this->id);
         
-        $rawId = $base58->decode($this->id);
-        
-        return $base58->encode(hash('sha256', $rawId, true));
+        return base58_encode(hash('sha256', $rawId, true));
     }
     
     /**
@@ -127,8 +125,7 @@ class EventChain extends MongoDocument
      */
     public function isValidId()
     {
-        $base58 = new StephenHill\Base58();
-        $decodedId = $base58->decode($this->id);
+        $decodedId = base58_decode($this->id);
         
         if (strlen($decodedId) !== 45) {
             return false;
@@ -136,7 +133,7 @@ class EventChain extends MongoDocument
 
         $firstEvent = $this->getFirstEvent();
         
-        $signkey = $base58->decode($firstEvent->signkey);
+        $signkey = base58_decode($firstEvent->signkey);
         $signkeyHashed = substr(Keccak::hash(sodium_crypto_generichash($signkey, null, 32), 256), 0, 40);
         
         $vars = unpack('Cversion/H40nonce/H40keyhash/H8checksum', $decodedId);

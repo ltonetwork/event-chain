@@ -20,12 +20,12 @@
         "mouf/picotainer": "^1.1",
         "oscarotero/psr7-middlewares": "^3.20",
         "symfony/yaml" : "^2.4.5",
-        "stephenhill/base58": "^1.1",
         "guzzlehttp/guzzle": "^6.3",
         "legalthings/lto-api": "dev-php7",
         "jasny/router": "^1.1",
         "jasny/dotkey": "^1.0",
-        "jasny/http-message": "^1.3"
+        "jasny/http-message": "^1.3",
+        "legalthings/base58-compat": "^0.1.0"
     },
     "require-dev" : {
         "jasny/php-code-quality" : "^2.0.0",

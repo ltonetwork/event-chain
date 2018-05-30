@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "c8b7fbb8662c6f5599a999ec84fb9aff",
+    "content-hash": "0d4ffeee7216e57539fbf578c8210f92",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -1188,6 +1188,45 @@
                 "minification"
             ],
             "time": "2016-11-11T18:43:20+00:00"
+        },
+        {
+            "name": "legalthings/base58-compat",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/legalthings/base58-php-compat.git",
+                "reference": "3c334ca4fde31dab19a31b6e8632e495b86e39e5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/legalthings/base58-php-compat/zipball/3c334ca4fde31dab19a31b6e8632e495b86e39e5",
+                "reference": "3c334ca4fde31dab19a31b6e8632e495b86e39e5",
+                "shasum": ""
+            },
+            "require": {
+                "stephenhill/base58": "^1.1"
+            },
+            "provide": {
+                "ext-base58": "0.1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/base58.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "LegalThings",
+                    "email": "info@legalthings.io"
+                }
+            ],
+            "description": "Userspace function as fallback for base58 extension",
+            "time": "2018-05-29T22:56:08+00:00"
         },
         {
             "name": "legalthings/lto-api",
