@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "06922b61ef9571a50c7ef4c3809987af",
+    "content-hash": "090b7ec3e78e0f8d50d7064691ddffb3",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -552,6 +552,53 @@
                 "mongodb"
             ],
             "time": "2018-05-28 08:15:38"
+        },
+        {
+            "name": "jasny/dotkey",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jasny/dotkey.git",
+                "reference": "034a3c30ef07ddb276da51c24ab5500316d35ff2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jasny/dotkey/zipball/034a3c30ef07ddb276da51c24ab5500316d35ff2",
+                "reference": "034a3c30ef07ddb276da51c24ab5500316d35ff2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8",
+                "satooshi/php-coveralls": "^0.6.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jasny\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnold Daniels",
+                    "email": "arnold@jasny.net",
+                    "homepage": "http://www.jasny.net"
+                }
+            ],
+            "description": "Access objects and arrays through dot notation",
+            "keywords": [
+                "array",
+                "json",
+                "object",
+                "query"
+            ],
+            "time": "2016-07-01T13:42:21+00:00"
         },
         {
             "name": "jasny/error-handler",
