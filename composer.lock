@@ -459,12 +459,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jasny/db.git",
-                "reference": "8408e231dac99f5879cc26571e5536c17d1e3bd9"
+                "reference": "536ba40ff5790a0f687aeb7d618459745e1ca8ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasny/db/zipball/8408e231dac99f5879cc26571e5536c17d1e3bd9",
-                "reference": "8408e231dac99f5879cc26571e5536c17d1e3bd9",
+                "url": "https://api.github.com/repos/jasny/db/zipball/536ba40ff5790a0f687aeb7d618459745e1ca8ba",
+                "reference": "536ba40ff5790a0f687aeb7d618459745e1ca8ba",
                 "shasum": ""
             },
             "require": {
@@ -500,7 +500,7 @@
                 "database",
                 "db"
             ],
-            "time": "2018-05-31 01:18:28"
+            "time": "2018-05-31 02:06:48"
         },
         {
             "name": "jasny/db-mongo",

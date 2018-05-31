@@ -127,12 +127,12 @@ class ResourceStorage
         ];
         
         $promises = [];
-        
+
         foreach ($this->pending as $uri) {
             $url = $this->getUrl($uri);
             $promises[] = $this->httpClient->postAsync($url, ['json' => $data, 'http_errors' => true]);
         }
-        
-        GuzzleHttp\Promise\unwrap($promises);
+
+        return GuzzleHttp\Promise\unwrap($promises);
     }
 }
