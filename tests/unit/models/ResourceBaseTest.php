@@ -1,6 +1,9 @@
 <?php
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use Jasny\DB\Entity\Dynamic;
+use Resource;
+use ResourceBase;
 
 /**
  * @covers ResourceBase
@@ -14,9 +17,9 @@ class ResourceBaseTest extends \Codeception\Test\Unit
     
     public function _before()
     {
-        $this->resource = $this->getMockBuilder('ResourceBase')
-            ->enableProxyingToOriginalMethods()
-            ->getMockForTrait();
+        $this->resource = new class() implements Resource, Dynamic {
+            use ResourceBase;
+        };
     }
     
     public function testFromEvent()
