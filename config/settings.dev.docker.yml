@@ -1,3 +1,4 @@
+debug: true
 cache: false
 display_errors: false
 

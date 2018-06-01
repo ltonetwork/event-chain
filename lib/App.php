@@ -88,7 +88,7 @@ class App
      */
     public static function env($check = null)
     {
-        $env = self::getContainer()->get('env');
+        $env = self::getContainer()->get('app.env');
         
         return !isset($check) || $check === $env || strpos($env, $check . '.') === 0 ? $env : false;
     }
@@ -152,10 +152,10 @@ class App
      */
     public static function debug($message)
     {
-        if (!empty(self::config()->debug)) {
+        if (!(self::config()->debug ?? false)) {
             return;
         }
-        
+
         if (!is_scalar($message)) {
             $message = json_encode($message, JSON_PRETTY_PRINT);
         }
@@ -164,7 +164,7 @@ class App
             Codeception\Util\Debug::debug($message);
             return;
         }
-        
-        self::logger()->debug($message);
+
+        self::getContainer()->get('logger')->debug($message);
     }
 }

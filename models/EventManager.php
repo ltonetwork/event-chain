@@ -1,6 +1,9 @@
 <?php
 
 use Jasny\ValidationResult;
+use Jasny\DB\Entity\Identifiable;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * Handle new events
@@ -98,35 +101,73 @@ class EventManager
      */
     public function handleNewEvent(Event $event)
     {
+        $validation = $this->validateNewEvent($event);
+
+        if ($validation->failed()) {
+            return $validation;
+        }
+
+        $resource = $this->resourceFactory->extractFrom($event);
+        $auth = $this->applyPrivilegeToResource($resource, $event);
+
+        $validation->add($auth);
+        $validation->add($resource->validate());
+
+        if ($validation->failed()) {
+            return $validation;
+        }
+
+        $validation = $this->storeResource($resource);
+        if ($validation->failed()) {
+            return $validation;
+        }
+
+        $this->chain->events->add($event);
+
+        return ValidationResult::success();
+    }
+
+    /**
+     * Validate an event before adding it to the chain
+     *
+     * @param Event $event
+     * @return ValidationResult
+     */
+    protected function validateNewEvent(Event $event)
+    {
         $validation = $event->validate();
-        
+
         if ($event->previous !== $this->chain->getLatestHash()) {
             $validation->addError("event '%s' doesn't fit on chain", $event->hash);
         }
-        
-        if ($validation->failed()) {
-            return $validation;
-        }
-        
-        $resource = $this->resourceFactory->extractFrom($event);
-        
-        $auth = $this->applyPrivilegeToResource($resource, $event);
-        $validation->add($auth);
-        
-        $validation->add($resource->validate());
-        
-        if ($validation->failed()) {
-            return $validation;
-        }
-        
-        $this->resourceStorage->store($resource);
-        $this->chain->registerResource($resource);
-        
-        $this->chain->events->add($event);
-        
+
         return $validation;
     }
-    
+
+    /**
+     * Store a new event and add it to the chain
+     *
+     * @param Resource $resource
+     * @return ValidationResult
+     */
+    protected function storeResource(Resource $resource)
+    {
+        try {
+            $this->resourceStorage->store($resource);
+        } catch (RequestException $e) {
+            $id = 'resource' . ($resource instanceof Identifiable ? ' ' . $resource->getId() : '');
+            $reason = $e instanceof ClientException ? $e->getMessage() : 'Server error';
+
+            trigger_error($e->getMessage(), E_USER_WARNING);
+
+            return ValidationResult::error("Failed to store %s: %s", $id, $reason);
+        }
+
+        $this->chain->registerResource($resource);
+
+        return ValidationResult::success();
+    }
+
 
     /**
      * Apply privilege to a resource.

@@ -84,11 +84,9 @@ class HTTPSignatureMiddleware
 
         try {
             $httpSignature->useAccountFactory($this->accountFactory)->verify();
-            
-            $this->account = $httpSignature->getAccount();
-            $nextRequest = $request->withAttribute('account', $httpSignature);
+            $nextRequest = $request->withAttribute('account', $httpSignature->getAccount());
         } catch (HTTPSignatureException $e) {
-            $response->getBody()->write($e->getMessage() . "\n\nmessage:\n" . $httpSignature->getMessage());
+            $response->getBody()->write($e->getMessage());
             
             return $response
                 ->withStatus(401)

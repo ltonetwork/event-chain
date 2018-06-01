@@ -1,5 +1,7 @@
 <?php
 
+use GuzzleHttp\Psr7\Response;
+
 /**
  * Class to store an external resource.
  * 
@@ -116,7 +118,7 @@ class ResourceStorage
     
     /**
      * Message resources that the event chain has been processed.
-     * 
+     *
      * @param EventChain $chain
      */
     public function done(EventChain $chain)
@@ -130,9 +132,32 @@ class ResourceStorage
 
         foreach ($this->pending as $uri) {
             $url = $this->getUrl($uri);
-            $promises[] = $this->httpClient->postAsync($url, ['json' => $data, 'http_errors' => true]);
+
+            $promises[] = $this->httpClient->postAsync($url, ['json' => $data, 'http_errors' => false])
+                ->then(function(Response $response) use ($url) {
+                    if ($response->getStatusCode() >= 400) {
+                        $this->doneOnError($response, $url);
+                    }
+                });
         }
 
-        return GuzzleHttp\Promise\unwrap($promises);
+        GuzzleHttp\Promise\unwrap($promises);
+    }
+
+    /**
+     * Handler an error on done
+     *
+     * @param Response $response
+     * @param string $url
+     */
+    protected function doneOnError(Response $response, string $url)
+    {
+        $status = $response->getStatusCode() . ' ' . $response->getReasonPhrase();
+
+        $hasMessage = $response->getStatusCode() < 500
+            && preg_match('~^(text/plain|application/json)(;|$)~', $response->getHeaderLine('Content-Type'));
+        $message = $hasMessage ? ': ' . $response->getBody() : '';
+
+        trigger_error("POST $url resulted in a `$status` response" . $message, E_USER_WARNING);
     }
 }

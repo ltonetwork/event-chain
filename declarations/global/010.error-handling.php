@@ -6,6 +6,7 @@
 
 use Jasny\ErrorHandler;
 use Jasny\ErrorHandlerInterface;
+use Monolog\Logger;
 use Monolog\Handler\ErrorLogHandler;
 
 $container = App::getContainer();
@@ -26,9 +27,14 @@ if (!empty($config->debug)) {
     error_reporting(E_ALL & ~E_NOTICE & ~E_USER_NOTICE & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_STRICT);
 }
 
+/* @var $logger Logger */
 $logger = $container->get('logger');
 
-if (!ini_get('display_errors') && !$logger instanceof ErrorLogHandler) {
+$stdlog = array_reduce($logger->getHandlers(), function($found, $handler) {
+    return $found || $handler instanceof ErrorLogHandler;
+}, false);
+
+if (!ini_get('display_errors') && !$stdlog) {
     $errorHandler = $container->get(ErrorHandlerInterface::class);
 
     $errorHandler->setLogger($logger);
