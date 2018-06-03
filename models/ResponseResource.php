@@ -43,7 +43,7 @@ class ResponseResource extends ExternalResource
     {
         $this->identity = $identity;
         
-        if (isset($this->actor) && $this->actor->id === $identity->id) {
+        if (isset($this->actor) && (!isset($this->actor->id) || $this->actor->id === $identity->id)) {
             $values = array_without($identity->getValues(), ['privileges', 'timestamp']);
 
             foreach ($values as $key => $value) {
@@ -66,10 +66,12 @@ class ResponseResource extends ExternalResource
         if (!isset($this->process->id)) {
             $validation->addError("process id not set");
         }
-        
-        if (isset($this->actor->id) && $this->actor->id !== $this->identity->id) {
-            $validation->addError("actor id doesn't match identity id");
-        }
+
+        // FIXME needs to work for multiple identities with same system signkey
+        /*if (isset($this->actor->id) && $this->actor->id !== $this->identity->id) {
+            $validation->addError("actor '%s' is assigned to identity '%s', not '%s'", $this->actor->key,
+                $this->actor->id, $this->identity->id);
+        }*/
         
         return $validation;
     }

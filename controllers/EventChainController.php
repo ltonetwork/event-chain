@@ -82,6 +82,7 @@ class EventChainController extends Jasny\Controller
         $handled = $manager->add($newChain);
         
         if ($handled->failed()) {
+            App::debug($handled->getErrors());
             return $this->badRequest($handled->getErrors());
         }
         
