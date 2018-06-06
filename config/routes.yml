@@ -1,8 +1,8 @@
 ## Routes
 ---
-/:                     { controller: default, action: info }
+/:                        { controller: default, action: info }
 
-/event-chains +GET:    { controller: event-chain, action: list }
-/event-chains +POST:   { controller: event-chain, action: add }
-/event-chains/* +GET:  { controller: event-chain, action: get, id: $2 }
-
+/event-chains +GET:       { controller: event-chain, action: list }
+/event-chains +POST:      { controller: event-chain, action: add }
+/event-chains/* +GET:     { controller: event-chain, action: get, id: $2 }
+/event-chains/* +DELETE:  { controller: event-chain, action: delete, id: $2 }

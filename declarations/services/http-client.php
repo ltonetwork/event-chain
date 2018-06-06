@@ -6,6 +6,6 @@ use GuzzleHttp\Client;
 
 return [
     ClientInterface::class => function () {
-        return new Client(['timeout' => 5]);
+        return new Client(['timeout' => 20]);
     }
 ];
