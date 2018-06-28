@@ -57,8 +57,8 @@ class EventChainController extends Jasny\Controller
      */
     public function listAction()
     {
-        $events = EventChain::fetchAll();        
-        
+        $events = EventChain::fetchAll(['identities.signkeys.user' => $this->account->getPublicSignKey()]);
+
         $this->output($events, 'json');
     }
     
