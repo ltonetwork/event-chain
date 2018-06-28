@@ -459,12 +459,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jasny/db.git",
-                "reference": "536ba40ff5790a0f687aeb7d618459745e1ca8ba"
+                "reference": "bc71cd9660055460960214867e96303177da4034"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasny/db/zipball/536ba40ff5790a0f687aeb7d618459745e1ca8ba",
-                "reference": "536ba40ff5790a0f687aeb7d618459745e1ca8ba",
+                "url": "https://api.github.com/repos/jasny/db/zipball/bc71cd9660055460960214867e96303177da4034",
+                "reference": "bc71cd9660055460960214867e96303177da4034",
                 "shasum": ""
             },
             "require": {
@@ -500,7 +500,7 @@
                 "database",
                 "db"
             ],
-            "time": "2018-05-31 02:06:48"
+            "time": "2018-06-04T16:30:13+00:00"
         },
         {
             "name": "jasny/db-mongo",
@@ -551,7 +551,7 @@
                 "mongo",
                 "mongodb"
             ],
-            "time": "2018-05-28 08:15:38"
+            "time": "2018-05-28T08:15:38+00:00"
         },
         {
             "name": "jasny/dotkey",
@@ -1016,12 +1016,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/legalthings/lto-api.php.git",
-                "reference": "7c3567f76fdd6cafc14b730c88ef6f2fed63661b"
+                "reference": "20b60ffb9de06d84d63f6beb6cdffd556dfab791"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/legalthings/lto-api.php/zipball/7c3567f76fdd6cafc14b730c88ef6f2fed63661b",
-                "reference": "7c3567f76fdd6cafc14b730c88ef6f2fed63661b",
+                "url": "https://api.github.com/repos/legalthings/lto-api.php/zipball/20b60ffb9de06d84d63f6beb6cdffd556dfab791",
+                "reference": "20b60ffb9de06d84d63f6beb6cdffd556dfab791",
                 "shasum": ""
             },
             "require": {
@@ -1055,7 +1055,7 @@
                 }
             ],
             "description": "LegalThings One client",
-            "time": "2018-05-31 00:49:32"
+            "time": "2018-06-28T09:04:56+00:00"
         },
         {
             "name": "mongodb/mongodb",
@@ -1396,16 +1396,16 @@
         },
         {
             "name": "rollbar/rollbar",
-            "version": "v1.5.1",
+            "version": "v1.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rollbar/rollbar-php.git",
-                "reference": "f8816f2e633f7289c373bb35c1979a665007d90b"
+                "reference": "2c60568c28b837ad87b802abf3ae47dfbe579db9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rollbar/rollbar-php/zipball/f8816f2e633f7289c373bb35c1979a665007d90b",
-                "reference": "f8816f2e633f7289c373bb35c1979a665007d90b",
+                "url": "https://api.github.com/repos/rollbar/rollbar-php/zipball/2c60568c28b837ad87b802abf3ae47dfbe579db9",
+                "reference": "2c60568c28b837ad87b802abf3ae47dfbe579db9",
                 "shasum": ""
             },
             "require": {
@@ -1452,7 +1452,7 @@
                 "logging",
                 "monitoring"
             ],
-            "time": "2018-05-20T04:54:14+00:00"
+            "time": "2018-06-06T03:11:44+00:00"
         },
         {
             "name": "sebastian/comparator",
@@ -2324,7 +2324,7 @@
                 }
             ],
             "description": "Codeception Module for Jasny MVC",
-            "time": "2017-05-26 04:20:34"
+            "time": "2017-05-26T04:20:34+00:00"
         },
         {
             "name": "jasny/php-code-quality",
