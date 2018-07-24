@@ -23,7 +23,8 @@ db.getCollection("event_chains").insert([
                 "email": "john.doe@example.com",
                 "info": null,
                 "privileges": null,
-                "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6"
+                "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
+                "\\u0024schema" : "https://specs.livecontracts.io/v0.1.0/identity/schema.json#"
             }
         ],
         "comments": [],
@@ -79,7 +80,7 @@ db.getCollection("event_chains").insert([
                 },
                 "encryptkey" : "9fSos8krst114LtaYGHQPjC3h1CQEHUQWEkYdbykrhHv",
                 "privileges" : null,
-                "schema" : "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
+                "\\u0024schema" : "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
                 "timestamp" : Date(1529320663938000)
             },
             {
@@ -94,7 +95,7 @@ db.getCollection("event_chains").insert([
                 },
                 "encryptkey" : null,
                 "privileges" : null,
-                "schema" : "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
+                "\\u0024schema" : "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
                 "timestamp" : ISODate("2018-06-18T11:17:55.000Z")
             }
         ],
@@ -142,7 +143,7 @@ db.getCollection("event_chains").insert([
         ],
         "identities": [
             {
-                "$schema": "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
+                "\\u0024schema": "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
                 "id": "4fd69b8e-6bd3-4d88-81dd-a6ed9308a14e",
                 "signkeys": {
                     "user": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
@@ -154,7 +155,7 @@ db.getCollection("event_chains").insert([
                 "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6"
             },
             {
-                "$schema": "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
+                "\\u0024schema": "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
                 "id": "4fd69b8e-6bd3-4d88-81dd-a6ed9308a14e",
                 "signkeys": {
                     "user": "BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp"
@@ -168,7 +169,7 @@ db.getCollection("event_chains").insert([
         ],
         "comments": [
             {
-                "$schema": "https://specs.livecontracts.io/v0.1.0/comment/schema.json#",
+                "\\u0024schema": "https://specs.livecontracts.io/v0.1.0/comment/schema.json#",
                 "content_media_type": "text/plain",
                 "content": "Hello world",
                 "timestamp": Date("2018-04-05T13:58:16Z"),
@@ -180,5 +181,5 @@ db.getCollection("event_chains").insert([
         "resources": [
             "lt:/documents/23c85363-d2a4-4341-a993-9ba15a3037b5?v=31CDcS84"
         ]
-    },
+    }
 ]);
