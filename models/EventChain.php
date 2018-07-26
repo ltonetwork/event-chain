@@ -1,7 +1,7 @@
 <?php
 
 use Jasny\DB\Entity\Identifiable;
-use LTO\Keccak;
+use kornrunner\Keccak;
 
 /**
  * EventChain entity
@@ -51,11 +51,9 @@ class EventChain extends MongoDocument
      */
     public function getInitialHash()
     {
-        $base58 = new StephenHill\Base58();
+        $rawId = base58_decode($this->id);
         
-        $rawId = $base58->decode($this->id);
-        
-        return $base58->encode(hash('sha256', $rawId, true));
+        return base58_encode(hash('sha256', $rawId, true));
     }
     
     /**
@@ -127,15 +125,18 @@ class EventChain extends MongoDocument
      */
     public function isValidId()
     {
+        $decodedId = base58_decode($this->id);
+        
+        if (strlen($decodedId) !== 45) {
+            return false;
+        }
+
         $firstEvent = $this->getFirstEvent();
         
-        $base58 = new StephenHill\Base58();
+        $signkey = base58_decode($firstEvent->signkey);
+        $signkeyHashed = substr(Keccak::hash(sodium_crypto_generichash($signkey, null, 32), 256), 0, 40);
         
-        $signkey = $base58->decode($firstEvent->signkey);
-        $signkeyHashed = substr(Keccak::hash(sodium\crypto_generichash($signkey, null, 32), 256), 0, 40);
-        
-        $decodedId = $base58->decode($this->id);
-        $vars = unpack('Cversion/H16random/H40keyhash/H8checksum', $decodedId);
+        $vars = unpack('Cversion/H40nonce/H40keyhash/H8checksum', $decodedId);
         
         return
             $vars['version'] === static::ADDRESS_VERSION &&
@@ -154,7 +155,7 @@ class EventChain extends MongoDocument
         
         if (count($this->events) === 0) {
             $validation->addError('no events');
-        } elseif ($this->getFirstEvent()->previous === $this->getInitialHash() && !$this->isValidId()) {
+        } else if ($this->getFirstEvent()->previous != $this->getInitialHash() || !$this->isValidId()) {
             $validation->addError('invalid id');
         }
         

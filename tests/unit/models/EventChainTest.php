@@ -1,7 +1,7 @@
 <?php
 
 use Jasny\DB\EntitySet;
-use LTO\Keccak;
+use kornrunner\Keccak;
 
 /**
  * @covers EventChain
@@ -17,11 +17,11 @@ class EventChainTest extends \Codeception\Test\Unit
         
         $signkey = $base58->decode("FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y");
         
-        $signkeyHashed = substr(Keccak::hash(sodium\crypto_generichash($signkey, null, 32), 256), 0, 40);
+        $signkeyHashed = substr(Keccak::hash(sodium_crypto_generichash($signkey, null, 32), 256), 0, 40);
         $this->assertEquals("cfe2a4058d1329ffa541554fc0ce58c8376c7782", $signkeyHashed);
         
         $packed = pack('CH16H40', EventChain::ADDRESS_VERSION, '0000000000000000', $signkeyHashed);
-        $chksum = substr(Keccak::hash(sodium\crypto_generichash($packed), 256), 0, 8);
+        $chksum = substr(Keccak::hash(sodium_crypto_generichash($packed), 256), 0, 8);
         $this->assertEquals("ebd9a5be", $chksum);
         
         $idBinary = pack('CH16H40H8', EventChain::ADDRESS_VERSION, '0000000000000000', $signkeyHashed, $chksum);
@@ -185,39 +185,50 @@ class EventChainTest extends \Codeception\Test\Unit
     public function testValidateId()
     {
         $event = $this->createMock(Event::class);
-        $event->previous = "7juAGSAfJJ2Th9SXGpm3u9XcLtMZzFaExbnCrnUAi1kn";
+        $event->previous = "FYAWXTgi4oWLWmNtEuNQnAaeMjM9oT7iavzrGKmMoVAw";
         $event->signkey = "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y";
         
         $chain = EventChain::create()->setValues([
-            'id' => '7juAGSAfJJ2Th9SXGpm3u9XcLtMZzFaExbnCrnUAi1kn',
+            'id' => '2bGCW3XbfLmSRhotYzcUgqiomiiFLSXKDU43jLMNaf29UXTkpkn2PfvyZkF8yx',
             'events' => [ $event ]
         ]);
         
         $validation = $chain->validate();
         
-        $this->assertEquals([], $validation->getErrors());
+        $this->assertSame([], $validation->getErrors());
     }
-    
-    public function testValidateIdFail()
+
+    public function invalidIdProvider()
+    {
+        return [
+            ['2bGCW3XbfLmSRhotYzcUgqiomiiFLSXKDU43jLMNaf29UXTkpkn2PfvyZkF8yx'],
+            ['2ar3wSjTm1fA33qgckZ5Kxn1x89gKKGi6TJsZjRoqb7sjUE8GZXjLaYCbCa2GX']
+        ];
+    }
+
+    /**
+     * @dataProvider invalidIdProvider
+     */
+    public function testValidateIdFail($id)
     {
         $event = $this->createMock(Event::class);
         $event->previous = "7juAGSAfJJ2Th9SXGpm3u9XcLtMZzFaExbnCrnUAi1kn";
         $event->signkey = "7TecQdLbPuxt3mWukbZ1g1dTZeA6rxgjMxfS9MRURaEP";
         
         $chain = EventChain::create()->setValues([
-            'id' => 'CtBfprZ4zktW4mVhh1hhU76AvqEa3vtpc5vN6gkDX5W9f',
+            'id' => $id,
             'events' => [ $event ]
         ]);
         
         $validation = $chain->validate();
         
-        $this->assertEquals(['invalid id'], $validation->getErrors());
+        $this->assertSame(['invalid id'], $validation->getErrors());
     }
     
     public function testValidateIntegrity()
     {
         $event1 = $this->createMock(Event::class);
-        $event1->previous = "7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U";
+        $event1->previous = "3NTzfLcXq1D5BRzhj9EyVbmAcLsz1pa6ZjdxRySbYze1";
         $event1->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
         $event1->hash = "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj";
         
@@ -227,7 +238,7 @@ class EventChainTest extends \Codeception\Test\Unit
         $event2->hash = "J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS";
         
         $chain = EventChain::create()->setValues([
-            'id' =>  'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
+            'id' =>  '2ar3wSjTm1fA33qgckZ5Kxn1x89gKKGi6TJsZjRoqb7sjUE8GZXjLaYCbCa2GX',
             'events' => [ $event1, $event2 ]
         ]);
         
@@ -239,7 +250,7 @@ class EventChainTest extends \Codeception\Test\Unit
     public function testValidateIntegrityFailed()
     {
         $event1 = $this->createMock(Event::class);
-        $event1->previous = "7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U";
+        $event1->previous = "3NTzfLcXq1D5BRzhj9EyVbmAcLsz1pa6ZjdxRySbYze1";
         $event1->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
         $event1->hash = "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj";
         
@@ -249,7 +260,7 @@ class EventChainTest extends \Codeception\Test\Unit
         $event3->hash = "3HZd1nBeva2fLUUEygGakdCQr84dcUz6J3wGTUsHdnhq";
         
         $chain = EventChain::create()->setValues([
-            'id' =>  'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
+            'id' =>  '2ar3wSjTm1fA33qgckZ5Kxn1x89gKKGi6TJsZjRoqb7sjUE8GZXjLaYCbCa2GX',
             'events' => [ $event1, $event3 ]
         ]);
         

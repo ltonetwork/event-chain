@@ -6,10 +6,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Container\ContainerInterface;
 use Monolog\Logger;
 use Monolog\Handler\TestHandler;
-use Codeception\Util\Stub;
-use Assetic\AssetWriter;
-
-App::reset(); // Reset global state
 
 $httpTriggerHistory = [];
 
@@ -21,10 +17,7 @@ $overwrite = [
     LoggerInterface::class => function() {
         return new Logger('', [new TestHandler()]);
     },
-    AssetWriter::class => function() {
-        return Stub::make(AssetWriter::class, ['writeManagerAssets' => function () {}]);
-    },
-    'httpHistory' => function() use (&$httpTriggerHistory) {
+    'http.history' => function() use (&$httpTriggerHistory) {
         return $httpTriggerHistory;
     },
     GuzzleHttp\Handler\MockHandler::class => function() {
@@ -44,6 +37,5 @@ $container = new AppContainer($overwrite);
 
 // Setup global state
 App::setContainer($container);
-App::sessionStart();
 
 return $container;

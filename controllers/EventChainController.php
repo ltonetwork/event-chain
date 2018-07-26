@@ -1,6 +1,7 @@
 <?php
 
 use LTO\Account;
+use Psr\Container\ContainerInterface;
 
 /**
  * Event chain controller
@@ -24,14 +25,15 @@ class EventChainController extends Jasny\Controller
      * @var Account
      */
     protected $account;
-    
+
+
     /**
      * Class constructor
      */
-    public function __construct()
+    public function __construct(ContainerInterface $container)
     {
-        $this->resourceFactory = new ResourceFactory();
-        $this->resourceStorage = new ResourceStorage(Jasny\arrayify(App::config()->endpoints), App::httpClient());
+        $this->resourceFactory = $container->get('models:resources.factory');
+        $this->resourceStorage = $container->get('models:resources.storage');
     }
 
     /**
@@ -48,14 +50,15 @@ class EventChainController extends Jasny\Controller
             $this->cancel();
         }
     }
-    
+
+
     /**
      * List all the event chains the authorized user is an identity in
      */
     public function listAction()
     {
-        $events = EventChain::fetchAll();        
-        
+        $events = EventChain::fetchAll(['identities.signkeys.user' => $this->account->getPublicSignKey()]);
+
         $this->output($events, 'json');
     }
     
@@ -79,6 +82,7 @@ class EventChainController extends Jasny\Controller
         $handled = $manager->add($newChain);
         
         if ($handled->failed()) {
+            App::debug($handled->getErrors());
             return $this->badRequest($handled->getErrors());
         }
         
@@ -86,4 +90,34 @@ class EventChainController extends Jasny\Controller
         return $this->ok();
     }
     
+    /**
+     * Output a single event chain
+     * 
+     * @param string $id
+     */
+    public function getAction($id)
+    {
+        $event = EventChain::fetch($id);
+        
+        if (!isset($event)) {
+            return $this->notFound("Event not found");
+        }
+
+        $this->output($event, 'json');
+    }
+
+    /**
+     * Delete an event chain
+     *
+     * @param $id
+     */
+    public function deleteAction($id)
+    {
+        $event = EventChain::fetch($id);
+
+        if (isset($event))
+            $event->delete();
+
+        $this->noContent();
+    }
 }

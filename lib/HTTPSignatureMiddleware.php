@@ -4,6 +4,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use LTO\HTTPSignature;
 use LTO\AccountFactory;
+use LTO\Account;
 use LTO\HTTPSignatureException;
 
 /**
@@ -23,8 +24,13 @@ class HTTPSignatureMiddleware
      * @var string
      */
     protected $baseRewrite;
-    
-    
+
+    /**
+     * @var Account
+     */
+    public $account;
+
+
     /**
      * Class constructor
      * 
@@ -84,11 +90,10 @@ class HTTPSignatureMiddleware
 
         try {
             $httpSignature->useAccountFactory($this->accountFactory)->verify();
-            
             $this->account = $httpSignature->getAccount();
-            $nextRequest = $request->withAttribute('account', $httpSignature);
+            $nextRequest = $request->withAttribute('account', $this->account);
         } catch (HTTPSignatureException $e) {
-            $response->getBody()->write($e->getMessage() . "\n\nmessage:\n" . $httpSignature->getMessage());
+            $response->getBody()->write($e->getMessage());
             
             return $response
                 ->withStatus(401)

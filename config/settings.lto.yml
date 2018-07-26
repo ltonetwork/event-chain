@@ -1,18 +1,16 @@
-log: browser
-debug: true
 cache: false
 display_errors: false
 
 db:
   default:
-    client: mongodb://localhost:27017
-    database: legalevent
+    client: mongodb://mongo:27017
+    database: legalevents
 
 rollbar: false
 
 email:
-  From: info@legalthings.io
-  FromName: LegalThings
+  From: test@example.com
+  FromName: Test
   Mailer: mail
 
 endpoints:
@@ -20,3 +18,6 @@ endpoints:
   "lt:/processes/*":      "http://legalflow/responses/"
   "lt:/processes/*/done": "http://legalflow/processes/$2/done"
 
+environment_variables:
+  MONGO_DB: db.default.client
+  MONGO_DB_PREFIX: db.default.prefix

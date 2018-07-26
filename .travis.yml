@@ -1,0 +1,44 @@
+language: php
+php: 7.1
+sudo: false
+
+# Add your branch here to have it tested and deployed
+branches:
+  only:
+  - master
+  - /^v\d+\.\d+\.\d+$/
+
+# Add mongodb
+services: mongodb
+
+before_install:
+# Configure Git
+- git config --global user.email "travis-ci@legalthings.net"
+- git config --global user.name "Travis CI"
+
+# Configure composer
+- test -z "$GITHUB_TOKEN" || composer config -g github-oauth.github.com "$GITHUB_TOKEN"
+
+# Get all tags of git repo
+- git fetch origin 'refs/tags/*:refs/tags/*'
+
+# Should we run the test suite? No for commit to master, otherwise yes
+- RUN_TESTS=$(test "$TRAVIS_BRANCH" == 'master' -a "$TRAVIS_PULL_REQUEST" == "false" && echo false || echo true)
+
+# Determine commit of master branch for tag build
+- TRAVIS_BRANCH_COMMIT=$(test -z "$TRAVIS_TAG" && git log -n 1 --skip=1 --pretty="format:%H" || echo "$TRAVIS_COMMIT")
+
+install:
+# Install composer packages
+- composer install
+
+# Download scrutinizer ocular
+- test "$RUN_TESTS" == "false" || wget https://scrutinizer-ci.com/ocular.phar -O "$HOME/ocular.phar"
+
+before_script:
+# Generate codecept build classes
+- php bin/codecept build
+
+script:
+# Run tests
+- test "$RUN_TESTS" == "false" || php bin/codecept run --coverage --coverage-xml

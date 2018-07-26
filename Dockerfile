@@ -1,11 +1,9 @@
-FROM legalthings/apache-php
+FROM legalthings/apache-php71
   
 ADD . /app
 WORKDIR /app
 
-RUN apt-get install -y libsodium-dev
-RUN pecl install libsodium-1.0.6 && \
-    echo "extension=libsodium.so" > /usr/local/etc/php/conf.d/ext-sodium.ini
+RUN apt-get install -y git
 
 ENV APACHE_DOCUMENT_ROOT /var/www/html/www
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
