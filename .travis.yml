@@ -1,6 +1,5 @@
 language: php
 php: 7.1
-sudo: false
 
 # Add your branch here to have it tested and deployed
 branches:
@@ -12,6 +11,15 @@ branches:
 services: mongodb
 
 before_install:
+# Install libsodium
+- sudo add-apt-repository ppa:ondrej/php -y
+- sudo apt-get -qq update
+- sudo apt-get install libsodium-dev
+- pecl install libsodium
+
+# Install MongoDB PHP extension
+- pecl install mongodb
+
 # Configure Git
 - git config --global user.email "travis-ci@legalthings.net"
 - git config --global user.name "Travis CI"
