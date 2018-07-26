@@ -126,8 +126,7 @@ class Event extends MongoSubDocument implements Identifiable
     {
         $hash = hash('sha256', $this->getMessage(), true);
 
-        $base58 = new StephenHill\Base58();
-        return $base58->encode($hash);
+        return base58_encode($hash);
     }
     
     /**
@@ -144,9 +143,8 @@ class Event extends MongoSubDocument implements Identifiable
         if (!isset($this->body)) {
             return null;
         }
-        
-        $base58 = new StephenHill\Base58();
-        $json = $base58->decode($this->body);
+
+        $json = base58_decode($this->body);
         
         $this->cachedBody = $json ? json_decode($json, true) : null;
         
@@ -164,14 +162,12 @@ class Event extends MongoSubDocument implements Identifiable
             return false;
         }
         
-        $base58 = new StephenHill\Base58();
+        $signature = base58_decode($this->signature);
+        $signkey = base58_decode($this->signkey);
         
-        $signature = $base58->decode($this->signature);
-        $signkey = $base58->decode($this->signkey);
-        
-        return strlen($signature) === sodium\CRYPTO_SIGN_BYTES &&
-            strlen($signkey) === sodium\CRYPTO_SIGN_PUBLICKEYBYTES &&
-            sodium\crypto_sign_verify_detached($signature, $this->getMessage(), $signkey);
+        return strlen($signature) === SODIUM_CRYPTO_SIGN_BYTES &&
+            strlen($signkey) === SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES &&
+            sodium_crypto_sign_verify_detached($signature, $this->getMessage(), $signkey);
     }
     
     /**

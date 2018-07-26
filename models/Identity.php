@@ -17,23 +17,28 @@ class Identity extends MongoSubDocument implements Resource, Identifiable
     public $id;
     
     /**
-     * Person / organization name
-     * @var string
+     * Person / organization info
+     * @var \stdClass
      */
-    public $name;
+    public $info;
 
-    /**
-     * E-mail address
-     * @var string
-     * @type email
-     */
-    public $email;
-    
     /**
      * Live contracts node the identity is using
      * @var string
      */
     public $node;
+    
+    /**
+     * Name of the identity
+     * @var string
+     */
+    public $name;
+    
+    /**
+     * Email address of the identity
+     * @var string
+     */
+    public $email;
     
     /**
      * Cryptographic (ED25519) public keys used in signing
