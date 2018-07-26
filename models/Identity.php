@@ -29,6 +29,18 @@ class Identity extends MongoSubDocument implements Resource, Identifiable
     public $node;
     
     /**
+     * Name of the identity
+     * @var string
+     */
+    public $name;
+    
+    /**
+     * Email address of the identity
+     * @var string
+     */
+    public $email;
+    
+    /**
      * Cryptographic (ED25519) public keys used in signing
      * @var array
      */
