@@ -155,7 +155,7 @@ class EventChain extends MongoDocument
         
         if (count($this->events) === 0) {
             $validation->addError('no events');
-        } elseif ($this->getFirstEvent()->previous !== $this->getInitialHash() || !$this->isValidId()) {
+        } else if ($this->getFirstEvent()->previous != $this->getInitialHash() || !$this->isValidId()) {
             $validation->addError('invalid id');
         }
         

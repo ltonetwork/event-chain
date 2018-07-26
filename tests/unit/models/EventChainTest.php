@@ -185,11 +185,11 @@ class EventChainTest extends \Codeception\Test\Unit
     public function testValidateId()
     {
         $event = $this->createMock(Event::class);
-        $event->previous = "7juAGSAfJJ2Th9SXGpm3u9XcLtMZzFaExbnCrnUAi1kn";
+        $event->previous = "FYAWXTgi4oWLWmNtEuNQnAaeMjM9oT7iavzrGKmMoVAw";
         $event->signkey = "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y";
         
         $chain = EventChain::create()->setValues([
-            'id' => '7juAGSAfJJ2Th9SXGpm3u9XcLtMZzFaExbnCrnUAi1kn',
+            'id' => '2bGCW3XbfLmSRhotYzcUgqiomiiFLSXKDU43jLMNaf29UXTkpkn2PfvyZkF8yx',
             'events' => [ $event ]
         ]);
         
@@ -201,8 +201,8 @@ class EventChainTest extends \Codeception\Test\Unit
     public function invalidIdProvider()
     {
         return [
-            ['JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya'],
-            ['CtBfprZ4zktW4mVhh1hhU76AvqEa3vtpc5vN6gkDX5W9f']
+            ['2bGCW3XbfLmSRhotYzcUgqiomiiFLSXKDU43jLMNaf29UXTkpkn2PfvyZkF8yx'],
+            ['2ar3wSjTm1fA33qgckZ5Kxn1x89gKKGi6TJsZjRoqb7sjUE8GZXjLaYCbCa2GX']
         ];
     }
 
@@ -228,7 +228,7 @@ class EventChainTest extends \Codeception\Test\Unit
     public function testValidateIntegrity()
     {
         $event1 = $this->createMock(Event::class);
-        $event1->previous = "7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U";
+        $event1->previous = "3NTzfLcXq1D5BRzhj9EyVbmAcLsz1pa6ZjdxRySbYze1";
         $event1->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
         $event1->hash = "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj";
         
@@ -238,7 +238,7 @@ class EventChainTest extends \Codeception\Test\Unit
         $event2->hash = "J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS";
         
         $chain = EventChain::create()->setValues([
-            'id' =>  'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
+            'id' =>  '2ar3wSjTm1fA33qgckZ5Kxn1x89gKKGi6TJsZjRoqb7sjUE8GZXjLaYCbCa2GX',
             'events' => [ $event1, $event2 ]
         ]);
         
@@ -250,7 +250,7 @@ class EventChainTest extends \Codeception\Test\Unit
     public function testValidateIntegrityFailed()
     {
         $event1 = $this->createMock(Event::class);
-        $event1->previous = "7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U";
+        $event1->previous = "3NTzfLcXq1D5BRzhj9EyVbmAcLsz1pa6ZjdxRySbYze1";
         $event1->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
         $event1->hash = "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj";
         
@@ -260,7 +260,7 @@ class EventChainTest extends \Codeception\Test\Unit
         $event3->hash = "3HZd1nBeva2fLUUEygGakdCQr84dcUz6J3wGTUsHdnhq";
         
         $chain = EventChain::create()->setValues([
-            'id' =>  'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
+            'id' =>  '2ar3wSjTm1fA33qgckZ5Kxn1x89gKKGi6TJsZjRoqb7sjUE8GZXjLaYCbCa2GX',
             'events' => [ $event1, $event3 ]
         ]);
         
