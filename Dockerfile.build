@@ -1,19 +1,6 @@
 FROM legalthings/apache-php71
-  
-RUN apt-get install -y git netbase
 
-ADD build/ /build
-WORKDIR /build
-RUN composer install --no-dev
-
-ADD bin/ /tmp
-WORKDIR /tmp
-
-RUN ./ioncube_encoder.sh -71 --activate 
-RUN ./ioncube_encoder.sh -71 /build -o /app --keep-comments --replace-target
-
-# Cleanup
-RUN rm -rf /tmp/* && rm -rf /build
+ADD app/ /app
 
 WORKDIR /app
 

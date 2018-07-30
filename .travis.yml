@@ -67,9 +67,7 @@ before_deploy:
 # Build docker image
 - export IMAGE_NAME=legalthings/legalevents
 - export BUILD_VERSION=$(git tag --contains)
-- mkdir build/
-- cp *.php composer.* .dockerignore build/
-- cp -rf lib controllers models www config declarations build/
+- ./compile.sh
 - docker build -f Dockerfile.build -t ${IMAGE_NAME} .
 - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${BUILD_VERSION}"
 - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
