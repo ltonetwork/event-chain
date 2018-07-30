@@ -7,8 +7,13 @@ branches:
   - master
   - /^v\d+\.\d+\.\d+$/
 
+env:
+- secure: "SbXGAmCaVHSte22f+v82HgyDXcf2q2/ySTK2zVk6KxHGMlZ1zrbw9/AVPWB5Z/j17x6MucJdJHYFDpEr8CF1TqFyOZbzLuer4dWWo9JolwntejJh/s2WOVCQg2puQStjPsl5WrV6unweVDO39mZSxDzA8OL1bqW7OoZgBWryyejagok1NQ/JUcEkO3ocsCZudPbhn2lmkeN9STQtiGw1nLVoVyBVQkzioK32WqDeV7rr+nv3ZsXKwg0qnLvvUXDrKGukwcfwszimAyYfsuXDhFKL8aPB147deHXkTFcM6R1dUQ/tFK0eUY/LSR0d/8b6C2NoWnavgMB1EmtXWdYy54ImW+v0soGW/IYdf9MQj5sQcBdrZX1X3OywGsfCou7a3NToHg27wLbOBuvvKyXR6vzp2WLObNWhUb6MWfXlPf8uvIzDZvSHai2eqgcO+p4j+N502PLnyc7UsYFUruoiTamA9uAAUaNsBLx32Qg4soA0tO+OqAi6Zo66gUE1tts3YWTwEUqTMndLTYaBxW7LgOPVPrzpM8HoVvMPBF9EvnIIIG2nyCobNbQ/Et/do1LP+Ry2XLRmOPI57PnD9I1/gui6z9yvMoMO1CkfhuEeCRzo5GCi9d8ZTa2ZRIPqKF3o2WUY1DKX/bLjIb6I48Q3lKNzS/8Hq/aU50dk0CMXNZQ="
+
 # Add mongodb
-services: mongodb
+services:
+- mongodb
+- docker
 
 before_install:
 # Install libsodium
@@ -50,3 +55,27 @@ before_script:
 script:
 # Run tests
 - test "$RUN_TESTS" == "false" || php bin/codecept run --coverage --coverage-xml
+
+after_success:
+# Bump version (for master branch)
+- test "$TRAVIS_BRANCH" != 'master' -o "$TRAVIS_PULL_REQUEST" != "false" || test -n "$(git tag --contains)" || bin/bump-version
+
+# Upload coverage report
+- test "$RUN_TESTS" == "false" || php "$HOME/ocular.phar" 'code-coverage:upload' --access-token="$SCRUTINIZER_TOKEN" --format=php-clover tests/_output/coverage.xml --revision "$TRAVIS_BRANCH_COMMIT"
+
+before_deploy:
+# Build docker image
+- export IMAGE_NAME=legalthings/legalevents
+- export BUILD_VERSION=$(git tag --contains)
+- mkdir build/
+- cp *.php composer.* .dockerignore build/
+- cp -rf lib controllers models www config declarations build/
+- docker build -f Dockerfile.build -t ${IMAGE_NAME} .
+- docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${BUILD_VERSION}"
+- docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASS"
+
+deploy:
+  provider: script
+  script: docker push "${IMAGE_NAME}:master" && docker push "${IMAGE_NAME}:${BUILD_VERSION}"
+  on:
+    branch: master
