@@ -297,6 +297,20 @@ class EventChainTest extends \Codeception\Test\Unit
         $this->assertCount(0, $emptyChain->resources);
     }
     
+    public function testGetNodes()
+    {
+        $identity1 = $this->createMock(Identity::class);
+        $identity1->node = 'node1';
+        $identity2 = $this->createMock(Identity::class);
+        $identity2->node = 'node2';
+
+        $chain = EventChain::create()->setValues(['identities' => [$identity1, $identity2]]);
+        $this->assertEquals(['node1', 'node2'], $chain->getNodes());
+        
+        $chain->setValues(['identities' => []]);
+        $this->assertEquals([], $chain->getNodes());
+    }
+    
     public function getEventsAfterProvider()
     {
         return [

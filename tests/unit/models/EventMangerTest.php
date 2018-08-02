@@ -51,6 +51,7 @@ class EventManagerTest extends \Codeception\Test\Unit
      * @param array|null      $methods
      * @param ResourceFactory $resourceFactory
      * @param ResourceStorage $resourceStorage
+     * @param Dispatcher      $dispatcher
      * @return EventManager|MockObject
      */
     protected function createEventManager(
@@ -217,6 +218,38 @@ class EventManagerTest extends \Codeception\Test\Unit
         $this->assertInstanceOf(ValidationResult::class, $validation);
         $this->assertEquals(["fork detected; conflict on '{$events[1]->hash}' and '{$chainEvents[1]->hash}'"],
                 $validation->getErrors());
+    }
+    
+    public function testDispatch()
+    {
+        $events = $this->createMockEvents();
+        $to = ['ex1', 'ex2'];
+
+        $newEvents = $this->createPartialMock(EventChain::class, ['validate']);
+        $newEvents->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
+        $newEvents->events = \Jasny\DB\EntitySet::forClass(Event::class, $events);
+        $newEvents->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
+
+        $chain = $this->createMock(EventChain::class);
+        $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
+        $chain->method('isEmpty')->willReturn(false);
+        $chain->method('isPartial')->willReturn(false);
+        $chain->method('getNodes')->willReturn($to);
+        $chain->expects($this->once())->method('getEventsAfter')
+            ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn([]);
+
+        $dispatcher = $this->createMock(Dispatcher::class);
+        $dispatcher->expects($this->once())->method('queue')->with($chain, $to);
+        
+        $manager = $this->createEventManager($chain, ['handleNewEvent'], null, null, $dispatcher);
+        $manager->expects($this->exactly(2))->method('handleNewEvent')
+            ->withConsecutive([$this->identicalTo($events[0])], [$this->identicalTo($events[1])])
+            ->willReturn(ValidationResult::success());
+        
+        $validation = $manager->add($newEvents);
+        
+        $this->assertInstanceOf(ValidationResult::class, $validation);
+        $this->assertEquals([], $validation->getErrors());
     }
     
     

@@ -35,7 +35,7 @@ class Dispatcher
      * @param EventChain $chain
      * @param string[]   $to     If specified will send the event to the nodes in this array
      */
-    public function queue(EventChain $chain, array $to = [])
+    public function queue(EventChain $chain, $to = null)
     {
         $endpoint = $this->config->url;
         $url = "{$endpoint}/queue";
