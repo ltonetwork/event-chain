@@ -100,8 +100,7 @@ class EventManager
         
         if ($validation->succeeded()) {
             $this->resourceStorage->done($this->chain);
-            // @todo: dispatcher should only send new events, but we will optimize that later
-            $this->dispatcher->queue($this->chain, $this->chain->getNodes());
+            $this->dispatch($this->chain);
         }
         
         return $validation;
@@ -222,5 +221,27 @@ class EventManager
     protected function consolidatedPrivilege(Resource $resource, array $privileges)
     {
         return Privilege::create($resource)->consolidate($privileges);
+    }
+    
+    /**
+     * Send the event chain to the dispatcher
+     * 
+     * @param EventChain $chain
+     */
+    protected function dispatch(EventChain $chain)
+    {
+        $event = $chain->getLastEvent();
+        
+        if (!$event) {
+            return;
+        }
+        
+        $resource = $this->resourceFactory->extractFrom($event);
+
+        if ($resource instanceof Identity) {
+            return $this->dispatcher->queue($this->chain, $this->chain->getNodes());
+        }
+        
+        $this->dispatcher->queue($chain->withEvents([$event]), $this->chain->getNodes());
     }
 }

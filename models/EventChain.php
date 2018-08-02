@@ -210,6 +210,21 @@ class EventChain extends MongoDocument
         
         return $emptyChain;
     }
+
+    /**
+     * Return an event chain with the given events
+     * 
+     * @param Event[] $events
+     * 
+     * @return static
+     */
+    public function withEvents($events)
+    {
+        $chain = clone $this;
+        $chain->events = $events;
+        
+        return $chain;
+    }
     
     /**
      * Get all events that follow the specified event.
