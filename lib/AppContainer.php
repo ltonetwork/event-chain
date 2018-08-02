@@ -20,7 +20,9 @@ class AppContainer extends Picotainer
      */
     public function __construct(array $entries = [], ContainerInterface $delegateLookupContainer = null)
     {
-        $entries += static::loadEntries('declarations/services') + static::loadEntries('declarations/models');
+        $entries += static::loadEntries('declarations/services') +
+            static::loadEntries('declarations/models') +
+            static::loadEntries('declarations/lib');
 
         parent::__construct($entries, $delegateLookupContainer);
     }

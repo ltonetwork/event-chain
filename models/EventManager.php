@@ -26,11 +26,22 @@ class EventManager
     protected $resourceStorage;
     
     /**
+     * @var Dispatcher
+     */
+    protected $dispatcher;
+
+    
+    /**
      * Class constructor
      * 
      * @param EventChain $chain
      */
-    public function __construct(EventChain $chain, ResourceFactory $resourceFactory, ResourceStorage $resourceStorage)
+    public function __construct(
+        EventChain $chain,
+        ResourceFactory $resourceFactory,
+        ResourceStorage $resourceStorage,
+        Dispatcher $dispatcher
+    )
     {
         if ($chain->isPartial()) {
             throw new UnexpectedValueException("Event chain doesn't contain the genesis event");
@@ -39,6 +50,7 @@ class EventManager
         $this->chain = $chain;
         $this->resourceFactory = $resourceFactory;
         $this->resourceStorage = $resourceStorage;
+        $this->dispatcher = $dispatcher;
     }
     
     /**

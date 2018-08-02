@@ -19,6 +19,11 @@ class EventChainController extends Jasny\Controller
      * @var ResourceStorage
      */
     protected $resourceStorage;
+
+    /**
+     * @var Dispatcher
+     */
+    protected $dispatcher;
     
     /**
      * Account that signed the request
@@ -34,6 +39,7 @@ class EventChainController extends Jasny\Controller
     {
         $this->resourceFactory = $container->get('models:resources.factory');
         $this->resourceStorage = $container->get('models:resources.storage');
+        $this->dispatcher = $container->get('lib:dispatcher');
     }
 
     /**
@@ -78,7 +84,7 @@ class EventChainController extends Jasny\Controller
         
         $chain = EventChain::fetch($newChain->id) ?: $newChain->withoutEvents();
         
-        $manager = new EventManager($chain, $this->resourceFactory, $this->resourceStorage);
+        $manager = new EventManager($chain, $this->resourceFactory, $this->resourceStorage, $this->dispatcher);
         $handled = $manager->add($newChain);
         
         if ($handled->failed()) {

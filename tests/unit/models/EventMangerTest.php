@@ -21,8 +21,9 @@ class EventManagerTest extends \Codeception\Test\Unit
         
         $resourceFactory = $this->createMock(ResourceFactory::class);
         $resourceStorage = $this->createMock(ResourceStorage::class);
+        $dispatcher = $this->createMock(Dispatcher::class);
         
-        new EventManager($chain, $resourceFactory, $resourceStorage);
+        new EventManager($chain, $resourceFactory, $resourceStorage, $dispatcher);
     }
     
     /**
@@ -56,13 +57,15 @@ class EventManagerTest extends \Codeception\Test\Unit
         EventChain $chain,
         $methods = null,
         ResourceFactory $resourceFactory = null,
-        ResourceStorage $resourceStorage = null
+        ResourceStorage $resourceStorage = null,
+        Dispatcher $dispatcher = null
     ) {
         return $this->getMockBuilder(EventManager::class)
             ->setConstructorArgs([
                 $chain, 
                 $resourceFactory ?: $this->createMock(ResourceFactory::class),
-                $resourceStorage ?: $this->createMock(ResourceStorage::class)
+                $resourceStorage ?: $this->createMock(ResourceStorage::class),
+                $dispatcher ?: $this->createMock(Dispatcher::class)
             ])
             ->setMethods($methods)
             ->getMock();
