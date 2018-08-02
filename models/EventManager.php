@@ -100,6 +100,8 @@ class EventManager
         
         if ($validation->succeeded()) {
             $this->resourceStorage->done($this->chain);
+            // should only send new events, but we will optimize that later
+            $this->dispatcher->queue($this->chain, $this->chain->getNodes());
         }
         
         return $validation;

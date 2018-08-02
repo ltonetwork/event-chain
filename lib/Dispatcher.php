@@ -40,10 +40,16 @@ class Dispatcher
         $endpoint = $this->config->url;
         $url = "{$endpoint}/queue";
         
-        $this->httpClient->post($url, [
+        $options = [
             'json' => $chain,
             'http_errors' => true,
-            'query' => ['to' => $to]
-        ]);
+            'query' => []
+        ];
+        
+        if (isset($to) && !empty($to)) {
+            $options['query']['to'] = $to;
+        }
+
+        $this->httpClient->post($url, $options);
     }
 }

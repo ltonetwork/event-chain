@@ -98,6 +98,16 @@ class EventChain extends MongoDocument
     }
     
     /**
+     * Get the nodes of the identities
+     * 
+     * @return string[]
+     */
+    public function getNodes()
+    {
+        return $this->identities ? $this->identities->node : [];
+    }
+    
+    /**
      * Check if this chain has the genisis event or is empty.
      * 
      * @return boolean
