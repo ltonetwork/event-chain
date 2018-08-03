@@ -21,7 +21,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         
         $resourceFactory = $this->createMock(ResourceFactory::class);
         $resourceStorage = $this->createMock(ResourceStorage::class);
-        $dispatcher = $this->createMock(Dispatcher::class);
+        $dispatcher = $this->createMock(DispatcherManager::class);
         
         new EventManager($chain, $resourceFactory, $resourceStorage, $dispatcher);
     }
@@ -51,7 +51,7 @@ class EventManagerTest extends \Codeception\Test\Unit
      * @param array|null      $methods
      * @param ResourceFactory $resourceFactory
      * @param ResourceStorage $resourceStorage
-     * @param Dispatcher      $dispatcher
+     * @param DispatcherManager      $dispatcher
      * @return EventManager|MockObject
      */
     protected function createEventManager(
@@ -59,14 +59,14 @@ class EventManagerTest extends \Codeception\Test\Unit
         $methods = null,
         ResourceFactory $resourceFactory = null,
         ResourceStorage $resourceStorage = null,
-        Dispatcher $dispatcher = null
+        DispatcherManager $dispatcher = null
     ) {
         return $this->getMockBuilder(EventManager::class)
             ->setConstructorArgs([
                 $chain, 
                 $resourceFactory ?: $this->createMock(ResourceFactory::class),
                 $resourceStorage ?: $this->createMock(ResourceStorage::class),
-                $dispatcher ?: $this->createMock(Dispatcher::class)
+                $dispatcher ?: $this->createMock(DispatcherManager::class)
             ])
             ->setMethods($methods)
             ->getMock();
@@ -220,11 +220,9 @@ class EventManagerTest extends \Codeception\Test\Unit
                 $validation->getErrors());
     }
     
-    public function testAddDispatchNormalEvent()
+    public function testAddDispatch()
     {
         $events = $this->createMockEvents();
-        $lastEvent = $events[count($events) - 1];
-        $to = ['ex1', 'ex2'];
 
         $newEvents = $this->createPartialMock(EventChain::class, ['validate']);
         $newEvents->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
@@ -235,61 +233,13 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
         $chain->method('isEmpty')->willReturn(false);
         $chain->method('isPartial')->willReturn(false);
-        $chain->method('getNodes')->willReturn($to);
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn([]);
-        
-        $chainLastEvent = $this->createMock(EventChain::class);
-        $chainLastEvent->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
-        $chainLastEvent->events = $lastEvent;
-        $chain->method('getLastEvent')->willReturn($lastEvent);
-        $chain->method('withEvents')->willReturn($chainLastEvent);
 
-        $dispatcher = $this->createMock(Dispatcher::class);
-        $dispatcher->expects($this->once())->method('queue')->with($chainLastEvent, $to);
+        $dispatcher = $this->createMock(DispatcherManager::class);
+        $dispatcher->expects($this->once())->method('dispatch')->with($chain);
         
         $manager = $this->createEventManager($chain, ['handleNewEvent'], null, null, $dispatcher);
-        $manager->expects($this->exactly(2))->method('handleNewEvent')
-            ->withConsecutive([$this->identicalTo($events[0])], [$this->identicalTo($events[1])])
-            ->willReturn(ValidationResult::success());
-        
-        $validation = $manager->add($newEvents);
-        
-        $this->assertInstanceOf(ValidationResult::class, $validation);
-        $this->assertEquals([], $validation->getErrors());
-    }
-    
-    public function testAddDispatchIdentityEvent()
-    {
-        $events = $this->createMockEvents();
-        $lastEvent = $events[count($events) - 1];
-        $to = ['ex1', 'ex2'];
-
-        $newEvents = $this->createPartialMock(EventChain::class, ['validate']);
-        $newEvents->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
-        $newEvents->events = \Jasny\DB\EntitySet::forClass(Event::class, $events);
-        $newEvents->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
-
-        $chain = $this->createMock(EventChain::class);
-        $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
-        $chain->method('isEmpty')->willReturn(false);
-        $chain->method('isPartial')->willReturn(false);
-        $chain->method('getNodes')->willReturn($to);
-        $chain->expects($this->once())->method('getEventsAfter')
-            ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn([]);
-        
-        $chain->method('getLastEvent')->willReturn($lastEvent);
-
-        $dispatcher = $this->createMock(Dispatcher::class);
-        $dispatcher->expects($this->once())->method('queue')->with($chain, $to);
-
-        $resource = $this->createMock(Identity::class);
-        
-        $resourceFactory = $this->createMock(ResourceFactory::class);
-        $resourceFactory->expects($this->once())->method('extractFrom')
-            ->with($this->identicalTo($lastEvent))->willReturn($resource);
-        
-        $manager = $this->createEventManager($chain, ['handleNewEvent'], $resourceFactory, null, $dispatcher);
         $manager->expects($this->exactly(2))->method('handleNewEvent')
             ->withConsecutive([$this->identicalTo($events[0])], [$this->identicalTo($events[1])])
             ->willReturn(ValidationResult::success());
