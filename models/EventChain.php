@@ -106,6 +106,25 @@ class EventChain extends MongoDocument
     {
         return $this->identities ? $this->identities->node : [];
     }
+
+    /**
+     * Check if the chain has identity which belongs to a given node sign key
+     *
+     * @param $userSignKey
+     * @param $nodeSignKey
+     * @return bool
+     */
+    public function hasSystemKeyForIdentity($userSignKey, $nodeSignKey)
+    {
+        foreach($this->identities as $identity) {
+            if (isset($identity->signkeys['user']) && $identity->signkeys['user'] == $userSignKey &&
+                isset($identity->signkeys['system']) && $identity->signkeys['system'] == $nodeSignKey) {
+                return true;
+            }
+        }
+
+        return false;
+    }
     
     /**
      * Check if this chain has the genisis event or is empty.
