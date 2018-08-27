@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "762fd93cf8ab8c48ef80022d101f50d2",
+    "content-hash": "f449ce4a76ceb57685230ec506519016",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -339,6 +339,89 @@
                 "url"
             ],
             "time": "2017-03-20T17:10:46+00:00"
+        },
+        {
+            "name": "jasny/application-env",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jasny/application-env.git",
+                "reference": "b4780f6ee81cc3826b2e9acfe207d68a42848a75"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jasny/application-env/zipball/b4780f6ee81cc3826b2e9acfe207d68a42848a75",
+                "reference": "b4780f6ee81cc3826b2e9acfe207d68a42848a75",
+                "shasum": ""
+            },
+            "require": {
+                "jasny/php-functions": "^3.3",
+                "php": ">=7.1.0"
+            },
+            "require-dev": {
+                "jasny/php-code-quality": "^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jasny\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnold Daniels",
+                    "email": "arnold@jasny.net",
+                    "homepage": "http://www.jasny.net"
+                }
+            ],
+            "description": "Logic around the APPLICATION_ENV environment variable",
+            "time": "2018-08-09T21:37:06+00:00"
+        },
+        {
+            "name": "jasny/autowire",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jasny/autowire.git",
+                "reference": "ba0ae0b6fba00837119a22e564a039f89dad5e54"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jasny/autowire/zipball/ba0ae0b6fba00837119a22e564a039f89dad5e54",
+                "reference": "ba0ae0b6fba00837119a22e564a039f89dad5e54",
+                "shasum": ""
+            },
+            "require": {
+                "jasny/reflection-factory": "^1.0",
+                "php": ">=7.1.0",
+                "psr/container": "^1.0"
+            },
+            "require-dev": {
+                "jasny/php-code-quality": "^2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jasny\\Autowire\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnold Daniels",
+                    "email": "arnold@jasny.net",
+                    "homepage": "http://www.jasny.net"
+                }
+            ],
+            "description": "Autowiring for PSR-11 containers",
+            "time": "2018-08-17T00:25:38+00:00"
         },
         {
             "name": "jasny/config",
@@ -844,6 +927,46 @@
             ],
             "description": "A set of useful PHP functions",
             "time": "2018-07-16T11:10:04+00:00"
+        },
+        {
+            "name": "jasny/reflection-factory",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jasny/reflection-factory.git",
+                "reference": "3abc098f03ae2c7803d6683d19ac3895aff0867c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jasny/reflection-factory/zipball/3abc098f03ae2c7803d6683d19ac3895aff0867c",
+                "reference": "3abc098f03ae2c7803d6683d19ac3895aff0867c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1.0"
+            },
+            "require-dev": {
+                "jasny/php-code-quality": "^2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jasny\\ReflectionFactory\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnold Daniels",
+                    "email": "arnold@jasny.net",
+                    "homepage": "http://www.jasny.net"
+                }
+            ],
+            "description": "Jasny skeleton library",
+            "time": "2018-08-16T02:08:50+00:00"
         },
         {
             "name": "jasny/router",

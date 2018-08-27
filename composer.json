@@ -21,7 +21,9 @@
         "legalthings/lto-api": "dev-php7",
         "jasny/dotkey": "^1.0",
         "legalthings/base58-compat": "^0.1.0",
-        "jasny/container": "^1.0"
+        "jasny/container": "^1.0",
+        "jasny/application-env": "^1.0",
+        "jasny/autowire": "^1.0"
     },
     "require-dev" : {
         "jasny/php-code-quality" : "^2.0.0",

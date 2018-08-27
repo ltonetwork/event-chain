@@ -1,7 +1,7 @@
 <?php
 
-use Psr\Container\ContainerInterface;
 use Jasny\Config;
+use Jasny\ApplicationEnv;
 use LTO\Account;
 
 /**
@@ -28,13 +28,15 @@ class DefaultController extends Jasny\Controller
 
 
     /**
-     * @param ContainerInterface $container
+     * @param Config         $config  "config"
+     * @param ApplicationEnv $env
+     * @param Account        $node    "node.account"
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(Config $config, ApplicationEnv $env, Account $node)
     {
-        $this->config = $container->get('config');
-        $this->env = $container->get('app.env');
-        $this->node = $container->get('node.account');
+        $this->config = $config;
+        $this->env = (string)$env;
+        $this->node = $node;
     }
 
     /**

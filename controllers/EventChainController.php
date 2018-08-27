@@ -29,11 +29,14 @@ class EventChainController extends Jasny\Controller
 
     /**
      * Class constructor
+     *
+     * @param ResourceFactory $resourceFactory  "models.resources.factory"
+     * @param ResourceStorage $resourceStorage  "models.resources.storage"
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ResourceFactory $resourceFactory, ResourceStorage $resourceStorage)
     {
-        $this->resourceFactory = $container->get('models.resources.factory');
-        $this->resourceStorage = $container->get('models.resources.storage');
+        $this->resourceFactory = $resourceFactory;
+        $this->resourceStorage = $resourceStorage;
     }
 
     /**

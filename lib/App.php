@@ -91,9 +91,10 @@ class App
      */
     public static function env($check = null)
     {
+        /** @var Jasny\ApplicationEnv $env */
         $env = self::getContainer()->get('app.env');
-        
-        return !isset($check) || $check === $env || strpos($env, $check . '.') === 0 ? $env : false;
+
+        return isset($check) ? $env->is($check) : (string)$env;
     }
 
     /**

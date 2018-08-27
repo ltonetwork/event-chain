@@ -1,6 +1,7 @@
 <?php
 
 use Jasny\Router\ControllerFactory as Base;
+use Jasny\Autowire\AutowireInterface;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -36,6 +37,9 @@ class ControllerFactory extends Base
      */
     protected function instantiate($class)
     {
-        return new $class($this->container);
+        /** @var AutowireInterface $autowire */
+        $autowire = $this->container->get(AutowireInterface::class);
+
+        return $autowire->instantiate($class);
     }
 }
