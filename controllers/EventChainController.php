@@ -112,14 +112,15 @@ class EventChainController extends Jasny\Controller
     /**
      * Delete an event chain
      *
-     * @param $id
+     * @param string $id
      */
     public function deleteAction($id)
     {
         $event = EventChain::fetch($id);
 
-        if (isset($event))
+        if (isset($event)) {
             $event->delete();
+        }
 
         $this->noContent();
     }
