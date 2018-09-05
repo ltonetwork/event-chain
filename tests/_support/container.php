@@ -1,6 +1,7 @@
 <?php
 
 use Jasny\HttpMessage\ServerRequest;
+use Jasny\Container\Container;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Container\ContainerInterface;
@@ -33,7 +34,11 @@ $overwrite = [
     }
 ];
 
-$container = new AppContainer($overwrite);
+$entries = new AppendIterator();
+$entries->append(App::getContainerEntries());
+$entries->append(new ArrayIterator($overwrite));
+
+$container = new Container($entries);
 
 // Setup global state
 App::setContainer($container);

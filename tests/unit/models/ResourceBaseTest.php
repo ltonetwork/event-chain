@@ -2,8 +2,6 @@
 
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use Jasny\DB\Entity\Dynamic;
-use Resource;
-use ResourceBase;
 
 /**
  * @covers ResourceBase

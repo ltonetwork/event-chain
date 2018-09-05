@@ -1,6 +1,5 @@
 {
     "name": "legalthings/legalevents",
-    "version": "0.1.0",
     "description": "Event chain service",
     "require": {
         "php": ">=7.1",
@@ -17,12 +16,14 @@
         "jasny/error-handler": "^0.2.0",
         "monolog/monolog": "1.*",
         "rollbar/rollbar": "^1.5.0",
-        "mouf/picotainer": "^1.1",
         "symfony/yaml" : "^2.4.5",
         "guzzlehttp/guzzle": "^6.3",
         "legalthings/lto-api": "dev-php7",
         "jasny/dotkey": "^1.0",
-        "legalthings/base58-compat": "^0.1.0"
+        "legalthings/base58-compat": "^0.1.0",
+        "jasny/container": "^1.0",
+        "jasny/application-env": "^1.0",
+        "jasny/autowire": "^1.0"
     },
     "require-dev" : {
         "jasny/php-code-quality" : "^2.0.0",

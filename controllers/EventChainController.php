@@ -40,13 +40,18 @@ class EventChainController extends Jasny\Controller
 
     /**
      * Class constructor
+     *
+     * @param ResourceFactory $resourceFactory  "models.resources.factory"
+     * @param ResourceStorage $resourceStorage  "models.resources.storage"
+     * @param Dispatcher $dispatcher            "models.dispatcher.client"
+     * @param Accout $nodeAccount               "node.account"
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ResourceFactory $resourceFactory, ResourceStorage $resourceStorage, Dispatcher $dispatcher, Account $nodeAccount)
     {
-        $this->resourceFactory = $container->get('models:resources.factory');
-        $this->resourceStorage = $container->get('models:resources.storage');
-        $this->dispatcher = $container->get('models:dispatcher.client');
-        $this->nodeAccount = $container->get('node.account');
+        $this->resourceFactory = $resourceFactory;
+        $this->resourceStorage = $resourceStorage;
+        $this->dispatcher = $dispatcher;
+        $this->nodeAccount = $nodeAccount;
     }
 
     /**
@@ -124,14 +129,15 @@ class EventChainController extends Jasny\Controller
     /**
      * Delete an event chain
      *
-     * @param $id
+     * @param string $id
      */
     public function deleteAction($id)
     {
         $event = EventChain::fetch($id);
 
-        if (isset($event))
+        if (isset($event)) {
             $event->delete();
+        }
 
         $this->noContent();
     }

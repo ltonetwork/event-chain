@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "b639e51ff36022659dc5b53d505e6577",
+    "content-hash": "f449ce4a76ceb57685230ec506519016",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -341,6 +341,89 @@
             "time": "2017-03-20T17:10:46+00:00"
         },
         {
+            "name": "jasny/application-env",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jasny/application-env.git",
+                "reference": "b4780f6ee81cc3826b2e9acfe207d68a42848a75"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jasny/application-env/zipball/b4780f6ee81cc3826b2e9acfe207d68a42848a75",
+                "reference": "b4780f6ee81cc3826b2e9acfe207d68a42848a75",
+                "shasum": ""
+            },
+            "require": {
+                "jasny/php-functions": "^3.3",
+                "php": ">=7.1.0"
+            },
+            "require-dev": {
+                "jasny/php-code-quality": "^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jasny\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnold Daniels",
+                    "email": "arnold@jasny.net",
+                    "homepage": "http://www.jasny.net"
+                }
+            ],
+            "description": "Logic around the APPLICATION_ENV environment variable",
+            "time": "2018-08-09T21:37:06+00:00"
+        },
+        {
+            "name": "jasny/autowire",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jasny/autowire.git",
+                "reference": "7d347d0bb873343e79c634c88b54b74a512fde36"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jasny/autowire/zipball/7d347d0bb873343e79c634c88b54b74a512fde36",
+                "reference": "7d347d0bb873343e79c634c88b54b74a512fde36",
+                "shasum": ""
+            },
+            "require": {
+                "jasny/reflection-factory": "^1.0",
+                "php": ">=7.1.0",
+                "psr/container": "^1.0"
+            },
+            "require-dev": {
+                "jasny/php-code-quality": "^2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jasny\\Autowire\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnold Daniels",
+                    "email": "arnold@jasny.net",
+                    "homepage": "http://www.jasny.net"
+                }
+            ],
+            "description": "Autowiring for PSR-11 containers",
+            "time": "2018-09-04T18:44:07+00:00"
+        },
+        {
             "name": "jasny/config",
             "version": "v1.3.2",
             "source": {
@@ -397,6 +480,61 @@
                 "yaml"
             ],
             "time": "2015-12-21T00:58:04+00:00"
+        },
+        {
+            "name": "jasny/container",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jasny/container.git",
+                "reference": "aa3af073ec8b9f697b1ea9b8ba81e154012a8e7e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jasny/container/zipball/aa3af073ec8b9f697b1ea9b8ba81e154012a8e7e",
+                "reference": "aa3af073ec8b9f697b1ea9b8ba81e154012a8e7e",
+                "shasum": ""
+            },
+            "require": {
+                "container-interop/container-interop": "~1.2",
+                "jasny/php-functions": "^2.3|^3.1",
+                "php": ">=7.1.0",
+                "psr/container": "^1.0"
+            },
+            "require-dev": {
+                "jasny/autowire": "^1.1",
+                "jasny/php-code-quality": "^2.3"
+            },
+            "suggest": {
+                "jasny/autowire": "Automatically determine the dependencies when instantiating a class"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jasny\\Container\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnold Daniels",
+                    "email": "arnold@jasny.net",
+                    "homepage": "http://www.jasny.net"
+                }
+            ],
+            "description": "Simple dependency injection container compatible with container-interop",
+            "homepage": "http://jasny.github.com/container",
+            "keywords": [
+                "PSR-11",
+                "container",
+                "container-interop",
+                "dependency injection",
+                "di"
+            ],
+            "time": "2018-09-04T19:26:23+00:00"
         },
         {
             "name": "jasny/controller",
@@ -500,7 +638,7 @@
                 "database",
                 "db"
             ],
-            "time": "2018-06-04 16:30:13"
+            "time": "2018-06-04T16:30:13+00:00"
         },
         {
             "name": "jasny/db-mongo",
@@ -551,7 +689,7 @@
                 "mongo",
                 "mongodb"
             ],
-            "time": "2018-05-28 08:15:38"
+            "time": "2018-05-28T08:15:38+00:00"
         },
         {
             "name": "jasny/dotkey",
@@ -792,6 +930,46 @@
             ],
             "description": "A set of useful PHP functions",
             "time": "2018-07-16T11:10:04+00:00"
+        },
+        {
+            "name": "jasny/reflection-factory",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jasny/reflection-factory.git",
+                "reference": "3abc098f03ae2c7803d6683d19ac3895aff0867c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jasny/reflection-factory/zipball/3abc098f03ae2c7803d6683d19ac3895aff0867c",
+                "reference": "3abc098f03ae2c7803d6683d19ac3895aff0867c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1.0"
+            },
+            "require-dev": {
+                "jasny/php-code-quality": "^2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jasny\\ReflectionFactory\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnold Daniels",
+                    "email": "arnold@jasny.net",
+                    "homepage": "http://www.jasny.net"
+                }
+            ],
+            "description": "Jasny skeleton library",
+            "time": "2018-08-16T02:08:50+00:00"
         },
         {
             "name": "jasny/router",
@@ -1058,7 +1236,7 @@
                 }
             ],
             "description": "LegalThings One client",
-            "time": "2018-06-28 09:04:56"
+            "time": "2018-06-28T09:04:56+00:00"
         },
         {
             "name": "mongodb/mongodb",
@@ -1202,54 +1380,6 @@
                 "psr-3"
             ],
             "time": "2017-06-19T01:22:40+00:00"
-        },
-        {
-            "name": "mouf/picotainer",
-            "version": "v1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thecodingmachine/picotainer.git",
-                "reference": "83737d6af8534c35e0d4cd2f0afd1e2e6c0ad7d4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thecodingmachine/picotainer/zipball/83737d6af8534c35e0d4cd2f0afd1e2e6c0ad7d4",
-                "reference": "83737d6af8534c35e0d4cd2f0afd1e2e6c0ad7d4",
-                "shasum": ""
-            },
-            "require": {
-                "container-interop/container-interop": "~1.2",
-                "psr/container": "^1.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.8",
-                "satooshi/php-coveralls": "~1.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Mouf\\Picotainer\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "David Négrier",
-                    "email": "d.negrier@thecodingmachine.com",
-                    "homepage": "http://mouf-php.com"
-                }
-            ],
-            "description": "This package contains a really minimalist dependency injection container compatible with container-interop.",
-            "homepage": "http://mouf-php.com",
-            "keywords": [
-                "container-interop",
-                "dependency injection",
-                "di"
-            ],
-            "time": "2017-03-09T09:19:17+00:00"
         },
         {
             "name": "psr/container",
@@ -1399,16 +1529,16 @@
         },
         {
             "name": "rollbar/rollbar",
-            "version": "v1.5.3",
+            "version": "v1.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rollbar/rollbar-php.git",
-                "reference": "a934d2f009095b35559fb2c68b4f0b3a58d0dc5a"
+                "reference": "1deec89b870899d12794bb75377ca60359f18723"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rollbar/rollbar-php/zipball/a934d2f009095b35559fb2c68b4f0b3a58d0dc5a",
-                "reference": "a934d2f009095b35559fb2c68b4f0b3a58d0dc5a",
+                "url": "https://api.github.com/repos/rollbar/rollbar-php/zipball/1deec89b870899d12794bb75377ca60359f18723",
+                "reference": "1deec89b870899d12794bb75377ca60359f18723",
                 "shasum": ""
             },
             "require": {
@@ -1455,7 +1585,7 @@
                 "logging",
                 "monitoring"
             ],
-            "time": "2018-06-18T08:52:48+00:00"
+            "time": "2018-08-14T23:59:30+00:00"
         },
         {
             "name": "sebastian/comparator",
@@ -1733,25 +1863,28 @@
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.8.0",
+            "version": "v1.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "7cc359f1b7b80fc25ed7796be7d96adc9b354bae"
+                "reference": "e3d826245268269cd66f8326bd8bc066687b4a19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/7cc359f1b7b80fc25ed7796be7d96adc9b354bae",
-                "reference": "7cc359f1b7b80fc25ed7796be7d96adc9b354bae",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/e3d826245268269cd66f8326bd8bc066687b4a19",
+                "reference": "e3d826245268269cd66f8326bd8bc066687b4a19",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
+            "suggest": {
+                "ext-ctype": "For best performance"
+            },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.8-dev"
+                    "dev-master": "1.9-dev"
                 }
             },
             "autoload": {
@@ -1784,20 +1917,20 @@
                 "polyfill",
                 "portable"
             ],
-            "time": "2018-04-30T19:57:29+00:00"
+            "time": "2018-08-06T14:22:27+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.8.0",
+            "version": "v1.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "3296adf6a6454a050679cde90f95350ad604b171"
+                "reference": "d0cd638f4634c16d8df4508e847f14e9e43168b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/3296adf6a6454a050679cde90f95350ad604b171",
-                "reference": "3296adf6a6454a050679cde90f95350ad604b171",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/d0cd638f4634c16d8df4508e847f14e9e43168b8",
+                "reference": "d0cd638f4634c16d8df4508e847f14e9e43168b8",
                 "shasum": ""
             },
             "require": {
@@ -1809,7 +1942,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.8-dev"
+                    "dev-master": "1.9-dev"
                 }
             },
             "autoload": {
@@ -1843,11 +1976,11 @@
                 "portable",
                 "shim"
             ],
-            "time": "2018-04-26T10:06:28+00:00"
+            "time": "2018-08-06T14:22:27+00:00"
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.8.44",
+            "version": "v2.8.45",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
@@ -2345,25 +2478,26 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jasny/codeception-module.git",
-                "reference": "326e3261fd2a41cb10edac9d26c738996bfcc986"
+                "reference": "490b1cd211d8ba9626582d7f44afb300e8c4cdf6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasny/codeception-module/zipball/326e3261fd2a41cb10edac9d26c738996bfcc986",
-                "reference": "326e3261fd2a41cb10edac9d26c738996bfcc986",
+                "url": "https://api.github.com/repos/jasny/codeception-module/zipball/490b1cd211d8ba9626582d7f44afb300e8c4cdf6",
+                "reference": "490b1cd211d8ba9626582d7f44afb300e8c4cdf6",
                 "shasum": ""
             },
             "require": {
                 "codeception/codeception": "^2.2",
                 "jasny/http-message": "^1.3",
                 "jasny/router": "^1.1",
-                "mouf/picotainer": "^1.0",
-                "php": ">=5.6.0"
+                "php": ">=5.6.0",
+                "psr/container": "^1.0"
             },
             "require-dev": {
                 "jasny/controller": "^1.0",
                 "jasny/error-handler": "^0.2",
                 "jasny/php-code-quality": "^2.1",
+                "mouf/picotainer": "^1.1",
                 "twig/twig": "^1.29"
             },
             "type": "library",
@@ -2383,7 +2517,7 @@
                 }
             ],
             "description": "Codeception Module for Jasny MVC",
-            "time": "2017-05-26 04:20:34"
+            "time": "2018-08-29T13:14:32+00:00"
         },
         {
             "name": "jasny/php-code-quality",
@@ -2676,16 +2810,16 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "1.7.6",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "33a7e3c4fda54e912ff6338c48823bd5c0f0b712"
+                "reference": "4ba436b55987b4bf311cb7c6ba82aa528aac0a06"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/33a7e3c4fda54e912ff6338c48823bd5c0f0b712",
-                "reference": "33a7e3c4fda54e912ff6338c48823bd5c0f0b712",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/4ba436b55987b4bf311cb7c6ba82aa528aac0a06",
+                "reference": "4ba436b55987b4bf311cb7c6ba82aa528aac0a06",
                 "shasum": ""
             },
             "require": {
@@ -2697,12 +2831,12 @@
             },
             "require-dev": {
                 "phpspec/phpspec": "^2.5|^3.2",
-                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.5"
+                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.5 || ^7.1"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.7.x-dev"
+                    "dev-master": "1.8.x-dev"
                 }
             },
             "autoload": {
@@ -2735,7 +2869,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2018-04-18T13:57:24+00:00"
+            "time": "2018-08-05T17:53:17+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -3458,7 +3592,7 @@
         },
         {
             "name": "symfony/browser-kit",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/browser-kit.git",
@@ -3515,7 +3649,7 @@
         },
         {
             "name": "symfony/console",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
@@ -3583,7 +3717,7 @@
         },
         {
             "name": "symfony/css-selector",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/css-selector.git",
@@ -3636,7 +3770,7 @@
         },
         {
             "name": "symfony/dom-crawler",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dom-crawler.git",
@@ -3693,7 +3827,7 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
@@ -3756,7 +3890,7 @@
         },
         {
             "name": "symfony/finder",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
@@ -3805,16 +3939,16 @@
         },
         {
             "name": "symfony/process",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "f01fc7a4493572f7f506c49dcb50ad01fb3a2f56"
+                "reference": "86cdb930a6a855b0ab35fb60c1504cb36184f843"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/f01fc7a4493572f7f506c49dcb50ad01fb3a2f56",
-                "reference": "f01fc7a4493572f7f506c49dcb50ad01fb3a2f56",
+                "url": "https://api.github.com/repos/symfony/process/zipball/86cdb930a6a855b0ab35fb60c1504cb36184f843",
+                "reference": "86cdb930a6a855b0ab35fb60c1504cb36184f843",
                 "shasum": ""
             },
             "require": {
@@ -3850,7 +3984,7 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "https://symfony.com",
-            "time": "2018-07-26T11:24:31+00:00"
+            "time": "2018-08-03T11:13:38+00:00"
         },
         {
             "name": "theseer/tokenizer",

@@ -4,6 +4,9 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Jasny\Config;
+use Jasny\Container\Container;
+use Jasny\Container\Loader\EntryLoader;
+use Jasny\DB;
 
 /**
  * Application
@@ -56,8 +59,8 @@ class App
      */
     protected static function initDB()
     {
-        Jasny\DB::resetGlobalState();
-        Jasny\DB::configure(self::config()->db);
+        DB::resetGlobalState();
+        DB::configure(self::config()->db);
     }
 
 
@@ -88,9 +91,10 @@ class App
      */
     public static function env($check = null)
     {
+        /** @var Jasny\ApplicationEnv $env */
         $env = self::getContainer()->get('app.env');
-        
-        return !isset($check) || $check === $env || strpos($env, $check . '.') === 0 ? $env : false;
+
+        return isset($check) ? $env->is($check) : (string)$env;
     }
 
     /**
@@ -109,9 +113,20 @@ class App
      */
     public static function init()
     {
-        self::setContainer(new AppContainer());
+        $container = new Container(self::getContainerEntries());
+        self::setContainer($container);
 
         self::initGlobal();
+    }
+
+    /**
+     * @return EntryLoader
+     */
+    public static function getContainerEntries()
+    {
+        $files = new ArrayIterator(glob('declarations/{services,models}/*.php', GLOB_BRACE));
+
+        return new EntryLoader($files);
     }
 
     /**
@@ -132,7 +147,14 @@ class App
     public static function run()
     {
         self::init();
+        self::handleRequest();
+    }
 
+    /**
+     * Use the router to handle the current HTTP request.
+     */
+    protected static function handleRequest()
+    {
         $container = self::getContainer();
 
         /* @var $router \Jasny\Router */
@@ -140,7 +162,7 @@ class App
 
         $request = $container->get(ServerRequestInterface::class);
         $response = $container->get(ResponseInterface::class);
-        
+
         $router->handle($request, $response)->emit();
     }
     
