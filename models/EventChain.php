@@ -2,6 +2,7 @@
 
 use Jasny\DB\Entity\Identifiable;
 use kornrunner\Keccak;
+use LTO\Account;
 
 /**
  * EventChain entity
@@ -97,6 +98,7 @@ class EventChain extends MongoDocument
         return $this->events[count($this->events) - 1];
     }
     
+    
     /**
      * Get the nodes of the identities
      * 
@@ -125,6 +127,30 @@ class EventChain extends MongoDocument
 
         return false;
     }
+    
+    /**
+     * Check if the event is signed by the account
+     *
+     * @param EventChain  $event
+     * @param Account     $account
+     * 
+     * @return bool
+     */
+    public function isEventSignedByAccount($event, $account)
+    {
+        $accountKey = $account->getPublicSignKey();
+        
+        if ($event->signkey === $accountKey) {
+            return true;
+        }
+
+        if ($this->hasSystemKeyForIdentity($event->signkey, $accountKey)) {
+            return true;
+        }
+
+        return false;
+    }
+    
     
     /**
      * Check if this chain has the genisis event or is empty.

@@ -35,7 +35,7 @@ class Anchor
      * @param string  $hash
      * @param string  $encoding
      */
-    public function hash($hash, $encoding)
+    public function hash($hash, $encoding = 'base58')
     {
         $endpoint = $this->config->url;
         $url = "{$endpoint}/hash";

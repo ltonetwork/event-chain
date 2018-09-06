@@ -45,32 +45,10 @@ class DispatcherManager
             return;
         }
         
-        if (!$this->shouldDispatch($chain, $event)) {
+        if (!$chain->isEventSignedByAccount($event, $this->node)) {
             return;
         }
         
         $this->dispatcher->queue($chain, $nodes);
-    }
-
-    /**
-     * Check if the identity who created the event belongs to this node.
-     * If so the event should be dispatched.
-     *
-     * @param EvenChain $chain
-     * @param Event     $event
-     * 
-     * @return bool
-     */
-    protected function shouldDispatch(EventChain $chain, $event)
-    {
-        if ($event->signkey === $this->node->getPublicSignKey()) {
-            return true;
-        }
-
-        if ($chain->hasSystemKeyForIdentity($event->signkey,  $this->node->getPublicSignKey())) {
-            return true;
-        }
-
-        return false;
     }
 }
