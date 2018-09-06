@@ -19,6 +19,16 @@ class EventChainController extends Jasny\Controller
      * @var ResourceStorage
      */
     protected $resourceStorage;
+
+    /**
+     * @var Dispatcher
+     */
+    protected $dispatcher;
+
+    /**
+     * @var EventFactory
+     */
+    protected $eventFactory;
     
     /**
      * Account that signed the request
@@ -26,17 +36,31 @@ class EventChainController extends Jasny\Controller
      */
     protected $account;
 
+    /**
+     * Account of the node
+     * @var Account
+     */
+    protected $nodeAccount;
+
 
     /**
      * Class constructor
      *
-     * @param ResourceFactory $resourceFactory  "models.resources.factory"
-     * @param ResourceStorage $resourceStorage  "models.resources.storage"
+     * @param ResourceFactory    $resourceFactory  "models.resources.factory"
+     * @param ResourceStorage    $resourceStorage  "models.resources.storage"
+     * @param DispatcherManager  $dispatcher       "models.dispatcher.manager"
+     * @param EventFactory       $eventFactory     "models.events.factory"
+     * @param Accout             $nodeAccount      "node.account"
      */
-    public function __construct(ResourceFactory $resourceFactory, ResourceStorage $resourceStorage)
-    {
+    public function __construct(
+        ResourceFactory $resourceFactory, ResourceStorage $resourceStorage, DispatcherManager $dispatcher,
+        EventFactory $eventFactory, Account $nodeAccount
+    ) {
         $this->resourceFactory = $resourceFactory;
         $this->resourceStorage = $resourceStorage;
+        $this->dispatcher = $dispatcher;
+        $this->eventFactory = $eventFactory;
+        $this->nodeAccount = $nodeAccount;
     }
 
     /**
@@ -44,14 +68,6 @@ class EventChainController extends Jasny\Controller
      */
     public function before()
     {
-        $this->byDefaultSerializeTo('json');
-        $this->account = $this->getRequest()->getAttribute('account');
-        
-        if (!isset($this->account)) {
-            $this->requireAuth();
-            $this->output('http request not signed', 'text/plain');
-            $this->cancel();
-        }
     }
 
 
@@ -60,6 +76,15 @@ class EventChainController extends Jasny\Controller
      */
     public function listAction()
     {
+        $this->byDefaultSerializeTo('json');
+        $this->account = $this->getRequest()->getAttribute('account');
+
+        if (!isset($this->account)) {
+            $this->requireAuth();
+            $this->output('http request not signed', 'text/plain');
+            $this->cancel();
+        }
+
         $events = EventChain::fetchAll(['identities.signkeys.user' => $this->account->getPublicSignKey()]);
 
         $this->output($events, 'json');
@@ -81,12 +106,14 @@ class EventChainController extends Jasny\Controller
         
         $chain = EventChain::fetch($newChain->id) ?: $newChain->withoutEvents();
         
-        $manager = new EventManager($chain, $this->resourceFactory, $this->resourceStorage);
+        $manager = new EventManager(
+            $chain, $this->resourceFactory, $this->resourceStorage, $this->dispatcher, $this->eventFactory
+        );
         $handled = $manager->add($newChain);
         
         if ($handled->failed()) {
             App::debug($handled->getErrors());
-            return $this->badRequest($handled->getErrors());
+            return $this->badRequest(json_encode($handled->getErrors()));
         }
         
         $this->output($chain, 'json');
