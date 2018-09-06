@@ -85,6 +85,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
         $chain->method('isEmpty')->willReturn(false);
         $chain->method('isPartial')->willReturn(false);
+        $chain->method('getNodes')->willReturn([]);
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn([]);
         
@@ -115,6 +116,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
         $chain->method('isEmpty')->willReturn(false);
         $chain->method('isPartial')->willReturn(false);
+        $chain->method('getNodes')->willReturn([]);
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn($chainEvents);
         
@@ -231,13 +233,15 @@ class EventManagerTest extends \Codeception\Test\Unit
 
         $chain = $this->createMock(EventChain::class);
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
-        $chain->method('isEmpty')->willReturn(false);
-        $chain->method('isPartial')->willReturn(false);
+        $chain->expects($this->exactly(2))->method('getNodes')
+            ->willReturnOnConsecutiveCalls(['ex1', 'ex2'], ['ex1', 'ex2', 'ex3']);
+        $chain->expects($this->once())->method('getPartialAfter')->willReturn($newEvents);
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn([]);
 
         $dispatcher = $this->createMock(DispatcherManager::class);
-        $dispatcher->expects($this->once())->method('dispatch')->with($chain);
+        $dispatcher->expects($this->exactly(2))->method('dispatch')
+            ->withConsecutive([$newEvents, ['ex1', 'ex2']], [$chain, ['ex3']]);
         
         $manager = $this->createEventManager($chain, ['handleNewEvent'], null, null, $dispatcher);
         $manager->expects($this->exactly(2))->method('handleNewEvent')

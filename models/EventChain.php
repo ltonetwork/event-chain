@@ -245,6 +245,7 @@ class EventChain extends MongoDocument
         return $chain;
     }
     
+    
     /**
      * Get all events that follow the specified event.
      * 
@@ -274,6 +275,20 @@ class EventChain extends MongoDocument
         
         return $events;
     }
+    
+    /**
+     * Get a partial chain consisting of all events that follow the specified event.
+     * 
+     * @param string $hash
+     * @return EventChain
+     * @throws OutOfBoundsException if event can't be found
+     */
+    public function getPartialAfter($hash)
+    {
+        $events = $this->getEventsAfter($hash) ?? [];
+        return $this->withEvents($events);
+    }
+    
     
     /**
      * Register that a resource is used in this chain

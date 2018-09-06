@@ -10,7 +10,7 @@ class DispatcherManager
     /**
      * @var Account
      */
-    protected $account;
+    protected $node;
     
     /**
      * @var Dispatcher
@@ -23,17 +23,17 @@ class DispatcherManager
     protected $resourceFactory;
 
     
-    /**f
+    /**
      * Class constructor
      * 
      * @param Dispatcher $dispatcher
-     * @param Account $account
+     * @param Account $nodeAccount
      * @param ResourceFactor $resourceFactory
      */
-    public function __construct(Dispatcher $dispatcher, Account $account, ResourceFactory $resourceFactory)
+    public function __construct(Dispatcher $dispatcher, Account $nodeAccount, ResourceFactory $resourceFactory)
     {
         $this->dispatcher = $dispatcher;
-        $this->account = $account;
+        $this->node = $nodeAccount;
         $this->resourceFactory = $resourceFactory;
     }
     
@@ -42,8 +42,9 @@ class DispatcherManager
      * Send the event chain to the dispatcher service
      * 
      * @param EventChain $chain
+     * @param string[]   $nodes
      */
-    public function dispatch(EventChain $chain)
+    public function dispatch(EventChain $chain, $nodes)
     {
         $event = $chain->getLastEvent();
         
@@ -51,34 +52,29 @@ class DispatcherManager
             return;
         }
         
-        if (!$this->shouldDispatch($chain)) {
+        if (!$this->shouldDispatch($chain, $event)) {
             return;
         }
         
-        $resource = $this->resourceFactory->extractFrom($event);
-
-        if ($resource instanceof Identity) {
-            return $this->dispatcher->queue($chain, $chain->getNodes());
-        }
-        
-        $this->dispatcher->queue($chain->withEvents([$event]), $chain->getNodes());
+        $this->dispatcher->queue($chain, $nodes);
     }
 
     /**
-     * Check if the identity who created the event belongs to this node. If so the event should be dispatched.
+     * Check if the identity who created the event belongs to this node.
+     * If so the event should be dispatched.
      *
      * @param EvenChain $chain
+     * @param Event     $event
+     * 
      * @return bool
      */
-    protected function shouldDispatch(EventChain $chain)
+    protected function shouldDispatch(EventChain $chain, $event)
     {
-        $event = $chain->getLastEvent();
-
-        if ($this->account->getPublicSignKey() === $event->signkey) {
+        if ($event->signkey === $this->node->getPublicSignKey()) {
             return true;
         }
 
-        if ($chain->hasSystemKeyForIdentity($event->signkey,  $this->account->getPublicSignKey())) {
+        if ($chain->hasSystemKeyForIdentity($event->signkey,  $this->node->getPublicSignKey())) {
             return true;
         }
 

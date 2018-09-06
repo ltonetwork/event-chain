@@ -72,6 +72,7 @@ class EventManager
         }
         
         $previous = $newEvents->getFirstEvent()->previous;
+        $nodes = $this->chain->getNodes();
         
         try {
             $following = $this->chain->getEventsAfter($previous);
@@ -83,8 +84,9 @@ class EventManager
         
         foreach ($newEvents->events as $event) {
             if ($next === false) {
+                $first = $first ?? $event->previous;
                 $handled = $this->handleNewEvent($event);
-                $validation->add($handled, "event '$event->hash';");
+                $validation->add($handled, "event '$event->hash': ");
             } elseif ($event->hash !== $next->hash) {
                 $validation->addError("fork detected; conflict on '%s' and '%s'", $event->hash, $next->hash);
             }
@@ -92,18 +94,26 @@ class EventManager
             $next = next($following);
             
             if ($validation->failed()) {
+                // @todo: add failed event {reason, events}
+                // EventFactory::createErrorEvent();
+                // $event = new LTO\Event();
+                // $event->signWith($account);
+                // $following = $this->chain->getEventsAfter($event->previous);
+                // break and get all events after current
                 break;
             }
             
             $this->chain->save();
         }
         
-        if ($validation->succeeded()) {
-            $this->resourceStorage->done($this->chain);
-            $this->dispatcher->dispatch($this->chain);
+        if (!$validation->isSuccess()) {
+            return $validation;
         }
+
+        $this->dispatch($first, $nodes);
+        $this->resourceStorage->done($this->chain);
         
-        return $validation;
+        return ValidationResult::success();
     }
     
     /**
@@ -221,5 +231,24 @@ class EventManager
     protected function consolidatedPrivilege(Resource $resource, array $privileges)
     {
         return Privilege::create($resource)->consolidate($privileges);
+    }
+    
+    /**
+     * Send a partial or full chain to the event dispatcher service
+     * 
+     * @param string   $first  The hash of the event from which the partial chain should be created
+     * @param string[] $nodes  The existing nodes of the chain
+     */
+    protected function dispatch($first, $nodes = [])
+    {
+        $partial = $this->chain->getPartialAfter($first);
+        if (!empty($partial)) {
+            $this->dispatcher->dispatch($partial, $nodes);
+        }
+
+        $newNodes = array_values(array_diff($this->chain->getNodes(), $nodes));
+        if (!empty($newNodes)) {
+            $this->dispatcher->dispatch($this->chain, $newNodes);
+        }
     }
 }

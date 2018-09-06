@@ -56,121 +56,58 @@ class DispatcherManagerTest extends \Codeception\Test\Unit
     
     public function testAddDispatchNormalEvent()
     {
-        $events = $this->createMockEvents();
-        $lastEvent = $events[count($events) - 1];
+        $chain = $this->createMock(EventChain::class);
+        $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
+        $chain->events = $this->createMockEvents();
+        $chain->method('getLastEvent')->willReturn($chain->events[count($chain->events) - 1]);
+        $chain->method('hasSystemKeyForIdentity')->willReturn(false);
+
         $to = ['ex1', 'ex2'];
-
-        $chain = $this->createMock(EventChain::class);
-        $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
-        $chain->method('isEmpty')->willReturn(false);
-        $chain->method('isPartial')->willReturn(false);
-        $chain->method('getNodes')->willReturn($to);
-        
-        $chainLastEvent = $this->createMock(EventChain::class);
-        $chainLastEvent->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
-        $chainLastEvent->events = $lastEvent;
-        $chain->method('getLastEvent')->willReturn($lastEvent);
-        $chain->method('withEvents')->willReturn($chainLastEvent);
-        $chain->method('hasSystemKeyForIdentity')->willReturn(false);
-
-        $dispatcher = $this->createMock(Dispatcher::class);
-        $dispatcher->expects($this->once())->method('queue')->with($chainLastEvent, $to);
-
-        $account = $this->createMock(Account::class);
-        $account->expects($this->once())->method('getPublicSignKey')->willReturn('node_sign_key');
-        
-        $manager = $this->createDispatcherManager(null, $dispatcher, $account);
-        
-        $manager->dispatch($chain);
-    }
-    
-    public function testAddDispatchIdentityEvent()
-    {
-        $events = $this->createMockEvents();
-        $lastEvent = $events[count($events) - 1];
-        $to = ['ex1', 'ex2'];;
-
-        $chain = $this->createMock(EventChain::class);
-        $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
-        $chain->method('isEmpty')->willReturn(false);
-        $chain->method('isPartial')->willReturn(false);
-        $chain->method('getNodes')->willReturn($to);
-        $chain->method('getLastEvent')->willReturn($lastEvent);
-        $chain->method('hasSystemKeyForIdentity')->willReturn(false);
-
         $dispatcher = $this->createMock(Dispatcher::class);
         $dispatcher->expects($this->once())->method('queue')->with($chain, $to);
 
         $account = $this->createMock(Account::class);
         $account->expects($this->once())->method('getPublicSignKey')->willReturn('node_sign_key');
         
-        $resource = $this->createMock(Identity::class);
-        $resourceFactory = $this->createMock(ResourceFactory::class);
-        $resourceFactory->expects($this->once())->method('extractFrom')
-            ->with($this->identicalTo($lastEvent))->willReturn($resource);
-        
-        $manager = $this->createDispatcherManager(null, $dispatcher, $account, $resourceFactory);
-        
-        $manager->dispatch($chain);
+        $manager = $this->createDispatcherManager(null, $dispatcher, $account);
+        $manager->dispatch($chain, $to);
     }
 
     public function testAddDispatchOtherSignKey()
     {
-        $events = $this->createMockEvents();
-        $lastEvent = $events[count($events) - 1];
-        $to = ['ex1', 'ex2'];
-
         $chain = $this->createMock(EventChain::class);
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
-        $chain->method('isEmpty')->willReturn(false);
-        $chain->method('isPartial')->willReturn(false);
-        $chain->method('getNodes')->willReturn($to);
-
-        $chainLastEvent = $this->createMock(EventChain::class);
-        $chainLastEvent->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
-        $chainLastEvent->events = $lastEvent;
-        $chain->method('getLastEvent')->willReturn($lastEvent);
-        $chain->method('withEvents')->willReturn($chainLastEvent);
+        $chain->events = $this->createMockEvents();
+        $chain->method('getLastEvent')->willReturn($chain->events[count($chain->events) - 1]);
         $chain->method('hasSystemKeyForIdentity')->willReturn(false);
 
+        $to = ['ex1', 'ex2'];
         $dispatcher = $this->createMock(Dispatcher::class);
         $dispatcher->expects($this->never())->method('queue');
 
         $account = $this->createMock(Account::class);
         $account->expects($this->exactly(2))->method('getPublicSignKey')->willReturn('other_sign_key');
-
+        
         $manager = $this->createDispatcherManager(null, $dispatcher, $account);
-
-        $manager->dispatch($chain);
+        $manager->dispatch($chain, $to);
     }
 
     public function testAddDispatchIdentityWithSystemKey()
     {
-        $events = $this->createMockEvents();
-        $lastEvent = $events[count($events) - 1];
-        $to = ['ex1', 'ex2'];
-
         $chain = $this->createMock(EventChain::class);
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
-        $chain->method('isEmpty')->willReturn(false);
-        $chain->method('isPartial')->willReturn(false);
-        $chain->method('getNodes')->willReturn($to);
-
-        $chainLastEvent = $this->createMock(EventChain::class);
-        $chainLastEvent->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
-        $chainLastEvent->events = $lastEvent;
-        $chain->method('getLastEvent')->willReturn($lastEvent);
-        $chain->method('withEvents')->willReturn($chainLastEvent);
+        $chain->events = $this->createMockEvents();
+        $chain->method('getLastEvent')->willReturn($chain->events[count($chain->events) - 1]);
         $chain->method('hasSystemKeyForIdentity')->willReturn(true);
 
+        $to = ['ex1', 'ex2'];
         $dispatcher = $this->createMock(Dispatcher::class);
-        $dispatcher->expects($this->once())->method('queue')->with($chainLastEvent, $to);
+        $dispatcher->expects($this->once())->method('queue')->with($chain, $to);
 
         $account = $this->createMock(Account::class);
         $account->expects($this->exactly(2))->method('getPublicSignKey')->willReturn('other_sign_key');
-
+        
         $manager = $this->createDispatcherManager(null, $dispatcher, $account);
-
-        $manager->dispatch($chain);
+        $manager->dispatch($chain, $to);
     }
 }
