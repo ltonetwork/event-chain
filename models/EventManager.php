@@ -29,18 +29,29 @@ class EventManager
      * @var DispatcherManager
      */
     protected $dispatcher;
+    
+    /**
+     * @var EventFactory
+     */
+    protected $eventFactory;
 
     
     /**
      * Class constructor
      * 
      * @param EventChain $chain
+     * @param ResourceFactory $resourceFactory
+     * @param ResourceStorage $resourceStorage
+     * @param DispatcherManager $dispatcher
+     * @param EventFactory $eventFactory
+     * @throws UnexpectedValueException
      */
     public function __construct(
         EventChain $chain,
         ResourceFactory $resourceFactory,
         ResourceStorage $resourceStorage,
-        DispatcherManager $dispatcher
+        DispatcherManager $dispatcher,
+        EventFactory $eventFactory
     )
     {
         if ($chain->isPartial()) {
@@ -51,6 +62,7 @@ class EventManager
         $this->resourceFactory = $resourceFactory;
         $this->resourceStorage = $resourceStorage;
         $this->dispatcher = $dispatcher;
+        $this->eventFactory = $eventFactory;
     }
     
     /**
@@ -94,27 +106,24 @@ class EventManager
             $next = next($following);
             
             if ($validation->failed()) {
-                // @todo: add failed event {reason, events}
-                // EventFactory::createErrorEvent();
-                // $event = new LTO\Event();
-                // $event->signWith($account);
-                // $following = $this->chain->getEventsAfter($event->previous);
-                // break and get all events after current
+                $this->handleFailedEvent($event, $validation);
                 break;
             }
             
             $this->chain->save();
         }
         
-        if (!$validation->isSuccess()) {
-            return $validation;
+        if (isset($first)) {
+            $this->dispatch($first, $nodes);
         }
-
-        $this->dispatch($first, $nodes);
-        $this->resourceStorage->done($this->chain);
         
-        return ValidationResult::success();
+        if ($validation->succeeded()) {
+            $this->resourceStorage->done($this->chain);
+        }
+        
+        return $validation;
     }
+    
     
     /**
      * Add an event to the event chain.
@@ -149,7 +158,21 @@ class EventManager
 
         return ValidationResult::success();
     }
-
+    
+    /**
+     * Add an error event to the event chain.
+     * 
+     * @param Event             $event
+     * @param ValidationResult  $validation  The validation that failed
+     */
+    public function handleFailedEvent(Event $event, ValidationResult $validation)
+    {
+        $after = $this->chain->getEventsAfter($event->previous);
+        $errorEvent = $this->eventFactory->createErrorEvent($validation->getErrors(), $after);
+        $this->chain->events->add($errorEvent);
+    }
+    
+    
     /**
      * Validate an event before adding it to the chain
      *

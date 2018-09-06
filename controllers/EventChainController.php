@@ -24,6 +24,11 @@ class EventChainController extends Jasny\Controller
      * @var Dispatcher
      */
     protected $dispatcher;
+
+    /**
+     * @var EventFactory
+     */
+    protected $eventFactory;
     
     /**
      * Account that signed the request
@@ -41,16 +46,20 @@ class EventChainController extends Jasny\Controller
     /**
      * Class constructor
      *
-     * @param ResourceFactory $resourceFactory  "models.resources.factory"
-     * @param ResourceStorage $resourceStorage  "models.resources.storage"
-     * @param Dispatcher $dispatcher            "models.dispatcher.client"
-     * @param Accout $nodeAccount               "node.account"
+     * @param ResourceFactory    $resourceFactory  "models.resources.factory"
+     * @param ResourceStorage    $resourceStorage  "models.resources.storage"
+     * @param DispatcherManager  $dispatcher       "models.dispatcher.manager"
+     * @param EventFactory       $eventFactory     "models.events.factory"
+     * @param Accout             $nodeAccount      "node.account"
      */
-    public function __construct(ResourceFactory $resourceFactory, ResourceStorage $resourceStorage, Dispatcher $dispatcher, Account $nodeAccount)
-    {
+    public function __construct(
+        ResourceFactory $resourceFactory, ResourceStorage $resourceStorage, Dispatcher $dispatcher,
+        EventFactory $eventFactory, Account $nodeAccount
+    ) {
         $this->resourceFactory = $resourceFactory;
         $this->resourceStorage = $resourceStorage;
         $this->dispatcher = $dispatcher;
+        $this->eventFactory = $eventFactory;
         $this->nodeAccount = $nodeAccount;
     }
 
@@ -97,8 +106,9 @@ class EventChainController extends Jasny\Controller
         
         $chain = EventChain::fetch($newChain->id) ?: $newChain->withoutEvents();
         
-        $dispatcher = new DispatcherManager($this->dispatcher, $this->nodeAccount, $this->resourceFactory);
-        $manager = new EventManager($chain, $this->resourceFactory, $this->resourceStorage, $dispatcher);
+        $manager = new EventManager(
+            $chain, $this->resourceFactory, $this->resourceStorage, $this->dispatcher, $this->eventFactory
+        );
         $handled = $manager->add($newChain);
         
         if ($handled->failed()) {

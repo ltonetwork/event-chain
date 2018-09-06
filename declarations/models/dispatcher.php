@@ -9,5 +9,11 @@ return [
         $httpClient = $container->get(ClientInterface::class);
 
         return new Dispatcher($config, $httpClient);
+    },
+    'models.dispatcher.manager' => function (ContainerInterface $container) {
+        $dispatcher = $container->get('models.dispatcher.client');
+        $account = $container->get('node.account');
+
+        return new DispatcherManager($dispatcher, $account);
     }
 ];

@@ -17,24 +17,17 @@ class DispatcherManager
      */
     protected $dispatcher;
 
-    /**
-     * @var ResourceFactory
-     */
-    protected $resourceFactory;
-
     
     /**
      * Class constructor
      * 
      * @param Dispatcher $dispatcher
      * @param Account $nodeAccount
-     * @param ResourceFactor $resourceFactory
      */
-    public function __construct(Dispatcher $dispatcher, Account $nodeAccount, ResourceFactory $resourceFactory)
+    public function __construct(Dispatcher $dispatcher, Account $nodeAccount)
     {
         $this->dispatcher = $dispatcher;
         $this->node = $nodeAccount;
-        $this->resourceFactory = $resourceFactory;
     }
     
     

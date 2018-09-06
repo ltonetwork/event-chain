@@ -34,20 +34,17 @@ class DispatcherManagerTest extends \Codeception\Test\Unit
      * @param array|null                     $methods
      * @param Dispatcher                     $dispatcher
      * @param Account                        $account
-     * @param ResourceFactory                $resourceFactory
      * @return DispatcherManager|MockObject
      */
     protected function createDispatcherManager(
         $methods = null,
         Dispatcher $dispatcher = null,
-        Account $account = null,
-        ResourceFactory $resourceFactory = null
+        Account $account = null
     ) {
         return $this->getMockBuilder(DispatcherManager::class)
             ->setConstructorArgs([
                 $dispatcher ?: $this->createMock(Dispatcher::class),
                 $account ?: $this->createMock(Account::class),
-                $resourceFactory ?: $this->createMock(ResourceFactory::class),
             ])
             ->setMethods($methods)
             ->getMock();
