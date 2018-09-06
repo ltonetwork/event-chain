@@ -53,7 +53,7 @@ class EventChainController extends Jasny\Controller
      * @param Accout             $nodeAccount      "node.account"
      */
     public function __construct(
-        ResourceFactory $resourceFactory, ResourceStorage $resourceStorage, Dispatcher $dispatcher,
+        ResourceFactory $resourceFactory, ResourceStorage $resourceStorage, DispatcherManager $dispatcher,
         EventFactory $eventFactory, Account $nodeAccount
     ) {
         $this->resourceFactory = $resourceFactory;
