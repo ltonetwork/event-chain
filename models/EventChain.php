@@ -108,6 +108,25 @@ class EventChain extends MongoDocument
     {
         return $this->identities ? $this->identities->node : [];
     }
+    
+    /**
+     * Get the nodes of the identities
+     * 
+     * @param $nodeSignKey
+     * @return string[]
+     */
+    public function getNodesForSystem($nodeSignKey)
+    {
+        $nodes = [];
+        
+        foreach($this->identities as $identity) {
+            if (isset($identity->signkeys['system']) && $identity->signkeys['system'] == $nodeSignKey) {
+                $nodes[] = $identity->node;
+            }
+        }
+        
+        return array_unique($nodes);
+    }
 
     /**
      * Check if the chain has identity which belongs to a given node sign key

@@ -4,6 +4,7 @@ use Jasny\ValidationResult;
 use Jasny\DB\Entity\Identifiable;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
+use LTO\Account;
 
 /**
  * Handle new events
@@ -34,6 +35,11 @@ class EventManager
      * @var EventFactory
      */
     protected $eventFactory;
+    
+    /**
+     * @var Account
+     */
+    protected $node;
 
     
     /**
@@ -51,7 +57,8 @@ class EventManager
         ResourceFactory $resourceFactory,
         ResourceStorage $resourceStorage,
         DispatcherManager $dispatcher,
-        EventFactory $eventFactory
+        EventFactory $eventFactory,
+        Account $nodeAccount
     )
     {
         if ($chain->isPartial()) {
@@ -63,6 +70,7 @@ class EventManager
         $this->resourceStorage = $resourceStorage;
         $this->dispatcher = $dispatcher;
         $this->eventFactory = $eventFactory;
+        $this->node = $nodeAccount;
     }
     
     /**
@@ -84,7 +92,7 @@ class EventManager
         }
         
         $previous = $newEvents->getFirstEvent()->previous;
-        $nodes = $this->chain->getNodes();
+        $oldNodes = $this->chain->getNodes();
         
         try {
             $following = $this->chain->getEventsAfter($previous);
@@ -114,7 +122,7 @@ class EventManager
         }
         
         if (isset($first)) {
-            $this->dispatch($first, $nodes);
+            $this->dispatch($first, $oldNodes);
         }
         
         if ($validation->succeeded()) {
@@ -259,17 +267,22 @@ class EventManager
     /**
      * Send a partial or full chain to the event dispatcher service
      * 
-     * @param string   $first  The hash of the event from which the partial chain should be created
-     * @param string[] $nodes  The existing nodes of the chain
+     * @param string   $first     The hash of the event from which the partial chain should be created
+     * @param string[] $oldNodes  The old nodes of the chain before it was updated
      */
-    protected function dispatch($first, $nodes = [])
+    protected function dispatch($first, $oldNodes = [])
     {
+        $systemNodes = $this->chain->getNodesForSystem($this->node->getPublicSignKey());
+        $otherNodes = array_unique(array_values(array_diff($oldNodes, $systemNodes)));
+
+        // send partial chain to old nodes
         $partial = $this->chain->getPartialAfter($first);
         if (!empty($partial)) {
-            $this->dispatcher->dispatch($partial, $nodes);
+            $this->dispatcher->dispatch($partial, $otherNodes);
         }
 
-        $newNodes = array_values(array_diff($this->chain->getNodes(), $nodes));
+        // send full node to new nodes
+        $newNodes = array_unique(array_values(array_diff($this->chain->getNodes(), $oldNodes, $systemNodes)));
         if (!empty($newNodes)) {
             $this->dispatcher->dispatch($this->chain, $newNodes);
         }

@@ -107,7 +107,8 @@ class EventChainController extends Jasny\Controller
         $chain = EventChain::fetch($newChain->id) ?: $newChain->withoutEvents();
         
         $manager = new EventManager(
-            $chain, $this->resourceFactory, $this->resourceStorage, $this->dispatcher, $this->eventFactory
+            $chain, $this->resourceFactory, $this->resourceStorage, $this->dispatcher,
+            $this->eventFactory, $this->nodeAccount
         );
         $handled = $manager->add($newChain);
         

@@ -2,6 +2,7 @@
 
 use Jasny\ValidationResult;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use LTO\Account;
 
 /**
  * @covers EventManager
@@ -37,6 +38,7 @@ class EventManagerTest extends \Codeception\Test\Unit
      * @param ResourceStorage    $resourceStorage
      * @param DispatcherManager  $dispatcher
      * @param EventFactory       $eventFactory
+     * @param Account            $nodeAccount
      * @return EventManager|MockObject
      */
     protected function createEventManager(
@@ -45,7 +47,8 @@ class EventManagerTest extends \Codeception\Test\Unit
         ResourceFactory $resourceFactory = null,
         ResourceStorage $resourceStorage = null,
         DispatcherManager $dispatcher = null,
-        EventFactory $eventFactory = null
+        EventFactory $eventFactory = null,
+        Account $nodeAccount = null
     ) {
         return $this->getMockBuilder(EventManager::class)
             ->setConstructorArgs([
@@ -53,7 +56,8 @@ class EventManagerTest extends \Codeception\Test\Unit
                 $resourceFactory ?: $this->createMock(ResourceFactory::class),
                 $resourceStorage ?: $this->createMock(ResourceStorage::class),
                 $dispatcher ?: $this->createMock(DispatcherManager::class),
-                $eventFactory ?: $this->createMock(EventFactory::class)
+                $eventFactory ?: $this->createMock(EventFactory::class),
+                $nodeAccount ?: $this->createMock(Account::class)
             ])
             ->setMethods($methods)
             ->getMock();
@@ -73,8 +77,9 @@ class EventManagerTest extends \Codeception\Test\Unit
         $resourceStorage = $this->createMock(ResourceStorage::class);
         $dispatcher = $this->createMock(DispatcherManager::class);
         $eventFactory = $this->createMock(EventFactory::class);
+        $nodeAccount = $this->createMock(Account::class);
         
-        new EventManager($chain, $resourceFactory, $resourceStorage, $dispatcher, $eventFactory);
+        new EventManager($chain, $resourceFactory, $resourceStorage, $dispatcher, $eventFactory, $nodeAccount);
     }
     
     public function testAdd()
@@ -91,6 +96,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->method('isEmpty')->willReturn(false);
         $chain->method('isPartial')->willReturn(false);
         $chain->method('getNodes')->willReturn([]);
+        $chain->method('getNodesForSystem')->willReturn([]);
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn([]);
         
@@ -122,6 +128,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->method('isEmpty')->willReturn(false);
         $chain->method('isPartial')->willReturn(false);
         $chain->method('getNodes')->willReturn([]);
+        $chain->method('getNodesForSystem')->willReturn([]);
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn($chainEvents);
         
@@ -240,8 +247,9 @@ class EventManagerTest extends \Codeception\Test\Unit
 
         $chain = $this->createMock(EventChain::class);
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
+        $chain->method('getNodesForSystem')->willReturn(['local']);
         $chain->expects($this->exactly(2))->method('getNodes')
-            ->willReturnOnConsecutiveCalls(['ex1', 'ex2'], ['ex1', 'ex2', 'ex3']);
+            ->willReturnOnConsecutiveCalls(['local', 'ex1', 'ex2'], ['local', 'ex1', 'ex2', 'ex3']);
         $chain->expects($this->once())->method('getPartialAfter')->willReturn($newEvents);
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn([]);
