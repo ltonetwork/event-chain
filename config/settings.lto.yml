@@ -21,6 +21,9 @@ endpoints:
 dispatcher:
   url: http://event-dispatcher
 
+anchor:
+  url: http://anchor
+
 environment_variables:
   MONGO_DB: db.default.client
   MONGO_DB_PREFIX: db.default.prefix

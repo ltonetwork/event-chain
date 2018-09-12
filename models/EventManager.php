@@ -40,6 +40,11 @@ class EventManager
      * @var Account
      */
     protected $node;
+    
+    /**
+     * @var Anchor
+     */
+    protected $anchor;
 
     
     /**
@@ -50,6 +55,8 @@ class EventManager
      * @param ResourceStorage $resourceStorage
      * @param DispatcherManager $dispatcher
      * @param EventFactory $eventFactory
+     * @param Account $nodeAccount
+     * @param Anchor $anchor
      * @throws UnexpectedValueException
      */
     public function __construct(
@@ -58,7 +65,8 @@ class EventManager
         ResourceStorage $resourceStorage,
         DispatcherManager $dispatcher,
         EventFactory $eventFactory,
-        Account $nodeAccount
+        Account $nodeAccount,
+        Anchor $anchor
     )
     {
         if ($chain->isPartial()) {
@@ -71,6 +79,7 @@ class EventManager
         $this->dispatcher = $dispatcher;
         $this->eventFactory = $eventFactory;
         $this->node = $nodeAccount;
+        $this->anchor = $anchor;
     }
     
     /**
@@ -160,6 +169,10 @@ class EventManager
         $validation = $this->storeResource($resource);
         if ($validation->failed()) {
             return $validation;
+        }
+
+        if ($this->chain->isEventSignedByAccount($event, $this->node)) {
+            $this->anchor->hash($event->hash);
         }
 
         $this->chain->events->add($event);

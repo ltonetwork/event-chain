@@ -42,6 +42,11 @@ class EventChainController extends Jasny\Controller
      */
     protected $nodeAccount;
 
+    /**
+     * @var Anchor
+     */
+    protected $anchor;
+
 
     /**
      * Class constructor
@@ -50,17 +55,19 @@ class EventChainController extends Jasny\Controller
      * @param ResourceStorage    $resourceStorage  "models.resources.storage"
      * @param DispatcherManager  $dispatcher       "models.dispatcher.manager"
      * @param EventFactory       $eventFactory     "models.events.factory"
-     * @param Accout             $nodeAccount      "node.account"
+     * @param Account            $nodeAccount      "node.account"
+     * @param Anchor             $anchor           "models.anchor.client"
      */
     public function __construct(
         ResourceFactory $resourceFactory, ResourceStorage $resourceStorage, DispatcherManager $dispatcher,
-        EventFactory $eventFactory, Account $nodeAccount
+        EventFactory $eventFactory, Account $nodeAccount, Anchor $anchor
     ) {
         $this->resourceFactory = $resourceFactory;
         $this->resourceStorage = $resourceStorage;
         $this->dispatcher = $dispatcher;
         $this->eventFactory = $eventFactory;
         $this->nodeAccount = $nodeAccount;
+        $this->anchor = $anchor;
     }
 
     /**
@@ -108,7 +115,7 @@ class EventChainController extends Jasny\Controller
         
         $manager = new EventManager(
             $chain, $this->resourceFactory, $this->resourceStorage, $this->dispatcher,
-            $this->eventFactory, $this->nodeAccount
+            $this->eventFactory, $this->nodeAccount, $this->anchor
         );
         $handled = $manager->add($newChain);
         

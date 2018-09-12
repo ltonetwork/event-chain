@@ -48,7 +48,8 @@ class EventManagerTest extends \Codeception\Test\Unit
         ResourceStorage $resourceStorage = null,
         DispatcherManager $dispatcher = null,
         EventFactory $eventFactory = null,
-        Account $nodeAccount = null
+        Account $nodeAccount = null,
+        Anchor $anchor = null
     ) {
         return $this->getMockBuilder(EventManager::class)
             ->setConstructorArgs([
@@ -57,7 +58,8 @@ class EventManagerTest extends \Codeception\Test\Unit
                 $resourceStorage ?: $this->createMock(ResourceStorage::class),
                 $dispatcher ?: $this->createMock(DispatcherManager::class),
                 $eventFactory ?: $this->createMock(EventFactory::class),
-                $nodeAccount ?: $this->createMock(Account::class)
+                $nodeAccount ?: $this->createMock(Account::class),
+                $anchor ?: $this->createMock(Anchor::class)
             ])
             ->setMethods($methods)
             ->getMock();
@@ -78,8 +80,9 @@ class EventManagerTest extends \Codeception\Test\Unit
         $dispatcher = $this->createMock(DispatcherManager::class);
         $eventFactory = $this->createMock(EventFactory::class);
         $nodeAccount = $this->createMock(Account::class);
+        $anchor = $this->createMock(Anchor::class);
         
-        new EventManager($chain, $resourceFactory, $resourceStorage, $dispatcher, $eventFactory, $nodeAccount);
+        new EventManager($chain, $resourceFactory, $resourceStorage, $dispatcher, $eventFactory, $nodeAccount, $anchor);
     }
     
     public function testAdd()
@@ -294,6 +297,48 @@ class EventManagerTest extends \Codeception\Test\Unit
         $resourceStorage->expects($this->once())->method('store')->with($this->identicalTo($resource));
         
         $manager = $this->createEventManager($chain, ['applyPrivilegeToResource'], $resourceFactory, $resourceStorage);
+        $manager->expects($this->once())->method('applyPrivilegeToResource')
+            ->with($this->identicalTo($resource), $this->identicalTo($event))->willReturn(ValidationResult::success());
+        
+        $validation = $manager->handleNewEvent($event);
+        
+        $this->assertInstanceOf(ValidationResult::class, $validation);
+        $this->assertEquals([], $validation->getErrors());
+    }
+    
+    public function testHandleNewEventAnchor()
+    {
+        $event = $this->createMockEvents()[0];
+        $event->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
+                
+        $eventSet = $this->createMock(Jasny\DB\EntitySet::class);
+        $eventSet->expects($this->once())->method('add')->with($event);
+        
+        $resource = $this->createMock(Resource::class);
+        $resource->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
+        
+        $chain = $this->createMock(EventChain::class);
+        $chain->method('getLatestHash')->willReturn("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U");
+        $chain->events = $eventSet;
+        $chain->expects($this->once())->method('registerResource')->with($this->identicalTo($resource));
+        $chain->expects($this->once())->method('isEventSignedByAccount')
+            ->with($this->identicalTo($event))
+            ->willReturn(true);
+        
+        $anchor = $this->createMock(Anchor::class);
+        $anchor->expects($this->once())->method('hash')->with('3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj');
+
+        $resourceFactory = $this->createMock(ResourceFactory::class);
+        $resourceFactory->expects($this->once())->method('extractFrom')
+            ->with($this->identicalTo($event))->willReturn($resource);
+
+        $resourceStorage = $this->createMock(ResourceStorage::class);
+        $resourceStorage->expects($this->once())->method('store')->with($this->identicalTo($resource));
+        
+        $manager = $this->createEventManager(
+            $chain, ['applyPrivilegeToResource'], $resourceFactory, $resourceStorage,
+            null, null, null, $anchor
+        );
         $manager->expects($this->once())->method('applyPrivilegeToResource')
             ->with($this->identicalTo($resource), $this->identicalTo($event))->willReturn(ValidationResult::success());
         

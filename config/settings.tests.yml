@@ -16,3 +16,6 @@ endpoints:
 
 dispatcher:
   url: http://event-dispatcher
+
+anchor:
+  url: http://anchor

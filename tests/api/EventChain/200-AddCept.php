@@ -38,6 +38,16 @@ $data = [
     ]
 ];
 
+// Anchor
+$I->expectHttpRequest(function (Request $request) use ($I) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "2TkZEjZV7fujY5uqsTk5T49V4rWgyWjRAcdv2pAZ5YDv", "encoding": "base58"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+    
+    return new Response(200);
+});
+
 // Scenario
 $I->expectHttpRequest(function (Request $request) use ($I) {
     $I->assertEquals('http://legalflow/scenarios/', (string)$request->getUri());
@@ -48,11 +58,31 @@ $I->expectHttpRequest(function (Request $request) use ($I) {
     return new Response(200);
 });
 
+// Anchor
+$I->expectHttpRequest(function (Request $request) use ($I) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "Hj1fz65Mn7mtYieT8MTvAxKDmCLLB4RLj4SUFXc2Qybh", "encoding": "base58"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+    
+    return new Response(200);
+});
+
 // Response
 $I->expectHttpRequest(function (Request $request) use ($I) {
     $I->assertEquals('http://legalflow/responses/', (string)$request->getUri());
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
     $json = '{"$schema":"https://specs.livecontracts.io/v0.1.0/response/schema.json#","key":"ok","process":{"id":"lt:/processes/111837c9-ff00-48e3-8c2d-63454a9dc234","scenario":{"id":"lt:/scenarios/fe659ffa-537d-461a-abd7-aa0f3643d5ee?v=H9eAveK7"}},"actor":{"key":"client","id":"0c1d7eac-18ec-496a-8713-8e6e5f098686","name":"John Doe","email":"john.doe@example.com","node":"","signkeys":{"user":"FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"},"encryptkey":"BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6","schema":"https://specs.livecontracts.io/v0.1.0/identity/schema.json#","info":null},"timestamp":"2018-03-30T16:01:41+0000","action":{"key":"request_quotation"},"display":"always","data":{"description":"asd","urgency":"high"}}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+    
+    return new Response(200);
+});
+
+// Anchor
+$I->expectHttpRequest(function (Request $request) use ($I) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "5AxcTcBRQAmYdoXdhsZtBJ9PwgAoheqs3KkBopTkUagM", "encoding": "base58"}';
     $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
     
     return new Response(200);
