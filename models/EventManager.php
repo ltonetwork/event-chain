@@ -125,7 +125,7 @@ class EventManager
             $this->dispatch($first, $oldNodes);
         }
         
-        if ($validation->succeeded()) {
+        if ($validation->succeeded() && $this->chain->isEventSignedByAccount($this->chain->getLastEvent(), $this->node)) {
             $this->resourceStorage->done($this->chain);
         }
         
