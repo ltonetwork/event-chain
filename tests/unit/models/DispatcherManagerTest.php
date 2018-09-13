@@ -1,6 +1,7 @@
 <?php
 
 use LTO\Account;
+use Psr\Log\LoggerInterface;
 
 /**
  * @covers DispatcherManager
@@ -45,6 +46,7 @@ class DispatcherManagerTest extends \Codeception\Test\Unit
             ->setConstructorArgs([
                 $dispatcher ?: $this->createMock(Dispatcher::class),
                 $account ?: $this->createMock(Account::class),
+                $this->createMock(LoggerInterface::class)
             ])
             ->setMethods($methods)
             ->getMock();

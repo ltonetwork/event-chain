@@ -3,6 +3,7 @@ FROM legalthings/apache-php71
 ADD . /app
 WORKDIR /app
 
+RUN apt-get update
 RUN apt-get install -y git
 
 ENV APACHE_DOCUMENT_ROOT /var/www/html/www

@@ -1,6 +1,7 @@
 <?php
 
 use LTO\Account;
+use \Psr\Log\LoggerInterface;
 
 /**
  * Manage the dispatcher
@@ -17,17 +18,24 @@ class DispatcherManager
      */
     protected $dispatcher;
 
-    
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+
     /**
      * Class constructor
      * 
      * @param Dispatcher $dispatcher
      * @param Account $nodeAccount
+     * @param LoggerInterface $logger
      */
-    public function __construct(Dispatcher $dispatcher, Account $nodeAccount)
+    public function __construct(Dispatcher $dispatcher, Account $nodeAccount, LoggerInterface $logger)
     {
         $this->dispatcher = $dispatcher;
         $this->node = $nodeAccount;
+        $this->logger = $logger;
     }
     
     
@@ -48,7 +56,9 @@ class DispatcherManager
         if (!$chain->isEventSignedByAccount($event, $this->node)) {
             return;
         }
-        
+
+        $this->logger->debug('Send message to : ' . json_encode($nodes));
+
         $this->dispatcher->queue($chain, $nodes);
     }
 }

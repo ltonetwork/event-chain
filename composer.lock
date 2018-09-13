@@ -1197,12 +1197,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/legalthings/lto-api.php.git",
-                "reference": "20b60ffb9de06d84d63f6beb6cdffd556dfab791"
+                "reference": "b4e32a9ff00e702f1978d4625f0e0c95b3294f48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/legalthings/lto-api.php/zipball/20b60ffb9de06d84d63f6beb6cdffd556dfab791",
-                "reference": "20b60ffb9de06d84d63f6beb6cdffd556dfab791",
+                "url": "https://api.github.com/repos/legalthings/lto-api.php/zipball/b4e32a9ff00e702f1978d4625f0e0c95b3294f48",
+                "reference": "b4e32a9ff00e702f1978d4625f0e0c95b3294f48",
                 "shasum": ""
             },
             "require": {
@@ -1236,7 +1236,7 @@
                 }
             ],
             "description": "LegalThings One client",
-            "time": "2018-06-28T09:04:56+00:00"
+            "time": "2018-09-11T10:13:30+00:00"
         },
         {
             "name": "mongodb/mongodb",
