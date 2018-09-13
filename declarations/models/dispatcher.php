@@ -6,7 +6,7 @@ use Psr\Log\LoggerInterface;
 
 return [
     'models.dispatcher.client' => function (ContainerInterface $container) {
-        $config = $container->get('config')->dispatcher;
+        $config = $container->get('config')->queuer;
         $httpClient = $container->get(ClientInterface::class);
 
         return new Dispatcher($config, $httpClient);
