@@ -18,8 +18,8 @@ endpoints:
   "lt:/processes/*":      "http://legalflow/responses/"
   "lt:/processes/*/done": "http://legalflow/processes/$2/done"
 
-dispatcher:
-  url: http://event-dispatcher
+queuer:
+  url: http://event-queuer
 
 anchor:
   url: http://anchor
