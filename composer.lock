@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "content-hash": "f449ce4a76ceb57685230ec506519016",
@@ -383,16 +383,16 @@
         },
         {
             "name": "jasny/autowire",
-            "version": "v1.0.0",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jasny/autowire.git",
-                "reference": "ba0ae0b6fba00837119a22e564a039f89dad5e54"
+                "reference": "7d347d0bb873343e79c634c88b54b74a512fde36"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasny/autowire/zipball/ba0ae0b6fba00837119a22e564a039f89dad5e54",
-                "reference": "ba0ae0b6fba00837119a22e564a039f89dad5e54",
+                "url": "https://api.github.com/repos/jasny/autowire/zipball/7d347d0bb873343e79c634c88b54b74a512fde36",
+                "reference": "7d347d0bb873343e79c634c88b54b74a512fde36",
                 "shasum": ""
             },
             "require": {
@@ -421,7 +421,7 @@
                 }
             ],
             "description": "Autowiring for PSR-11 containers",
-            "time": "2018-08-17T00:25:38+00:00"
+            "time": "2018-09-04T18:44:07+00:00"
         },
         {
             "name": "jasny/config",
@@ -483,16 +483,16 @@
         },
         {
             "name": "jasny/container",
-            "version": "v1.0.1",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jasny/container.git",
-                "reference": "094622182ee252af8ec9816656f4ecadd1e9fcb2"
+                "reference": "aa3af073ec8b9f697b1ea9b8ba81e154012a8e7e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasny/container/zipball/094622182ee252af8ec9816656f4ecadd1e9fcb2",
-                "reference": "094622182ee252af8ec9816656f4ecadd1e9fcb2",
+                "url": "https://api.github.com/repos/jasny/container/zipball/aa3af073ec8b9f697b1ea9b8ba81e154012a8e7e",
+                "reference": "aa3af073ec8b9f697b1ea9b8ba81e154012a8e7e",
                 "shasum": ""
             },
             "require": {
@@ -502,8 +502,11 @@
                 "psr/container": "^1.0"
             },
             "require-dev": {
-                "jasny/autowire": "^1.0",
+                "jasny/autowire": "^1.1",
                 "jasny/php-code-quality": "^2.3"
+            },
+            "suggest": {
+                "jasny/autowire": "Automatically determine the dependencies when instantiating a class"
             },
             "type": "library",
             "autoload": {
@@ -531,7 +534,7 @@
                 "dependency injection",
                 "di"
             ],
-            "time": "2018-08-27T14:25:02+00:00"
+            "time": "2018-09-04T19:26:23+00:00"
         },
         {
             "name": "jasny/controller",
@@ -1194,12 +1197,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/legalthings/lto-api.php.git",
-                "reference": "20b60ffb9de06d84d63f6beb6cdffd556dfab791"
+                "reference": "b4e32a9ff00e702f1978d4625f0e0c95b3294f48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/legalthings/lto-api.php/zipball/20b60ffb9de06d84d63f6beb6cdffd556dfab791",
-                "reference": "20b60ffb9de06d84d63f6beb6cdffd556dfab791",
+                "url": "https://api.github.com/repos/legalthings/lto-api.php/zipball/b4e32a9ff00e702f1978d4625f0e0c95b3294f48",
+                "reference": "b4e32a9ff00e702f1978d4625f0e0c95b3294f48",
                 "shasum": ""
             },
             "require": {
@@ -1233,26 +1236,26 @@
                 }
             ],
             "description": "LegalThings One client",
-            "time": "2018-06-28T09:04:56+00:00"
+            "time": "2018-09-11T10:13:30+00:00"
         },
         {
             "name": "mongodb/mongodb",
-            "version": "1.3.2",
+            "version": "1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mongodb/mongo-php-library.git",
-                "reference": "b9f35916125976533f4b1e67a4a0ee7baf1d3bb9"
+                "reference": "bd148eab0493e38354e45e2cd7db59b90fdcad79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mongodb/mongo-php-library/zipball/b9f35916125976533f4b1e67a4a0ee7baf1d3bb9",
-                "reference": "b9f35916125976533f4b1e67a4a0ee7baf1d3bb9",
+                "url": "https://api.github.com/repos/mongodb/mongo-php-library/zipball/bd148eab0493e38354e45e2cd7db59b90fdcad79",
+                "reference": "bd148eab0493e38354e45e2cd7db59b90fdcad79",
                 "shasum": ""
             },
             "require": {
                 "ext-hash": "*",
                 "ext-json": "*",
-                "ext-mongodb": "^1.4.0",
+                "ext-mongodb": "^1.5.0",
                 "php": ">=5.5"
             },
             "require-dev": {
@@ -1261,7 +1264,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.3.x-dev"
+                    "dev-master": "1.4.x-dev"
                 }
             },
             "autoload": {
@@ -1298,7 +1301,7 @@
                 "mongodb",
                 "persistence"
             ],
-            "time": "2018-04-19T17:20:30+00:00"
+            "time": "2018-07-18T14:33:41+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -1977,7 +1980,7 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.8.44",
+            "version": "v2.8.45",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
@@ -2475,25 +2478,26 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jasny/codeception-module.git",
-                "reference": "326e3261fd2a41cb10edac9d26c738996bfcc986"
+                "reference": "490b1cd211d8ba9626582d7f44afb300e8c4cdf6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasny/codeception-module/zipball/326e3261fd2a41cb10edac9d26c738996bfcc986",
-                "reference": "326e3261fd2a41cb10edac9d26c738996bfcc986",
+                "url": "https://api.github.com/repos/jasny/codeception-module/zipball/490b1cd211d8ba9626582d7f44afb300e8c4cdf6",
+                "reference": "490b1cd211d8ba9626582d7f44afb300e8c4cdf6",
                 "shasum": ""
             },
             "require": {
                 "codeception/codeception": "^2.2",
                 "jasny/http-message": "^1.3",
                 "jasny/router": "^1.1",
-                "mouf/picotainer": "^1.0",
-                "php": ">=5.6.0"
+                "php": ">=5.6.0",
+                "psr/container": "^1.0"
             },
             "require-dev": {
                 "jasny/controller": "^1.0",
                 "jasny/error-handler": "^0.2",
                 "jasny/php-code-quality": "^2.1",
+                "mouf/picotainer": "^1.1",
                 "twig/twig": "^1.29"
             },
             "type": "library",
@@ -2513,7 +2517,7 @@
                 }
             ],
             "description": "Codeception Module for Jasny MVC",
-            "time": "2017-05-26T04:20:34+00:00"
+            "time": "2018-08-29T13:14:32+00:00"
         },
         {
             "name": "jasny/php-code-quality",
@@ -2603,54 +2607,6 @@
             "description": "Virtual file system to mock the real file system in unit tests.",
             "homepage": "http://vfs.bovigo.org/",
             "time": "2017-08-01T08:02:14+00:00"
-        },
-        {
-            "name": "mouf/picotainer",
-            "version": "v1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thecodingmachine/picotainer.git",
-                "reference": "83737d6af8534c35e0d4cd2f0afd1e2e6c0ad7d4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thecodingmachine/picotainer/zipball/83737d6af8534c35e0d4cd2f0afd1e2e6c0ad7d4",
-                "reference": "83737d6af8534c35e0d4cd2f0afd1e2e6c0ad7d4",
-                "shasum": ""
-            },
-            "require": {
-                "container-interop/container-interop": "~1.2",
-                "psr/container": "^1.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.8",
-                "satooshi/php-coveralls": "~1.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Mouf\\Picotainer\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "David Négrier",
-                    "email": "d.negrier@thecodingmachine.com",
-                    "homepage": "http://mouf-php.com"
-                }
-            ],
-            "description": "This package contains a really minimalist dependency injection container compatible with container-interop.",
-            "homepage": "http://mouf-php.com",
-            "keywords": [
-                "container-interop",
-                "dependency injection",
-                "di"
-            ],
-            "time": "2017-03-09T09:19:17+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -3636,7 +3592,7 @@
         },
         {
             "name": "symfony/browser-kit",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/browser-kit.git",
@@ -3693,7 +3649,7 @@
         },
         {
             "name": "symfony/console",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
@@ -3761,7 +3717,7 @@
         },
         {
             "name": "symfony/css-selector",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/css-selector.git",
@@ -3814,7 +3770,7 @@
         },
         {
             "name": "symfony/dom-crawler",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dom-crawler.git",
@@ -3871,7 +3827,7 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
@@ -3934,7 +3890,7 @@
         },
         {
             "name": "symfony/finder",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
@@ -3983,16 +3939,16 @@
         },
         {
             "name": "symfony/process",
-            "version": "v4.1.3",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "f01fc7a4493572f7f506c49dcb50ad01fb3a2f56"
+                "reference": "86cdb930a6a855b0ab35fb60c1504cb36184f843"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/f01fc7a4493572f7f506c49dcb50ad01fb3a2f56",
-                "reference": "f01fc7a4493572f7f506c49dcb50ad01fb3a2f56",
+                "url": "https://api.github.com/repos/symfony/process/zipball/86cdb930a6a855b0ab35fb60c1504cb36184f843",
+                "reference": "86cdb930a6a855b0ab35fb60c1504cb36184f843",
                 "shasum": ""
             },
             "require": {
@@ -4028,7 +3984,7 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "https://symfony.com",
-            "time": "2018-07-26T11:24:31+00:00"
+            "time": "2018-08-03T11:13:38+00:00"
         },
         {
             "name": "theseer/tokenizer",

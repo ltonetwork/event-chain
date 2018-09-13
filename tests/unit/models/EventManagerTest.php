@@ -2,6 +2,7 @@
 
 use Jasny\ValidationResult;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use LTO\Account;
 
 /**
  * @covers EventManager
@@ -9,21 +10,6 @@ use PHPUnit_Framework_MockObject_MockObject as MockObject;
 class EventManagerTest extends \Codeception\Test\Unit
 {
     use Jasny\TestHelper;
-    
-    /**
-     * @expectedException UnexpectedValueException
-     * @expectedExceptionMessage Event chain doesn't contain the genesis event
-     */
-    public function testConstructPartialChain()
-    {
-        $chain = $this->createMock(EventChain::class);
-        $chain->method('isPartial')->willReturn(true);
-        
-        $resourceFactory = $this->createMock(ResourceFactory::class);
-        $resourceStorage = $this->createMock(ResourceStorage::class);
-        
-        new EventManager($chain, $resourceFactory, $resourceStorage);
-    }
     
     /**
      * @return Event[]|MockObject[]
@@ -46,26 +32,57 @@ class EventManagerTest extends \Codeception\Test\Unit
     /**
      * Create a partial mock EventManager
      * 
-     * @param EventChain      $chain
-     * @param array|null      $methods
-     * @param ResourceFactory $resourceFactory
-     * @param ResourceStorage $resourceStorage
+     * @param EventChain         $chain
+     * @param array|null         $methods
+     * @param ResourceFactory    $resourceFactory
+     * @param ResourceStorage    $resourceStorage
+     * @param DispatcherManager  $dispatcher
+     * @param EventFactory       $eventFactory
+     * @param Account            $nodeAccount
      * @return EventManager|MockObject
      */
     protected function createEventManager(
         EventChain $chain,
         $methods = null,
         ResourceFactory $resourceFactory = null,
-        ResourceStorage $resourceStorage = null
+        ResourceStorage $resourceStorage = null,
+        DispatcherManager $dispatcher = null,
+        EventFactory $eventFactory = null,
+        Account $nodeAccount = null,
+        Anchor $anchor = null
     ) {
         return $this->getMockBuilder(EventManager::class)
             ->setConstructorArgs([
                 $chain, 
                 $resourceFactory ?: $this->createMock(ResourceFactory::class),
-                $resourceStorage ?: $this->createMock(ResourceStorage::class)
+                $resourceStorage ?: $this->createMock(ResourceStorage::class),
+                $dispatcher ?: $this->createMock(DispatcherManager::class),
+                $eventFactory ?: $this->createMock(EventFactory::class),
+                $nodeAccount ?: $this->createMock(Account::class),
+                $anchor ?: $this->createMock(Anchor::class)
             ])
             ->setMethods($methods)
             ->getMock();
+    }
+    
+    
+    /**
+     * @expectedException UnexpectedValueException
+     * @expectedExceptionMessage Event chain doesn't contain the genesis event
+     */
+    public function testConstructPartialChain()
+    {
+        $chain = $this->createMock(EventChain::class);
+        $chain->method('isPartial')->willReturn(true);
+        
+        $resourceFactory = $this->createMock(ResourceFactory::class);
+        $resourceStorage = $this->createMock(ResourceStorage::class);
+        $dispatcher = $this->createMock(DispatcherManager::class);
+        $eventFactory = $this->createMock(EventFactory::class);
+        $nodeAccount = $this->createMock(Account::class);
+        $anchor = $this->createMock(Anchor::class);
+        
+        new EventManager($chain, $resourceFactory, $resourceStorage, $dispatcher, $eventFactory, $nodeAccount, $anchor);
     }
     
     public function testAdd()
@@ -81,6 +98,8 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
         $chain->method('isEmpty')->willReturn(false);
         $chain->method('isPartial')->willReturn(false);
+        $chain->method('getNodes')->willReturn([]);
+        $chain->method('getNodesForSystem')->willReturn([]);
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn([]);
         
@@ -111,6 +130,8 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
         $chain->method('isEmpty')->willReturn(false);
         $chain->method('isPartial')->willReturn(false);
+        $chain->method('getNodes')->willReturn([]);
+        $chain->method('getNodesForSystem')->willReturn([]);
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn($chainEvents);
         
@@ -206,14 +227,49 @@ class EventManagerTest extends \Codeception\Test\Unit
         $chain->expects($this->once())->method('getEventsAfter')
             ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn($chainEvents);
         
-        $manager = $this->createEventManager($chain, ['handleNewEvent']);
+        $manager = $this->createEventManager($chain, ['handleNewEvent', 'handleFailedEvent']);
         $manager->expects($this->never())->method('handleNewEvent');
+        $manager->expects($this->once())->method('handleFailedEvent')
+            ->with($this->identicalTo($events[1]), $this->isInstanceOf(ValidationResult::class));
         
         $validation = $manager->add($newEvents);
         
         $this->assertInstanceOf(ValidationResult::class, $validation);
         $this->assertEquals(["fork detected; conflict on '{$events[1]->hash}' and '{$chainEvents[1]->hash}'"],
                 $validation->getErrors());
+    }
+    
+    public function testAddDispatch()
+    {
+        $events = $this->createMockEvents();
+
+        $newEvents = $this->createPartialMock(EventChain::class, ['validate']);
+        $newEvents->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
+        $newEvents->events = \Jasny\DB\EntitySet::forClass(Event::class, $events);
+        $newEvents->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
+
+        $chain = $this->createMock(EventChain::class);
+        $chain->id = "JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya";
+        $chain->method('getNodesForSystem')->willReturn(['local']);
+        $chain->expects($this->exactly(2))->method('getNodes')
+            ->willReturnOnConsecutiveCalls(['local', 'ex1', 'ex2'], ['local', 'ex1', 'ex2', 'ex3']);
+        $chain->expects($this->once())->method('getPartialAfter')->willReturn($newEvents);
+        $chain->expects($this->once())->method('getEventsAfter')
+            ->with("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U")->willReturn([]);
+
+        $dispatcher = $this->createMock(DispatcherManager::class);
+        $dispatcher->expects($this->exactly(2))->method('dispatch')
+            ->withConsecutive([$newEvents, ['ex1', 'ex2']], [$chain, ['ex3']]);
+        
+        $manager = $this->createEventManager($chain, ['handleNewEvent'], null, null, $dispatcher);
+        $manager->expects($this->exactly(2))->method('handleNewEvent')
+            ->withConsecutive([$this->identicalTo($events[0])], [$this->identicalTo($events[1])])
+            ->willReturn(ValidationResult::success());
+        
+        $validation = $manager->add($newEvents);
+        
+        $this->assertInstanceOf(ValidationResult::class, $validation);
+        $this->assertEquals([], $validation->getErrors());
     }
     
     
@@ -241,6 +297,48 @@ class EventManagerTest extends \Codeception\Test\Unit
         $resourceStorage->expects($this->once())->method('store')->with($this->identicalTo($resource));
         
         $manager = $this->createEventManager($chain, ['applyPrivilegeToResource'], $resourceFactory, $resourceStorage);
+        $manager->expects($this->once())->method('applyPrivilegeToResource')
+            ->with($this->identicalTo($resource), $this->identicalTo($event))->willReturn(ValidationResult::success());
+        
+        $validation = $manager->handleNewEvent($event);
+        
+        $this->assertInstanceOf(ValidationResult::class, $validation);
+        $this->assertEquals([], $validation->getErrors());
+    }
+    
+    public function testHandleNewEventAnchor()
+    {
+        $event = $this->createMockEvents()[0];
+        $event->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
+                
+        $eventSet = $this->createMock(Jasny\DB\EntitySet::class);
+        $eventSet->expects($this->once())->method('add')->with($event);
+        
+        $resource = $this->createMock(Resource::class);
+        $resource->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
+        
+        $chain = $this->createMock(EventChain::class);
+        $chain->method('getLatestHash')->willReturn("7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U");
+        $chain->events = $eventSet;
+        $chain->expects($this->once())->method('registerResource')->with($this->identicalTo($resource));
+        $chain->expects($this->once())->method('isEventSignedByAccount')
+            ->with($this->identicalTo($event))
+            ->willReturn(true);
+        
+        $anchor = $this->createMock(Anchor::class);
+        $anchor->expects($this->once())->method('hash')->with('3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj');
+
+        $resourceFactory = $this->createMock(ResourceFactory::class);
+        $resourceFactory->expects($this->once())->method('extractFrom')
+            ->with($this->identicalTo($event))->willReturn($resource);
+
+        $resourceStorage = $this->createMock(ResourceStorage::class);
+        $resourceStorage->expects($this->once())->method('store')->with($this->identicalTo($resource));
+        
+        $manager = $this->createEventManager(
+            $chain, ['applyPrivilegeToResource'], $resourceFactory, $resourceStorage,
+            null, null, null, $anchor
+        );
         $manager->expects($this->once())->method('applyPrivilegeToResource')
             ->with($this->identicalTo($resource), $this->identicalTo($event))->willReturn(ValidationResult::success());
         
@@ -338,6 +436,29 @@ class EventManagerTest extends \Codeception\Test\Unit
         
         $this->assertInstanceOf(ValidationResult::class, $validation);
         $this->assertEquals(["event '{$event->hash}' doesn't fit on chain"], $validation->getErrors());
+    }
+    
+    
+    public function testHandleFailedEvent()
+    {
+        $event = $this->createMockEvents()[0];
+        
+        $eventSet = $this->createMock(Jasny\DB\EntitySet::class);
+        $eventSet->expects($this->once())->method('add')->with($event);
+        
+        $chain = $this->createMock(EventChain::class);
+        $chain->expects($this->once())->method('getEventsAfter')->
+            with('7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U')->willReturn($eventSet);
+        $chain->events = $eventSet;
+
+        $error = ValidationResult::error('something is wrong');
+
+        $eventFactory = $this->createMock(EventFactory::class);
+        $eventFactory->expects($this->once())->method('createErrorEvent')
+            ->with(['something is wrong'], $eventSet)->willReturn($event);
+        
+        $manager = $this->createEventManager($chain, null, null, null, null, $eventFactory);
+        $manager->handleFailedEvent($event, $error);
     }
     
     

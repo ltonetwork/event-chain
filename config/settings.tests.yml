@@ -13,3 +13,9 @@ endpoints:
   "lt:/scenarios/*":      "http://legalflow/scenarios/"
   "lt:/processes/*":      "http://legalflow/responses/"
   "lt:/processes/*/done": "http://legalflow/processes/$2/done"
+
+dispatcher:
+  url: http://event-dispatcher
+
+anchor:
+  url: http://anchor

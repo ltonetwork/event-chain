@@ -18,6 +18,12 @@ endpoints:
   "lt:/processes/*":      "http://legalflow/responses/"
   "lt:/processes/*/done": "http://legalflow/processes/$2/done"
 
+dispatcher:
+  url: http://event-dispatcher
+
+anchor:
+  url: http://anchor
+
 environment_variables:
   MONGO_DB: db.default.client
   MONGO_DB_PREFIX: db.default.prefix

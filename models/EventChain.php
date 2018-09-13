@@ -2,6 +2,7 @@
 
 use Jasny\DB\Entity\Identifiable;
 use kornrunner\Keccak;
+use LTO\Account;
 
 /**
  * EventChain entity
@@ -96,6 +97,79 @@ class EventChain extends MongoDocument
         
         return $this->events[count($this->events) - 1];
     }
+    
+    
+    /**
+     * Get the nodes of the identities
+     * 
+     * @return string[]
+     */
+    public function getNodes()
+    {
+        return $this->identities ? $this->identities->node : [];
+    }
+    
+    /**
+     * Get the nodes of the identities
+     * 
+     * @param $nodeSignKey
+     * @return string[]
+     */
+    public function getNodesForSystem($nodeSignKey)
+    {
+        $nodes = [];
+        
+        foreach($this->identities as $identity) {
+            if (isset($identity->signkeys['system']) && $identity->signkeys['system'] == $nodeSignKey) {
+                $nodes[] = $identity->node;
+            }
+        }
+        
+        return array_unique($nodes);
+    }
+
+    /**
+     * Check if the chain has identity which belongs to a given node sign key
+     *
+     * @param $userSignKey
+     * @param $nodeSignKey
+     * @return bool
+     */
+    public function hasSystemKeyForIdentity($userSignKey, $nodeSignKey)
+    {
+        foreach($this->identities as $identity) {
+            if (isset($identity->signkeys['user']) && $identity->signkeys['user'] == $userSignKey &&
+                isset($identity->signkeys['system']) && $identity->signkeys['system'] == $nodeSignKey) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    /**
+     * Check if the event is signed by the account
+     *
+     * @param EventChain  $event
+     * @param Account     $account
+     * 
+     * @return bool
+     */
+    public function isEventSignedByAccount($event, $account)
+    {
+        $accountKey = $account->getPublicSignKey();
+        
+        if ($event->signkey === $accountKey) {
+            return true;
+        }
+
+        if ($this->hasSystemKeyForIdentity($event->signkey, $accountKey)) {
+            return true;
+        }
+
+        return false;
+    }
+    
     
     /**
      * Check if this chain has the genisis event or is empty.
@@ -200,6 +274,22 @@ class EventChain extends MongoDocument
         
         return $emptyChain;
     }
+
+    /**
+     * Return an event chain with the given events
+     * 
+     * @param Event[] $events
+     * 
+     * @return static
+     */
+    public function withEvents($events)
+    {
+        $chain = clone $this;
+        $chain->events = $events;
+        
+        return $chain;
+    }
+    
     
     /**
      * Get all events that follow the specified event.
@@ -230,6 +320,20 @@ class EventChain extends MongoDocument
         
         return $events;
     }
+    
+    /**
+     * Get a partial chain consisting of all events that follow the specified event.
+     * 
+     * @param string $hash
+     * @return EventChain
+     * @throws OutOfBoundsException if event can't be found
+     */
+    public function getPartialAfter($hash)
+    {
+        $events = $this->getEventsAfter($hash) ?? [];
+        return $this->withEvents($events);
+    }
+    
     
     /**
      * Register that a resource is used in this chain

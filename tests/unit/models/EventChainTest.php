@@ -2,6 +2,7 @@
 
 use Jasny\DB\EntitySet;
 use kornrunner\Keccak;
+use LTO\Account;
 
 /**
  * @covers EventChain
@@ -297,6 +298,20 @@ class EventChainTest extends \Codeception\Test\Unit
         $this->assertCount(0, $emptyChain->resources);
     }
     
+    public function testGetNodes()
+    {
+        $identity1 = $this->createMock(Identity::class);
+        $identity1->node = 'node1';
+        $identity2 = $this->createMock(Identity::class);
+        $identity2->node = 'node2';
+
+        $chain = EventChain::create()->setValues(['identities' => [$identity1, $identity2]]);
+        $this->assertEquals(['node1', 'node2'], $chain->getNodes());
+        
+        $chain->setValues(['identities' => []]);
+        $this->assertEquals([], $chain->getNodes());
+    }
+    
     public function getEventsAfterProvider()
     {
         return [
@@ -451,5 +466,77 @@ class EventChainTest extends \Codeception\Test\Unit
         $chain->registerResource($resource);
         
         $this->assertEquals([], $chain->resources);
+    }
+
+    public function testHasSystemKeyForIdentity()
+    {
+        $identities = [
+            [
+                "id" => "1",
+                "signkeys" => [
+                    "user" => "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ",
+                    "system" => "7TecQdLbPuxt3mWukbZ1g1dTZeA6rxgjMxfS9MRURaEP"
+                ]
+            ],
+            [
+                "id" => "2",
+                "signkeys" => [
+                    "user" => "4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG",
+                    "system" => "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
+                ]
+            ]
+        ];
+
+        $chain = EventChain::create()->setValues([
+            'id' =>  'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
+            'identities' => $identities
+        ]);
+
+        $this->assertTrue($chain->hasSystemKeyForIdentity("8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ", "7TecQdLbPuxt3mWukbZ1g1dTZeA6rxgjMxfS9MRURaEP"));
+        $this->assertTrue($chain->hasSystemKeyForIdentity("4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG", "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"));
+        $this->assertFalse($chain->hasSystemKeyForIdentity("8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ", "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"));
+    }
+    
+    public function testIsEventSignedByAccount()
+    {
+        $identities = [
+            [
+                "id" => "1",
+                "signkeys" => [
+                    "user" => "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ",
+                    "system" => "7TecQdLbPuxt3mWukbZ1g1dTZeA6rxgjMxfS9MRURaEP"
+                ]
+            ],
+            [
+                "id" => "2",
+                "signkeys" => [
+                    "user" => "4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG",
+                    "system" => "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
+                ]
+            ]
+        ];
+
+        $chain = EventChain::create()->setValues([
+            'id' =>  'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
+            'identities' => $identities
+        ]);
+        
+        $account = $this->createMock(Account::class);
+        $account->expects($this->exactly(3))->method('getPublicSignKey')
+            ->willReturnOnConsecutiveCalls('fake', 'fake', 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y');
+        
+        $event = new Event();
+        
+        // key doesn't exist
+        $event->signkey = 'foo';
+        $this->assertFalse($chain->isEventSignedByAccount($event, $account));
+        
+        // directly check if signed by the account
+        $event->signkey = 'fake';
+        $this->assertTrue($chain->isEventSignedByAccount($event, $account));
+        
+        // check if any of the identities of the account signed it
+        $event->signkey = '4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG';
+        $this->assertTrue($chain->isEventSignedByAccount($event, $account));
     }
 }

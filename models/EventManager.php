@@ -4,6 +4,7 @@ use Jasny\ValidationResult;
 use Jasny\DB\Entity\Identifiable;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
+use LTO\Account;
 
 /**
  * Handle new events
@@ -26,11 +27,47 @@ class EventManager
     protected $resourceStorage;
     
     /**
+     * @var DispatcherManager
+     */
+    protected $dispatcher;
+    
+    /**
+     * @var EventFactory
+     */
+    protected $eventFactory;
+    
+    /**
+     * @var Account
+     */
+    protected $node;
+    
+    /**
+     * @var Anchor
+     */
+    protected $anchor;
+
+    
+    /**
      * Class constructor
      * 
      * @param EventChain $chain
+     * @param ResourceFactory $resourceFactory
+     * @param ResourceStorage $resourceStorage
+     * @param DispatcherManager $dispatcher
+     * @param EventFactory $eventFactory
+     * @param Account $nodeAccount
+     * @param Anchor $anchor
+     * @throws UnexpectedValueException
      */
-    public function __construct(EventChain $chain, ResourceFactory $resourceFactory, ResourceStorage $resourceStorage)
+    public function __construct(
+        EventChain $chain,
+        ResourceFactory $resourceFactory,
+        ResourceStorage $resourceStorage,
+        DispatcherManager $dispatcher,
+        EventFactory $eventFactory,
+        Account $nodeAccount,
+        Anchor $anchor
+    )
     {
         if ($chain->isPartial()) {
             throw new UnexpectedValueException("Event chain doesn't contain the genesis event");
@@ -39,6 +76,10 @@ class EventManager
         $this->chain = $chain;
         $this->resourceFactory = $resourceFactory;
         $this->resourceStorage = $resourceStorage;
+        $this->dispatcher = $dispatcher;
+        $this->eventFactory = $eventFactory;
+        $this->node = $nodeAccount;
+        $this->anchor = $anchor;
     }
     
     /**
@@ -60,6 +101,7 @@ class EventManager
         }
         
         $previous = $newEvents->getFirstEvent()->previous;
+        $oldNodes = $this->chain->getNodes();
         
         try {
             $following = $this->chain->getEventsAfter($previous);
@@ -71,8 +113,9 @@ class EventManager
         
         foreach ($newEvents->events as $event) {
             if ($next === false) {
+                $first = $first ?? $event->previous;
                 $handled = $this->handleNewEvent($event);
-                $validation->add($handled, "event '$event->hash';");
+                $validation->add($handled, "event '$event->hash': ");
             } elseif ($event->hash !== $next->hash) {
                 $validation->addError("fork detected; conflict on '%s' and '%s'", $event->hash, $next->hash);
             }
@@ -80,18 +123,24 @@ class EventManager
             $next = next($following);
             
             if ($validation->failed()) {
+                $this->handleFailedEvent($event, $validation);
                 break;
             }
             
             $this->chain->save();
         }
         
-        if ($validation->succeeded()) {
+        if (isset($first)) {
+            $this->dispatch($first, $oldNodes);
+        }
+        
+        if ($validation->succeeded() && $this->chain->isEventSignedByAccount($this->chain->getLastEvent(), $this->node)) {
             $this->resourceStorage->done($this->chain);
         }
         
         return $validation;
     }
+    
     
     /**
      * Add an event to the event chain.
@@ -122,11 +171,29 @@ class EventManager
             return $validation;
         }
 
+        if ($this->chain->isEventSignedByAccount($event, $this->node)) {
+            $this->anchor->hash($event->hash);
+        }
+
         $this->chain->events->add($event);
 
         return ValidationResult::success();
     }
-
+    
+    /**
+     * Add an error event to the event chain.
+     * 
+     * @param Event             $event
+     * @param ValidationResult  $validation  The validation that failed
+     */
+    public function handleFailedEvent(Event $event, ValidationResult $validation)
+    {
+        $after = $this->chain->getEventsAfter($event->previous);
+        $errorEvent = $this->eventFactory->createErrorEvent($validation->getErrors(), $after);
+        $this->chain->events->add($errorEvent);
+    }
+    
+    
     /**
      * Validate an event before adding it to the chain
      *
@@ -208,5 +275,29 @@ class EventManager
     protected function consolidatedPrivilege(Resource $resource, array $privileges)
     {
         return Privilege::create($resource)->consolidate($privileges);
+    }
+    
+    /**
+     * Send a partial or full chain to the event dispatcher service
+     * 
+     * @param string   $first     The hash of the event from which the partial chain should be created
+     * @param string[] $oldNodes  The old nodes of the chain before it was updated
+     */
+    protected function dispatch($first, $oldNodes = [])
+    {
+        $systemNodes = $this->chain->getNodesForSystem($this->node->getPublicSignKey());
+        $otherNodes = array_unique(array_values(array_diff($oldNodes, $systemNodes)));
+
+        // send partial chain to old nodes
+        $partial = $this->chain->getPartialAfter($first);
+        if (!empty($partial)) {
+            $this->dispatcher->dispatch($partial, $otherNodes);
+        }
+
+        // send full node to new nodes
+        $newNodes = array_unique(array_values(array_diff($this->chain->getNodes(), $oldNodes, $systemNodes)));
+        if (!empty($newNodes)) {
+            $this->dispatcher->dispatch($this->chain, $newNodes);
+        }
     }
 }
