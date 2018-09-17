@@ -539,4 +539,46 @@ class EventChainTest extends \Codeception\Test\Unit
         $event->signkey = '4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG';
         $this->assertTrue($chain->isEventSignedByAccount($event, $account));
     }
+
+    public function testIsEventSentFromNode()
+    {
+        $identities = [
+            [
+                "id" => "1",
+                "signkeys" => [
+                    "user" => "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ"
+                ],
+                'node' => 'node1'
+            ],
+            [
+                "id" => "2",
+                "signkeys" => [
+                    "user" => "4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG"
+                ],
+                'node' => 'node2'
+            ]
+        ];
+
+        $chain = EventChain::create()->setValues([
+            'id' =>  'JEKNVnkbo3jqSHT8tfiAKK4tQTFK7jbx8t18wEEnygya',
+            'identities' => $identities
+        ]);
+                
+        $event = new Event();
+        
+        // key doesn't exist
+        $event->signkey = 'foo';
+        $event->origin = 'node1';
+        $this->assertFalse($chain->isEventSentFromNode($event, 'node1'));
+
+        // not the same node
+        $event->signkey = '4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG';
+        $event->origin = 'node2';
+        $this->assertFalse($chain->isEventSentFromNode($event, 'node1'));
+        
+        // same node and identity
+        $event->signkey = '4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG';
+        $event->origin = 'node2';
+        $this->assertTrue($chain->isEventSentFromNode($event, 'node2'));
+    }
 }

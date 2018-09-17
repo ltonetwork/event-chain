@@ -111,6 +111,13 @@ class EventChainController extends Jasny\Controller
             return $this->badRequest($validation->getErrors());
         }
         
+        $node = $this->dispatcher->getNode();
+        if(!empty($newChain->getNodes()) && !$newChain->isEventSentFromNode($newChain->getLastEvent(), $node)) {
+            return $this->forbidden('Not allowed to send to this node from given origin');
+        }
+        
+        // @todo: add checks from $manager->add() here aswell
+        
         $chain = EventChain::fetch($newChain->id) ?: $newChain->withoutEvents();
         
         $manager = new EventManager(

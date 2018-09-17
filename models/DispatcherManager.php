@@ -61,4 +61,14 @@ class DispatcherManager
 
         $this->dispatcher->queue($chain, $nodes);
     }
+    
+    /**
+     * Get the node url that the dispatcher is running on
+     * 
+     * @return string
+     */
+    public function getNode()
+    {
+        return $this->dispatcher->getNode();
+    }
 }

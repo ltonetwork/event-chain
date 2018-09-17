@@ -9,6 +9,14 @@ use Jasny\DB\Entity\Identifiable;
 class Event extends MongoSubDocument implements Identifiable
 {
     /**
+     * The node that sent the event
+     * 
+     * @var string
+     * @required
+     */
+    public $origin;
+    
+    /**
      * Base58 encoded JSON string with the body of the event.
      * 
      * @var string

@@ -110,17 +110,36 @@ class EventChain extends MongoDocument
     }
     
     /**
-     * Get the nodes of the identities
+     * Get the nodes of the identities matching system sign key
      * 
-     * @param $nodeSignKey
+     * @param $signKey
      * @return string[]
      */
-    public function getNodesForSystem($nodeSignKey)
+    public function getNodesForSystem($signKey)
     {
         $nodes = [];
         
         foreach($this->identities as $identity) {
-            if (isset($identity->signkeys['system']) && $identity->signkeys['system'] == $nodeSignKey) {
+            if (isset($identity->signkeys['system']) && $identity->signkeys['system'] == $signKey) {
+                $nodes[] = $identity->node;
+            }
+        }
+        
+        return array_unique($nodes);
+    }
+
+    /**
+     * Get the nodes of the identities matching user sign key
+     * 
+     * @param $signKey
+     * @return string[]
+     */
+    public function getNodesForUser($signKey)
+    {
+        $nodes = [];
+        
+        foreach($this->identities as $identity) {
+            if (isset($identity->signkeys['user']) && $identity->signkeys['user'] == $signKey) {
                 $nodes[] = $identity->node;
             }
         }
@@ -150,8 +169,8 @@ class EventChain extends MongoDocument
     /**
      * Check if the event is signed by the account
      *
-     * @param EventChain  $event
-     * @param Account     $account
+     * @param Event    $event
+     * @param Account  $account
      * 
      * @return bool
      */
@@ -168,6 +187,25 @@ class EventChain extends MongoDocument
         }
 
         return false;
+    }
+    
+    /**
+     * Check if the event is sent from the node of one of the identities
+     *
+     * @param Event   $event
+     * @param string  $node
+     * 
+     * @return bool
+     */
+    public function isEventSentFromNode($event, $node)
+    {
+        if (!isset($event->origin) || $event->origin !== $node) {
+            return false;
+        }
+        
+        // check if event was signed by identity of this node
+        $nodes = $this->getNodesForUser($event->signkey);
+        return in_array($node, $nodes);
     }
     
     

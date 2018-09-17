@@ -25,6 +25,7 @@ class Identity extends MongoSubDocument implements Resource, Identifiable
     /**
      * Live contracts node the identity is using
      * @var string
+     * @required
      */
     public $node;
     
