@@ -36,7 +36,8 @@ class EventFactory
         $message = is_string($reason) ? [$reason] : $reason;
         $body = compact($message, $events);
         
-        $event = new LTO\Event($body, $events[0]->previous);
+        $previous = !empty($events) ? $events[0]->previous : null;
+        $event = new LTO\Event($body, $previous);
         $event->signWith($this->node);
         
         return (new Event())->setValues($event);

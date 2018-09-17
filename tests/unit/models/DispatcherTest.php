@@ -12,6 +12,30 @@ class DispatcherTest extends \Codeception\Test\Unit
     ];
 
     
+    public function testInfo()
+    {
+        $mock = new GuzzleHttp\Handler\MockHandler([
+            new GuzzleHttp\Psr7\Response(200, [], json_encode(['node' => 'node1']))
+        ]);
+        $handler = GuzzleHttp\HandlerStack::create($mock);
+        $container = [];
+        $history = GuzzleHttp\Middleware::history($container);
+        $handler->push($history);
+        $httpClient = new GuzzleHttp\Client(['handler' => $handler]);
+        
+        $dispatcher = new Dispatcher($this->config, $httpClient);
+        $result = $dispatcher->info();
+        
+        $this->assertEquals((object)['node' => 'node1'], $result);
+        
+        $this->assertCount(1, $container);
+        
+        $request = $container[0]['request'];
+        $this->assertEquals('GET', $request->getMethod());
+        $this->assertEquals("{$this->config['url']}/", (string)$request->getUri());
+    }
+    
+    
     public function testQueue()
     {
         $chain = $this->createMock(EventChain::class);

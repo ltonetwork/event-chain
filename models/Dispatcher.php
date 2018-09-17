@@ -30,6 +30,36 @@ class Dispatcher
     
     
     /**
+     * Get info about the dispatcher
+     * 
+     * @return stdClass
+     */
+    public function info()
+    {
+        $endpoint = $this->config->url;
+        $url = "{$endpoint}/";
+        
+        $options = [
+            'http_errors' => true
+        ];
+
+        $response = $this->httpClient->get($url, $options);
+        return json_decode($response->getBody());
+    }
+
+    /**
+     * Get the node url that the dispatcher is running on
+     * 
+     * @return string
+     */
+    public function getNode()
+    {
+        $response = $this->info();
+        return $response->node;
+    }
+    
+    
+    /**
      * Add the event to the queue of the node
      * 
      * @param EventChain $chain

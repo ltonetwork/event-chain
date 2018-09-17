@@ -155,7 +155,8 @@ class EventTest extends \Codeception\Test\Unit
             "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
             "hash" => "H3gbBd2sUczYCEqPK6LUPvVLqKqHdRNFEaaqAQe83mRQ",
             "signature" => "_stub_",
-            "receipt" => $receipt
+            "receipt" => $receipt,
+            "origin" => "node1"
         ]);
  
         $validation = $event->validate();
@@ -180,7 +181,8 @@ class EventTest extends \Codeception\Test\Unit
             "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
             "hash" => "EdqM52SpXCn5c1uozuvuH5o9Tcr41kYeCWz4Ymu6ngbt",
             "signature" => "",
-            "receipt" => $receipt
+            "receipt" => $receipt,
+            "origin" => "node1"
         ]);
 
         
@@ -213,6 +215,7 @@ class EventTest extends \Codeception\Test\Unit
             "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
             "hash" => "H8qGksJvpAS77cjoTDfmabuob4KHtQCQeqS5s915WQmd",
             "signature" => "_stub_",
+            "origin" => "node1"
         ]);
         
         $validation = $event->validate();
@@ -227,6 +230,7 @@ class EventTest extends \Codeception\Test\Unit
         $validation = $event->validate();
         
         $this->assertEquals([
+            'origin is required',
             'body is required',
             'timestamp is required',
             'previous is required',
