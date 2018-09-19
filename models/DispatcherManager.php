@@ -45,7 +45,7 @@ class DispatcherManager
      * @param EventChain $chain
      * @param string[]   $nodes
      */
-    public function dispatch(EventChain $chain, $nodes)
+    public function dispatch(EventChain $chain, $nodes = null)
     {
         $event = $chain->getLastEvent();
         
@@ -57,7 +57,8 @@ class DispatcherManager
             return;
         }
 
-        $this->logger->debug('Send message to : ' . json_encode($nodes));
+        $to = $nodes ? json_encode($nodes) : 'local node';
+        $this->logger->debug("dispatcher: send message to '$to'");
 
         $this->dispatcher->queue($chain, $nodes);
     }

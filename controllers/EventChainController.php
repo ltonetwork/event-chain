@@ -98,6 +98,32 @@ class EventChainController extends Jasny\Controller
     }
     
     /**
+     * Add the chain to the queue
+     */
+    public function queueAction()
+    {
+        $data = $this->getInput();
+        
+        $newChain = EventChain::create()->setValues($data);
+        $validation = $newChain->validate();
+        
+        if ($validation->failed()) {
+            return $this->badRequest($validation->getErrors());
+        }
+        
+        $node = $this->dispatcher->getNode();
+        if(!empty($newChain->getNodes()) && !$newChain->isEventSentFromNode($newChain->getLastEvent(), $node)) {
+            return $this->forbidden('Not allowed to send to this node from given origin');
+        }
+        
+        // @todo: add checks from $manager->add() here aswell
+        
+        $this->dispatcher->dispatch($newChain);
+        
+        return $this->noContent();
+    }
+    
+    /**
      * Add a new chain or new events to an existing chain
      */
     public function addAction()
