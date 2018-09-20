@@ -110,15 +110,18 @@ class EventChainController extends Jasny\Controller
         if ($validation->failed()) {
             return $this->badRequest($validation->getErrors());
         }
-        
+
+        $chain = EventChain::fetch($newChain->id) ?: $newChain->withoutEvents();
+
+        // check if event is from identity related to this node
         $node = $this->dispatcher->getNode();
-        if(!empty($newChain->getNodes()) && !$newChain->isEventSentFromNode($newChain->getLastEvent(), $node)) {
+        if(!empty($chain->getNodes()) && !$chain->hasNodesForUser($newChain->getLastEvent()->signkey, $node)) {
             return $this->forbidden('Not allowed to send to this node from given origin');
         }
         
         // @todo: add checks from $manager->add() here aswell
         
-        $this->dispatcher->dispatch($newChain);
+        $this->dispatcher->queueToSelf($newChain);
         
         return $this->noContent();
     }

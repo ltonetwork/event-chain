@@ -37,6 +37,17 @@ class DispatcherManager
         $this->node = $nodeAccount;
         $this->logger = $logger;
     }
+
+
+    /**
+     * Send the event chain to the own dispatcher service
+     *
+     * @param EventChain $chain
+     */
+    public function queueToSelf(EventChain $chain)
+    {
+        $this->dispatcher->queue($chain);
+    }
     
     
     /**

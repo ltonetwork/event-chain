@@ -58,7 +58,6 @@ class Dispatcher
         return $response->node;
     }
     
-    
     /**
      * Add the event to the queue of the node
      * 
