@@ -147,17 +147,11 @@ class EventChain extends MongoDocument
         return array_unique($nodes);
     }
 
-    public function hasNodesForUser($signKey, $node)
+    public function hasNodesForUserAndSystem($signKey, $node)
     {
-        $nodes = [];
-
-        foreach($this->identities as $identity) {
-            if (isset($identity->signkeys['user']) && $identity->signkeys['user'] == $signKey) {
-                $nodes[] = $identity->node;
-            }
-        }
-
-        return in_array($node, array_unique($nodes));
+        $nodes = $this->getNodesForUser($signKey);
+        $nodes = array_unique(array_merge($nodes, $this->getNodesForSystem($signKey)));
+        return in_array($node, $nodes);
     }
 
     /**
@@ -210,14 +204,13 @@ class EventChain extends MongoDocument
      * 
      * @return bool
      */
-    public function isEventSentFromNode($event, $node)
+    public function isEventSignedByIdentityNode($event, $node=null)
     {
-        if (!isset($event->origin) || $event->origin !== $node) {
+        $node = isset($node) ? $node : $event->origin;
+        if(!isset($node)) {
             return false;
         }
-        
-        // check if event was signed by identity of this node
-        return $this->hasNodesForUser($event->signkey, $node);
+        return $this->hasNodesForUserAndSystem($event->signkey, $node);
     }
     
     

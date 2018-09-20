@@ -569,16 +569,16 @@ class EventChainTest extends \Codeception\Test\Unit
         // key doesn't exist
         $event->signkey = 'foo';
         $event->origin = 'node1';
-        $this->assertFalse($chain->isEventSentFromNode($event, 'node1'));
+        $this->assertFalse($chain->isEventSignedByIdentityNode($event, 'node1'));
 
         // not the same node
         $event->signkey = '4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG';
         $event->origin = 'node2';
-        $this->assertFalse($chain->isEventSentFromNode($event, 'node1'));
+        $this->assertFalse($chain->isEventSignedByIdentityNode($event, 'node1'));
         
         // same node and identity
         $event->signkey = '4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG';
         $event->origin = 'node2';
-        $this->assertTrue($chain->isEventSentFromNode($event, 'node2'));
+        $this->assertTrue($chain->isEventSignedByIdentityNode($event, 'node2'));
     }
 }

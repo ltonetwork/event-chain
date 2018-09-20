@@ -41,21 +41,13 @@ $data = [
     ]
 ];
 
-// Get node
-$I->expectHttpRequest(function (Request $request) use ($I) {
-    $I->assertEquals('http://event-queuer/', (string)$request->getUri());
-    $I->assertEquals('GET', $request->getMethod());
-    
-    return new Response(200, [], json_encode(['node' => 'node1']));
-});
-
 // Anchor
 $I->expectHttpRequest(function (Request $request) use ($I) {
     $I->assertEquals('http://anchor/hash', (string)$request->getUri());
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
     $json = '{"hash": "DGz1cLwsckf5k5EDMHZhAsf5HwcuEr5WdqWpJ8jSsZKa", "encoding": "base58"}';
     $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
-    
+
     return new Response(200);
 });
 
