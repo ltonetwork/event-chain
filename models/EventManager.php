@@ -290,7 +290,7 @@ class EventManager
 
         // send partial chain to old nodes
         $partial = $this->chain->getPartialAfter($first);
-        if (!empty($partial)) {
+        if (!empty($partial) && !empty($otherNodes)) {
             $this->dispatcher->dispatch($partial, $otherNodes);
         }
 
