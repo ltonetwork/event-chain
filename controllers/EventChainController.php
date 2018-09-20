@@ -112,9 +112,9 @@ class EventChainController extends Jasny\Controller
         }
 
         $chain = EventChain::fetch($newChain->id) ?: $newChain->withoutEvents();
-
+        $node = $this->dispatcher->getNode();
         // check if event is from identity related to this node
-        if(!empty($chain->getNodes()) && !$chain->isEventSignedByIdentityNode($newChain->getLastEvent())) {
+        if(!empty($chain->getNodes()) && !$chain->isEventSignedByIdentityNode($newChain->getLastEvent(), $node)) {
             return $this->forbidden('Not allowed to send to this node from given origin');
         }
         
@@ -142,8 +142,7 @@ class EventChainController extends Jasny\Controller
         $chain = EventChain::fetch($newChain->id) ?: $newChain->withoutEvents();
 
         // check if event is from identity related to this node
-        if($newChain->getLastEvent()->signkey != $this->nodeAccount->getPublicSignKey() &&
-            !empty($chain->getNodes()) &&
+        if(!empty($chain->getNodes()) &&
             !$chain->isEventSignedByIdentityNode($newChain->getLastEvent())) {
             return $this->forbidden('Not allowed to send to this node from given origin');
         }
