@@ -51,7 +51,7 @@ class HTTPSignatureMiddleware
      * @param callable       $next
      * @return Response
      */
-    public function __invoke(ServerRequest $request, Response $response, callable $next)
+    public function __invoke(ServerRequest $request, Response $response, callable $next): Response
     {
         $nextResponse = $this->isRequestSigned($request)
             ? $this->handle($request, $response, $next)
@@ -77,7 +77,7 @@ class HTTPSignatureMiddleware
      * @param callable       $next
      * @return Response
      */
-    public function handle(ServerRequest $request, Response $response, callable $next)
+    public function handle(ServerRequest $request, Response $response, callable $next): Response
     {
         $requiredHeaders = $this->getRequiredHeaders($request);
 

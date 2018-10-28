@@ -34,7 +34,7 @@ class Dispatcher
      * 
      * @return stdClass
      */
-    public function info()
+    public function info(): stdClass
     {
         $endpoint = $this->config->url;
         $url = "{$endpoint}/";
@@ -52,7 +52,7 @@ class Dispatcher
      * 
      * @return string
      */
-    public function getNode()
+    public function getNode(): string
     {
         $response = $this->info();
         return $response->node;
@@ -64,7 +64,7 @@ class Dispatcher
      * @param EventChain $chain
      * @param string[]   $to     If specified will send the event to the nodes in this array
      */
-    public function queue(EventChain $chain, $to = null)
+    public function queue(EventChain $chain, $to = null): void
     {
         $endpoint = $this->config->url;
         $url = "{$endpoint}/queue";

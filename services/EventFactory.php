@@ -23,7 +23,6 @@ class EventFactory
         $this->node = $nodeAccount;
     }
 
-
     /**
      * Get the account of the node.
      *
@@ -41,7 +40,7 @@ class EventFactory
      * @param Event[]         $events  The events that failed and haven't been processed yet
      * @return Event
      */
-    public function createErrorEvent($reason, $events)
+    public function createErrorEvent($reason, $events): Event
     {
         $message = is_string($reason) ? [$reason] : $reason;
         $body = compact($message, $events);

@@ -1,6 +1,7 @@
 <?php
 
 use Jasny\DB\Entity\Identifiable;
+use Jasny\ValidationResult;
 use kornrunner\Keccak;
 use LTO\Account;
 
@@ -50,7 +51,7 @@ class EventChain extends MongoDocument
      * 
      * @return string
      */
-    public function getInitialHash()
+    public function getInitialHash(): string
     {
         $rawId = base58_decode($this->id);
         
@@ -63,7 +64,7 @@ class EventChain extends MongoDocument
      * 
      * @return string
      */
-    public function getLatestHash()
+    public function getLatestHash(): string
     {
         return count($this->events) > 0 ? $this->getLastEvent()->hash : $this->getInitialHash();
     }
@@ -74,7 +75,7 @@ class EventChain extends MongoDocument
      * @return Event
      * @throws UnderflowException
      */
-    public function getFirstEvent()
+    public function getFirstEvent(): Event
     {
         if (count($this->events) === 0) {
             throw new UnderflowException("chain has no events");
@@ -89,7 +90,7 @@ class EventChain extends MongoDocument
      * @return Event
      * @throws UnderflowException
      */
-    public function getLastEvent()
+    public function getLastEvent(): Event
     {
         if (count($this->events) === 0) {
             throw new UnderflowException("chain has no events");
@@ -104,7 +105,7 @@ class EventChain extends MongoDocument
      * 
      * @return string[]
      */
-    public function getNodes()
+    public function getNodes(): array
     {
         return $this->identities ? $this->identities->node : [];
     }
@@ -115,7 +116,7 @@ class EventChain extends MongoDocument
      * @param $signKey
      * @return string[]
      */
-    public function getNodesForSystem($signKey)
+    public function getNodesForSystem(string $signKey): array
     {
         $nodes = [];
         
@@ -131,10 +132,10 @@ class EventChain extends MongoDocument
     /**
      * Get the nodes of the identities matching user sign key
      * 
-     * @param $signKey
+     * @param string $signKey
      * @return string[]
      */
-    public function getNodesForUser($signKey)
+    public function getNodesForUser(string $signKey): array
     {
         $nodes = [];
         
@@ -147,21 +148,28 @@ class EventChain extends MongoDocument
         return array_unique($nodes);
     }
 
-    public function hasNodesForUserAndSystem($signKey, $node)
+    /**
+     * Check if the gives node corresponds with the sign key.
+     *
+     * @param string $signKey
+     * @param string $node
+     * @return bool
+     */
+    public function hasNodesForUserAndSystem($signKey, $node): bool
     {
-        $nodes = $this->getNodesForUser($signKey);
-        $nodes = array_unique(array_merge($nodes, $this->getNodesForSystem($signKey)));
+        $nodes = array_merge($this->getNodesForUser($signKey), $this->getNodesForSystem($signKey));
+
         return in_array($node, $nodes);
     }
 
     /**
      * Check if the chain has identity which belongs to a given node sign key
      *
-     * @param $userSignKey
-     * @param $nodeSignKey
+     * @param string $userSignKey
+     * @param string $nodeSignKey
      * @return bool
      */
-    public function hasSystemKeyForIdentity($userSignKey, $nodeSignKey)
+    public function hasSystemKeyForIdentity(string $userSignKey, string $nodeSignKey): bool
     {
         foreach($this->identities as $identity) {
             if (isset($identity->signkeys['user']) && $identity->signkeys['user'] == $userSignKey &&
@@ -176,12 +184,11 @@ class EventChain extends MongoDocument
     /**
      * Check if the event is signed by the account
      *
-     * @param Event    $event
-     * @param Account  $account
-     * 
+     * @param Event   $event
+     * @param Account $account
      * @return bool
      */
-    public function isEventSignedByAccount($event, $account)
+    public function isEventSignedByAccount(Event $event, Account $account): bool
     {
         $accountKey = $account->getPublicSignKey();
         
@@ -199,27 +206,24 @@ class EventChain extends MongoDocument
     /**
      * Check if the event is sent from the node of one of the identities
      *
-     * @param Event   $event
-     * @param string  $node
-     * 
+     * @param Event       $event
+     * @param string|null $node
      * @return bool
      */
-    public function isEventSignedByIdentityNode($event, $node=null)
+    public function isEventSignedByIdentityNode(Event $event, ?string $node = null): bool
     {
         $node = isset($node) ? $node : $event->origin;
-        if(!isset($node)) {
-            return false;
-        }
-        return $this->hasNodesForUserAndSystem($event->signkey, $node);
+
+        return isset($node) && $this->hasNodesForUserAndSystem($event->signkey, $node);
     }
     
     
     /**
      * Check if this chain has the genisis event or is empty.
      * 
-     * @return boolean
+     * @return bool
      */
-    public function isPartial()
+    public function isPartial(): bool
     {
         return count($this->events) > 0 && $this->getFirstEvent()->previous !== $this->getInitialHash();
     }
@@ -227,9 +231,9 @@ class EventChain extends MongoDocument
     /**
      * Check if the chain has events.
      * 
-     * @return boolean
+     * @return bool
      */
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return count($this->events) === 0;
     }
@@ -238,9 +242,9 @@ class EventChain extends MongoDocument
     /**
      * Check if id is valid
      * 
-     * @return boolean
+     * @return bool
      */
-    public function isValidId()
+    public function isValidId(): bool
     {
         $decodedId = base58_decode($this->id);
         
@@ -264,9 +268,9 @@ class EventChain extends MongoDocument
     /**
      * Validate the chain
      * 
-     * @return \Jasny\ValidationResult
+     * @return ValidationResult
      */
-    public function validate()
+    public function validate(): ValidationResult
     {
         $validation = parent::validate();
         
@@ -284,11 +288,11 @@ class EventChain extends MongoDocument
     /**
      * Validate chain integrity
      * 
-     * @return \Jasny\ValidationResult
+     * @return ValidationResult
      */
-    protected function validateIntegrity()
+    protected function validateIntegrity(): ValidationResult
     {
-        $validation = new Jasny\ValidationResult();
+        $validation = new ValidationResult();
         $previous = null;
         
         foreach ($this->events as $event) {
@@ -310,7 +314,7 @@ class EventChain extends MongoDocument
      * 
      * @return static
      */
-    public function withoutEvents()
+    public function withoutEvents(): self
     {
         $emptyChain = new static();
         $emptyChain->id = $this->id;
@@ -322,10 +326,9 @@ class EventChain extends MongoDocument
      * Return an event chain with the given events
      * 
      * @param Event[] $events
-     * 
      * @return static
      */
-    public function withEvents($events)
+    public function withEvents(array $events): self
     {
         $chain = clone $this;
         $chain->events = $events;
@@ -341,7 +344,7 @@ class EventChain extends MongoDocument
      * @return Event[]
      * @throws OutOfBoundsException if event can't be found
      */
-    public function getEventsAfter($hash)
+    public function getEventsAfter($hash): array
     {
         if ($this->getInitialHash() === $hash) {
             return $this->events->getArrayCopy();
@@ -371,7 +374,7 @@ class EventChain extends MongoDocument
      * @return EventChain
      * @throws OutOfBoundsException if event can't be found
      */
-    public function getPartialAfter($hash)
+    public function getPartialAfter(string $hash): EventChain
     {
         $events = $this->getEventsAfter($hash) ?? [];
         return $this->withEvents($events);
@@ -383,7 +386,7 @@ class EventChain extends MongoDocument
      * 
      * @param Resource $resource
      */
-    public function registerResource(Resource $resource)
+    public function registerResource(Resource $resource): void
     {
         if ($resource instanceof Identity) {
             $this->identities->set($resource);

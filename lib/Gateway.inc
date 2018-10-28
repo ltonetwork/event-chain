@@ -30,9 +30,9 @@ interface Gateway
      *
      * @param string|array $id  ID or filter
      * @param array        $opts
-     * @return boolean
+     * @return bool
      */
-    public function exists($id, array $opts = []);
+    public function exists($id, array $opts = []): bool;
 
     /**
      * Fetch all documents.
@@ -52,5 +52,5 @@ interface Gateway
      * @param array $opts
      * @return int
      */
-    public function count(array $filter = [], array $opts = []);
+    public function count(array $filter = [], array $opts = []): int;
 }

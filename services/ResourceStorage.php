@@ -1,6 +1,7 @@
 <?php
 
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\ClientInterface as HttpClient;
 
 /**
  * Class to store an external resource.
@@ -15,7 +16,7 @@ class ResourceStorage
     protected $mapping;
     
     /**
-     * @var GuzzleHttp\ClientInterface
+     * @var HttpClient
      */
     protected $httpClient;
     
@@ -29,10 +30,10 @@ class ResourceStorage
     /**
      * Class constructor
      * 
-     * @param array             $mapping     URI to URL mapping
-     * @param GuzzleHttp\Client $httpClient
+     * @param array      $mapping     URI to URL mapping
+     * @param HttpClient $httpClient
      */
-    public function __construct(array $mapping, GuzzleHttp\ClientInterface $httpClient)
+    public function __construct(array $mapping, HttpClient $httpClient)
     {
         $this->mapping = $mapping;
         $this->httpClient = $httpClient;
@@ -44,7 +45,7 @@ class ResourceStorage
      * @param string $uri
      * @return string|null
      */
-    protected function findURL($uri)
+    protected function findURL(string $uri): ?string
     {
         $url = null;
         $uriBase = preg_replace('/\?.*/', '', $uri);
@@ -70,9 +71,9 @@ class ResourceStorage
      * Check if URI has a URL
      * 
      * @param string $uri
-     * @return boolean
+     * @return bool
      */
-    public function hasUrl($uri)
+    public function hasUrl($uri): bool
     {
         return $this->findURL($uri) !== null;
     }
@@ -82,9 +83,9 @@ class ResourceStorage
      * 
      * @param string $uri
      * @return string
-     * @throws OutOfBoundsException
+     * @throws OutOfRangeException if not URL exist for the URI
      */
-    public function getUrl($uri)
+    public function getUrl($uri): string
     {
         $url = $this->findURL($uri);
         
@@ -101,7 +102,7 @@ class ResourceStorage
      * 
      * @param Resource $resource
      */
-    public function store(Resource $resource)
+    public function store(Resource $resource): void
     {
         if (!$resource instanceof ExternalResource) {
             return;
@@ -121,7 +122,7 @@ class ResourceStorage
      *
      * @param EventChain $chain
      */
-    public function done(EventChain $chain)
+    public function done(EventChain $chain): void
     {
         $data = [
             'id' => $chain->getId(),
@@ -150,7 +151,7 @@ class ResourceStorage
      * @param Response $response
      * @param string $url
      */
-    protected function doneOnError(Response $response, string $url)
+    protected function doneOnError(Response $response, string $url): void
     {
         $status = $response->getStatusCode() . ' ' . $response->getReasonPhrase();
 

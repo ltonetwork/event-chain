@@ -1,5 +1,7 @@
 <?php
 
+use Jasny\ValidationResult;
+
 /**
  * A resource for a process response
  */
@@ -23,7 +25,7 @@ class ResponseResource extends ExternalResource
      * 
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         if (!isset($this->process->id)) {
             throw new BadMethodCallException("Process id not set");
@@ -39,7 +41,7 @@ class ResponseResource extends ExternalResource
      * @param Identity $identity
      * @return $this
      */
-    public function setIdentity(Identity $identity)
+    public function setIdentity(Identity $identity): self
     {
         $this->identity = $identity;
         
@@ -57,9 +59,9 @@ class ResponseResource extends ExternalResource
     /**
      * Validate the response.
      * 
-     * @return Jasny\ValidationResult
+     * @return ValidationResult
      */
-    public function validate()
+    public function validate(): ValidationResult
     {
         $validation = parent::validate();
         
@@ -79,10 +81,10 @@ class ResponseResource extends ExternalResource
     /**
      * Remove identity in json output
      * 
-     * @param \stdClass $object
-     * @return \stdClass
+     * @param stdClass $object
+     * @return stdClass
      */
-    public function jsonSerializeFilterIdentity(\stdClass $object)
+    public function jsonSerializeFilterIdentity(stdClass $object): stdClass
     {
         unset($object->id, $object->identity);
         

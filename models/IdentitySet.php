@@ -13,7 +13,7 @@ class IdentitySet extends EntitySet
      * 
      * @param Identity $entity
      */
-    public function set(Identity $entity)
+    public function set(Identity $entity): void
     {
         $existing = $this->get($entity);
         
@@ -31,7 +31,7 @@ class IdentitySet extends EntitySet
      * @param string $signkey
      * @return static
      */
-    public function filterOnSignkey($signkey)
+    public function filterOnSignkey(string $signkey): self
     {
         $filteredSet = clone $this;
         
@@ -48,7 +48,7 @@ class IdentitySet extends EntitySet
      * @param Resource $resource
      * @return Privilege[]
      */
-    public function getPrivileges(Resource $resource)
+    public function getPrivileges(Resource $resource): array
     {
         $schema = $resource->schema;
         $id = $resource instanceof Identifiable ? $resource->getId() : null;

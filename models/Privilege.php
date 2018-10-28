@@ -36,9 +36,9 @@ class Privilege extends MongoSubDocument
      * Class constructor
      * 
      * @param string|Resource $schema
-     * @param string          $id
+     * @param string|null     $id
      */
-    public function __construct($schema = null, $id = null)
+    public function __construct($schema = null, ?string $id = null)
     {
         if ($schema instanceof Resource) {
             $id = $schema instanceof Identifiable ? $schema->getId() : null;
@@ -52,10 +52,11 @@ class Privilege extends MongoSubDocument
     /**
      * Check if privilege matches schema and id
      * 
-     * @param string $schema
-     * @param string $id
+     * @param string      $schema
+     * @param string|null $id
+     * @return bool
      */
-    public function match($schema, $id = null)
+    public function match(string $schema, ?string $id = null): bool
     {
         return (!isset($this->schema) || $this->schema === $schema)
             && (!isset($id) || !isset($this->id) || $this->id === $id);
@@ -63,11 +64,12 @@ class Privilege extends MongoSubDocument
     
     
     /**
-     * Combine privileges
+     * Combine privileges.
      * 
      * @param Privilege[] $privileges
+     * @return $this
      */
-    public function consolidate(array $privileges)
+    public function consolidate(array $privileges): self
     {
         $this->only = [];
         $this->not = null;
@@ -89,9 +91,9 @@ class Privilege extends MongoSubDocument
      * Combine a privilege with a 'only' property
      * 
      * @param Privilege $privilege
-     * @return boolean
+     * @return bool
      */
-    protected function consolidateOnly(Privilege $privilege)
+    protected function consolidateOnly(Privilege $privilege): bool
     {
         if (!isset($privilege->only)) {
             return false;
@@ -112,9 +114,9 @@ class Privilege extends MongoSubDocument
      * Combine a privilege with a 'not' property
      * 
      * @param Privilege $privilege
-     * @return boolean
+     * @return bool
      */
-    protected function consolidateNot(Privilege $privilege)
+    protected function consolidateNot(Privilege $privilege): bool
     {
         if (!isset($privilege->not)) {
             return false;
@@ -133,9 +135,9 @@ class Privilege extends MongoSubDocument
     /**
      * Combine a privilege without limitations
      * 
-     * @return boolean
+     * @return bool
      */
-    protected function consolidateAll()
+    protected function consolidateAll(): bool
     {
         $this->only = null;
         $this->not = null;

@@ -116,7 +116,7 @@ class EventManager
      * @param EventChain $newEvents
      * @return ValidationResult
      */
-    public function add(EventChain $newEvents)
+    public function add(EventChain $newEvents): ValidationResult
     {
         $this->assertChain();
 
@@ -178,7 +178,7 @@ class EventManager
      * @param Event $event
      * @return ValidationResult
      */
-    public function handleNewEvent(Event $event)
+    public function handleNewEvent(Event $event): ValidationResult
     {
         $this->assertChain();
 
@@ -204,7 +204,7 @@ class EventManager
         }
 
         if ($this->chain->isEventSignedByAccount($event, $this->node)) {
-            $this->anchor->hash($event->hash);
+            $this->anchor->submit($event->hash);
         }
 
         $this->chain->events->add($event);
@@ -218,7 +218,7 @@ class EventManager
      * @param Event             $event
      * @param ValidationResult  $validation  The validation that failed
      */
-    public function handleFailedEvent(Event $event, ValidationResult $validation)
+    public function handleFailedEvent(Event $event, ValidationResult $validation): void
     {
         $this->assertChain();
 
@@ -234,7 +234,7 @@ class EventManager
      * @param Event $event
      * @return ValidationResult
      */
-    protected function validateNewEvent(Event $event)
+    protected function validateNewEvent(Event $event): ValidationResult
     {
         $validation = $event->validate();
 
@@ -251,7 +251,7 @@ class EventManager
      * @param Resource $resource
      * @return ValidationResult
      */
-    protected function storeResource(Resource $resource)
+    protected function storeResource(Resource $resource): ValidationResult
     {
         try {
             $this->resourceStorage->store($resource);
@@ -276,9 +276,9 @@ class EventManager
      * 
      * @param Resource $resource
      * @param Event    $event
-     * @return boolean
+     * @return bool
      */
-    public function applyPrivilegeToResource(Resource $resource, Event $event)
+    public function applyPrivilegeToResource(Resource $resource, Event $event): bool
     {
         $this->assertChain();
 
@@ -308,7 +308,7 @@ class EventManager
      * @param Privilege[] $privileges
      * @return Privilege
      */
-    protected function consolidatedPrivilege(Resource $resource, array $privileges)
+    protected function consolidatedPrivilege(Resource $resource, array $privileges): Privilege
     {
         return Privilege::create($resource)->consolidate($privileges);
     }
@@ -319,7 +319,7 @@ class EventManager
      * @param string   $first     The hash of the event from which the partial chain should be created
      * @param string[] $oldNodes  The old nodes of the chain before it was updated
      */
-    protected function dispatch($first, $oldNodes = [])
+    protected function dispatch($first, $oldNodes = []): void
     {
         $systemNodes = $this->chain->getNodesForSystem($this->node->getPublicSignKey());
         $otherNodes = array_unique(array_values(array_diff($oldNodes, $systemNodes)));
@@ -332,6 +332,7 @@ class EventManager
 
         // send full node to new nodes
         $newNodes = array_unique(array_values(array_diff($this->chain->getNodes(), $oldNodes, $systemNodes)));
+
         if (!empty($newNodes)) {
             $this->dispatcher->dispatch($this->chain, $newNodes);
         }

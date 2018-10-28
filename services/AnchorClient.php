@@ -1,5 +1,7 @@
 <?php
 
+use GuzzleHttp\ClientInterface as HttpClient;
+
 /**
  * Class to interact with anchor service
  */
@@ -11,7 +13,7 @@ class AnchorClient
     protected $config;
 
     /**
-     * @var GuzzleHttp\ClientInterface
+     * @var HttpClient
      */
     protected $httpClient;
     
@@ -19,8 +21,8 @@ class AnchorClient
     /**
      * Class constructor
      * 
-     * @param object|array      $config
-     * @param GuzzleHttp\Client $httpClient
+     * @param object|array $config
+     * @param HttpClient   $httpClient
      */
     public function __construct($config, GuzzleHttp\ClientInterface $httpClient)
     {
@@ -30,19 +32,17 @@ class AnchorClient
     
     
     /**
-     * AnchorClient the given hash
+     * Anchor the given hash.
      * 
-     * @param string  $hash
-     * @param string  $encoding
+     * @param string $hash
+     * @param string $encoding
      */
-    public function hash($hash, $encoding = 'base58')
+    public function submit($hash, $encoding = 'base58'): void
     {
-        $endpoint = $this->config->url;
-        $url = "{$endpoint}/hash";
-        $payload = compact('hash', 'encoding');
-        
+        $url = "{$this->config->url}/hash";
+
         $options = [
-            'json' => $payload,
+            'json' => compact('hash', 'encoding'),
             'http_errors' => true,
             'query' => []
         ];

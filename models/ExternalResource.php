@@ -36,7 +36,7 @@ class ExternalResource implements Resource, Identifiable, Dynamic
      * 
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
@@ -46,7 +46,7 @@ class ExternalResource implements Resource, Identifiable, Dynamic
      * 
      * @return string
      */
-    public static function getIdProperty()
+    public static function getIdProperty(): string
     {
         return 'id';
     }
@@ -57,7 +57,7 @@ class ExternalResource implements Resource, Identifiable, Dynamic
      * @param string $body  Base58 JSON encoded body
      * @return $this
      */
-    public function setVersionFrom($body)
+    public function setVersionFrom($body): self
     {
         $hash = hash('sha256', $body, true);
         $version = substr(base58_encode($hash), 0, 8);
@@ -73,7 +73,7 @@ class ExternalResource implements Resource, Identifiable, Dynamic
      * @param Event $event
      * @return static
      */
-    public static function fromEvent(Event $event)
+    public static function fromEvent(Event $event): self
     {
         $resource = self::fromEventBase($event);
         $resource->setVersionFrom($event->body);

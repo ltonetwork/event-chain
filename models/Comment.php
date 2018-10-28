@@ -41,7 +41,7 @@ class Comment extends MongoSubDocument implements Resource
     /**
      * @inheritDoc
      */
-    public function cast()
+    public function cast(): self
     {
         if (is_array($this->content)) {
             $this->content = (object)$this->content;

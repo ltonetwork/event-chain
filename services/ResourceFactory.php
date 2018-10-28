@@ -7,7 +7,7 @@ class ResourceFactory
 {
     /**
      * Map schema to resource class
-     * @var array 
+     * @var array<string,string>
      */
     protected $mapping = [
         'https://specs.livecontracts.io/v0.1.0/identity/schema.json#' => Identity::class,
@@ -23,35 +23,36 @@ class ResourceFactory
     /**
      * Class constructor
      * 
-     * @param array $mapping  Map schema to resource class
+     * @param array|null $mapping  Map schema to resource class
      */
-    public function __construct(array $mapping = null)
+    public function __construct(?array $mapping = null)
     {
         if (isset($mapping)) {
             array_walk($mapping, [$this, 'assertClassIsResource']);
             $this->mapping = $mapping;
         }
     }
-    
+
     /**
      * Check that each class implements the Resource interface
-     * 
+     *
+     * @param string $class
      * @throws UnexpectedValueException
      */
-    protected function assertClassIsResource($class)
+    protected function assertClassIsResource(string $class): void
     {
         if (!is_a($class, Resource::class, true)) {
             throw new UnexpectedValueException("$class is not a Resource");
         }
     }
-    
+
     /**
      * Extract a resource from an event.
      * 
      * @param Event $event
      * @return Resource
      */
-    public function extractFrom(Event $event)
+    public function extractFrom(Event $event): void
     {
         $body = $event->getBody();
         

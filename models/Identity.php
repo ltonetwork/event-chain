@@ -64,7 +64,7 @@ class Identity extends MongoSubDocument implements Resource, Identifiable
      * 
      * @return string
      */
-    public static function getIdProperty()
+    public static function getIdProperty(): string
     {
         return 'id';
     }

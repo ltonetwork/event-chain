@@ -27,8 +27,8 @@ class DispatcherManager
     /**
      * Class constructor
      * 
-     * @param Dispatcher $dispatcher
-     * @param Account $nodeAccount
+     * @param Dispatcher      $dispatcher
+     * @param Account         $nodeAccount
      * @param LoggerInterface $logger
      */
     public function __construct(Dispatcher $dispatcher, Account $nodeAccount, LoggerInterface $logger)
@@ -44,7 +44,7 @@ class DispatcherManager
      *
      * @param EventChain $chain
      */
-    public function queueToSelf(EventChain $chain)
+    public function queueToSelf(EventChain $chain): void
     {
         $this->dispatcher->queue($chain);
     }
@@ -56,20 +56,16 @@ class DispatcherManager
      * @param EventChain $chain
      * @param string[]   $nodes
      */
-    public function dispatch(EventChain $chain, $nodes = null)
+    public function dispatch(EventChain $chain, array $nodes = null): void
     {
         $event = $chain->getLastEvent();
         
-        if (!$event || !$event->signkey) {
-            return;
-        }
-        
-        if (!$chain->isEventSignedByAccount($event, $this->node)) {
+        if ($event->signkey === null || !$chain->isEventSignedByAccount($event, $this->node)) {
             return;
         }
 
         $to = $nodes ? json_encode($nodes) : 'local node';
-        $this->logger->debug("dispatcher: send message to '$to'");
+        $this->logger->debug("dispatcher: send message to $to");
 
         $this->dispatcher->queue($chain, $nodes);
     }
@@ -79,7 +75,7 @@ class DispatcherManager
      * 
      * @return string
      */
-    public function getNode()
+    public function getNode(): string
     {
         return $this->dispatcher->getNode();
     }

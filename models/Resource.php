@@ -14,6 +14,7 @@ interface Resource extends Entity, Redactable, Meta, Validation
      * Apply privilege, removing properties if needed.
      * 
      * @param Privilege $privilege
+     * @return $this
      */
     public function applyPrivilege(Privilege $privilege);
  
@@ -21,6 +22,7 @@ interface Resource extends Entity, Redactable, Meta, Validation
      * Set the identity that created this (version of the) resource.
      * 
      * @param Identity $identity
+     * @return $this
      */
     public function setIdentity(Identity $identity);
     
