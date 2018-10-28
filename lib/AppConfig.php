@@ -2,6 +2,7 @@
 
 use Jasny\Config;
 use Jasny\DotKey;
+use Jasny\ApplicationEnv;
 
 /**
  * Application config
@@ -19,27 +20,31 @@ use Jasny\DotKey;
  *  - settings.dev.local.yml
  *  - settings.dev.foo.local.yml
  *  - settings.dev.foo.bar.local.yml
- *
- * @codeCoverageIgnore
  */
 class AppConfig extends Config
 {
     /**
      * Load the application settings.
      * 
-     * @param string $env      Application environment
-     * @param array  $options
+     * @param mixed $source    Application environment
+     * @param array $options
      */
-    public function load($env, $options = []): void
+    public function load($source, array $options = []): Config
     {
+        if (!$source instanceof ApplicationEnv) {
+            return parent::load($source, $options);
+        }
+
         $this->loadFromComposerJson();
-        $this->loadSettings((string)$env);
-        $this->loadSettings((string)$env, '.local');
-        
+        $this->loadSettings($source);
+        $this->loadSettings($source, '.local');
+
         $this->addEnvironmentVariables();
         $this->addAppVersion();
 
         $this->addDBPrefix();
+
+        return $this;
     }
 
     /**
@@ -52,7 +57,7 @@ class AppConfig extends Config
         }
         
         $this->app = (object)[];
-        $app = new Config('composer.json');
+        $app = (new Config)->load('composer.json');
 
         foreach (['name', 'version', 'description'] as $prop) {
             if (isset($app->$prop)) {
@@ -64,8 +69,8 @@ class AppConfig extends Config
     /**
      * Load configuration settings.
      * 
-     * @param string $env
-     * @param string $suffix
+     * @param ApplicationEnv $env
+     * @param string         $suffix
      */
     protected function loadSettings($env, $suffix = null): void
     {
@@ -73,10 +78,8 @@ class AppConfig extends Config
             parent::load("config/settings{$suffix}.yml");
         }
         
-        $parts = explode('.', (string)$env);
-        
-        for ($i = 1, $m = count($parts); $i <= $m; $i++) {
-            $file = "config/settings." . join('.', array_slice($parts, 0, $i)) . "{$suffix}.yml";
+        foreach ($env->getLevels() as $level) {
+            $file = "config/settings.$level{$suffix}.yml";
             
             if (file_exists($file)) {
                 parent::load($file);

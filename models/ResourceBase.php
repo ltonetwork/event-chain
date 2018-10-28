@@ -41,7 +41,7 @@ trait ResourceBase
     public function cast()
     {
         if (is_int($this->timestamp) || (is_string($this->timestamp) && ctype_digit($this->timestamp))) {
-            $this->timestamp = DateTime::createFromFormat('U', $this->timestamp);
+            $this->timestamp = DateTime::createFromFormat('U', (string)$this->timestamp);
         }
         
         return $this->metaCast();

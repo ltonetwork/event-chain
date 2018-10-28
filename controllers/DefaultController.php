@@ -25,7 +25,7 @@ class DefaultController extends Jasny\Controller
 
 
     /**
-     * @param stdClass       $appConfig  "config:app"
+     * @param stdClass       $appConfig  "config.app"
      * @param ApplicationEnv $env
      * @param Account        $node       "node.account"
      */

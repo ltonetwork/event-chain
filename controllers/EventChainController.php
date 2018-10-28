@@ -24,7 +24,7 @@ class EventChainController extends Jasny\Controller
     /**
      * EventChainController constructor.
      *
-     * @param EventChainGateway $eventChainGateway  "models.event-chains"
+     * @param EventChainGateway $eventChainGateway  "models.event_chains"
      */
     public function __construct(EventChainGateway $eventChainGateway)
     {

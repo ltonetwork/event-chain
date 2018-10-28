@@ -19,6 +19,6 @@ return [
 
         return (string)$accountSeed !== ''
             ? $factory->seed(base58_decode($accountSeed))
-            : $factory->create(arrayify(new Config('config/node.yml')));
+            : $factory->create(arrayify(get_object_vars((new Config)->load('config/node.yml'))));
     }
 ];

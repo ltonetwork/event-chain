@@ -5,14 +5,14 @@ use GuzzleHttp\ClientInterface;
 use Psr\Log\LoggerInterface;
 
 return [
-    'models.dispatcher.client' => function (ContainerInterface $container) {
+    Dispatcher::class => function (ContainerInterface $container) {
         $config = $container->get('config')->queuer;
         $httpClient = $container->get(ClientInterface::class);
 
         return new Dispatcher($config, $httpClient);
     },
-    'models.dispatcher.manager' => function (ContainerInterface $container) {
-        $dispatcher = $container->get('models.dispatcher.client');
+    DispatcherManager::class => function (ContainerInterface $container) {
+        $dispatcher = $container->get(Dispatcher::class);
         $account = $container->get('node.account');
         $logger = $container->get(LoggerInterface::class);
 

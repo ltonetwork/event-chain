@@ -5,10 +5,9 @@ use Jasny\Container\AutowireContainerInterface;
 
 return [
     EventFactory::class => function(ContainerInterface $container) {
-        $account = $container->get('node.account');
-        return new EventFactory($account);
+        return new EventFactory($container->get('node.account'));
     },
     EventManager::class => function(AutowireContainerInterface $container) {
-        $container->autowire(EventFactory::class);
+        return $container->autowire(EventManager::class);
     }
 ];

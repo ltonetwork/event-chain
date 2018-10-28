@@ -62,7 +62,7 @@ class EventController extends Jasny\Controller
 
         $chain = $this->eventChains->fetch($newChain->id) ?: $newChain->withoutEvents();
 
-        if (!$this->assertSignedByUs($newChain, $chain)) {
+        if (!$this->assertSignedByUs($newChain, $chain, $this->dispatcher->getNode())) {
             return; // Forbidden
         }
 
@@ -124,13 +124,14 @@ class EventController extends Jasny\Controller
     /**
      * Check if event is from identity related to this node.
      *
+     * @param EventChain  $newChain
+     * @param EventChain  $chain
+     * @param string|null $node
      * @return bool
      */
-    protected function assertSignedByUs(EventChain $newChain, EventChain $chain): bool
+    protected function assertSignedByUs(EventChain $newChain, EventChain $chain, ?string $node = null): bool
     {
-        $node = $this->dispatcher->getNode();
         $lastEvent = $newChain->getLastEvent();
-
         $signedByUs = $chain->getNodes() === [] || $chain->isEventSignedByIdentityNode($lastEvent, $node);
 
         if (!$signedByUs) {

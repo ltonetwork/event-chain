@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3ff01e54844900b279dad13a86c6907b",
+    "content-hash": "fb370a7998995fd7b26b6ea7bd91283b",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -431,16 +431,16 @@
         },
         {
             "name": "jasny/autowire",
-            "version": "v1.1.1",
+            "version": "v1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jasny/autowire.git",
-                "reference": "0539e53210b6452781d16eb278c7d526d9cc2bc2"
+                "reference": "d9a1e5c3bc1296bdc2e981ec9780175a2c93f51a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasny/autowire/zipball/0539e53210b6452781d16eb278c7d526d9cc2bc2",
-                "reference": "0539e53210b6452781d16eb278c7d526d9cc2bc2",
+                "url": "https://api.github.com/repos/jasny/autowire/zipball/d9a1e5c3bc1296bdc2e981ec9780175a2c93f51a",
+                "reference": "d9a1e5c3bc1296bdc2e981ec9780175a2c93f51a",
                 "shasum": ""
             },
             "require": {
@@ -469,41 +469,48 @@
                 }
             ],
             "description": "Autowiring for PSR-11 containers",
-            "time": "2018-10-28T13:23:42+00:00"
+            "time": "2018-10-28T18:50:06+00:00"
         },
         {
             "name": "jasny/config",
-            "version": "v1.3.2",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jasny/config.git",
-                "reference": "61586f0048915e0d893f55be8e233c8ff08ea4a1"
+                "reference": "1ecc225337117137c9b74ba315ddc6f4ed918862"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasny/config/zipball/61586f0048915e0d893f55be8e233c8ff08ea4a1",
-                "reference": "61586f0048915e0d893f55be8e233c8ff08ea4a1",
+                "url": "https://api.github.com/repos/jasny/config/zipball/1ecc225337117137c9b74ba315ddc6f4ed918862",
+                "reference": "1ecc225337117137c9b74ba315ddc6f4ed918862",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0"
+                "jasny/dotkey": "^1.0",
+                "jasny/php-functions": "^3.3",
+                "php": ">=7.1",
+                "psr/container": "^1.0"
             },
             "require-dev": {
-                "aws/aws-sdk-php": "2.*",
-                "jasny/php-code-quality": "^1.1",
-                "mustangostang/spyc": "0.*",
+                "aws/aws-sdk-php": "^3.2",
+                "ext-json": "*",
+                "ext-mysqli": "*",
+                "ext-yaml": "*",
+                "jasny/php-code-quality": "^2.3",
                 "nette/neon": "^2.3",
-                "symfony/yaml": "2.*"
+                "phpstan/phpstan": "^0.10.2",
+                "phpstan/phpstan-strict-rules": "^0.10.1",
+                "symfony/yaml": "^3.0"
             },
             "suggest": {
                 "aws/aws-sdk-php": "Required to load configuration from AWS DynamoDB",
                 "nette/neon": "Required to use the NEON notation",
-                "symfony/yaml": "To support YAML without the yaml or syck php extension"
+                "symfony/yaml": "To support YAML without the yaml php extension"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Jasny\\Config": "src/"
+                "psr-4": {
+                    "Jasny\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -517,7 +524,7 @@
                     "homepage": "http://www.jasny.net"
                 }
             ],
-            "description": "Configure your application. You can load .ini, .json, .yaml or .neon files or a MySQL DB.",
+            "description": "Configure your application",
             "keywords": [
                 "config",
                 "configuration",
@@ -527,7 +534,7 @@
                 "mysql",
                 "yaml"
             ],
-            "time": "2015-12-21T00:58:04+00:00"
+            "time": "2018-07-26T03:27:36+00:00"
         },
         {
             "name": "jasny/container",
@@ -2198,56 +2205,6 @@
                 "parser"
             ],
             "time": "2017-08-30T11:04:43+00:00"
-        },
-        {
-            "name": "codeception/c3",
-            "version": "2.4.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Codeception/c3.git",
-                "reference": "d841be32a6785e2f565b9f88f5ff36c905931a9a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/c3/zipball/d841be32a6785e2f565b9f88f5ff36c905931a9a",
-                "reference": "d841be32a6785e2f565b9f88f5ff36c905931a9a",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0",
-                "php": ">=5.4.0"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "Codeception\\c3\\Installer"
-            },
-            "autoload": {
-                "psr-4": {
-                    "Codeception\\c3\\": "."
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Tiger Seo",
-                    "email": "tiger.seo@gmail.com"
-                },
-                {
-                    "name": "Michael Bodnarchuk",
-                    "email": "davert.php@codegyre.com",
-                    "homepage": "http://codegyre.com"
-                }
-            ],
-            "description": "CodeCoverage collector for Codeception",
-            "homepage": "http://codeception.com/",
-            "keywords": [
-                "code coverage",
-                "codecoverage"
-            ],
-            "time": "2018-05-26T22:34:28+00:00"
         },
         {
             "name": "codeception/codeception",
@@ -5041,7 +4998,9 @@
     "platform": {
         "php": ">=7.1",
         "ext-json": "*",
-        "ext-sodium": "2.*"
+        "ext-sodium": "2.*",
+        "ext-intl": "*",
+        "ext-mongodb": "*"
     },
     "platform-dev": []
 }

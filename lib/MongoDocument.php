@@ -1,5 +1,8 @@
 <?php declare(strict_types=1);
 
+use Jasny\DB\Data;
+use Jasny\DB\Entity;
+use Jasny\DB\EntitySet;
 use Jasny\DB\Mongo;
 use Jasny\DB\Entity\Enrichable;
 use MongoDB\BSON\ObjectId;

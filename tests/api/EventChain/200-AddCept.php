@@ -153,4 +153,3 @@ $resources = [
     "lt:/processes/111837c9-ff00-48e3-8c2d-63454a9dc234"
 ];
 $I->assertMongoDocumentEquals($resources, $dbRecord->resources);
-

@@ -2,13 +2,20 @@
 
 use Psr\Container\ContainerInterface;
 use Jasny\Autowire\Autowire;
+use Jasny\Autowire\AutowireInterface;
 use Jasny\Autowire\ReflectionAutowire;
 use Jasny\ReflectionFactory\ReflectionFactory;
 
 return [
     Autowire::class => function(ContainerInterface $container) {
-        $reflection = $container->get(ReflectionFactory::class);
+        return new ReflectionAutowire(
+            $container,
+            $container->get(ReflectionFactory::class)
+        );
+    },
 
-        return new ReflectionAutowire($container, $reflection);
+    // Alias for BC
+    AutowireInterface::class => function(ContainerInterface $container) {
+        return $container->get(Autowire::class);
     }
 ];
