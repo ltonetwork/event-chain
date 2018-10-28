@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * DO NOT ADD ANYTHING TO THIS FILE!
+ * @todo Handle this in middleware instead, so we can remove it altogether.
+ */
+
 if (isset($_SERVER['HTTP_HOST'])) {
     define('BASE_URL', (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $_SERVER['HTTP_HOST']);
     define('DOMAIN', preg_replace('/^' . basename($_SERVER['DOCUMENT_ROOT']) . '\./', '', $_SERVER['HTTP_HOST']));
