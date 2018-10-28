@@ -54,7 +54,7 @@ class EventManager
      * @param ResourceStorage   $resourceStorage
      * @param DispatcherManager $dispatcher
      * @param EventFactory      $eventFactory
-     * @param AnchorClient            $anchor
+     * @param AnchorClient      $anchor
      */
     public function __construct(
         ResourceFactory $resourceFactory,
@@ -319,7 +319,7 @@ class EventManager
      * @param string   $first     The hash of the event from which the partial chain should be created
      * @param string[] $oldNodes  The old nodes of the chain before it was updated
      */
-    protected function dispatch($first, $oldNodes = []): void
+    protected function dispatch(string $first, array $oldNodes = []): void
     {
         $systemNodes = $this->chain->getNodesForSystem($this->node->getPublicSignKey());
         $otherNodes = array_unique(array_values(array_diff($oldNodes, $systemNodes)));

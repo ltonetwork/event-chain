@@ -22,30 +22,30 @@ class EventChain extends MongoDocument
     
     /**
      * List of event
-     * @var EntitySet|iterable<Event>
+     * @var \Jasny\DB\EntitySet|Event[]
      * @snapshot
      */
     public $events;
-    
+
     /**
      * Projected identities
-     * @var IdentitySet|iterable<Identity>
+     * @var IdentitySet|Identity[]
      * @snapshot
      */
     public $identities;
 
     /**
      * Projected comments
-     * @var EntitySet|iterable<Comment>
+     * @var \Jasny\DB\EntitySet|Comment[]
      * @snapshot
      */
     public $comments;
     
     /**
      * Resources that are part of this chain
-     * @var EntitySet|iterable<ResourceInterface>
+     * @var string[]
      */
-    public $resources;
+    public $resources = [];
 
 
     /**
@@ -54,9 +54,8 @@ class EventChain extends MongoDocument
     public function __construct()
     {
         $this->events = $this->events ?? EntitySet::forClass(Event::class);
-        $this->identities = new IdentitySet();
-        $this->comments = $this->events ?? EntitySet::forClass(Comment::class);
-        $this->resources = $this->events ?? EntitySet::forClass(ResourceInterface::class);
+        $this->identities = $this->identities ?? IdentitySet::forClass(Identity::class);
+        $this->comments = $this->comments ?? EntitySet::forClass(Comment::class);
 
         parent::__construct();
     }
@@ -347,7 +346,7 @@ class EventChain extends MongoDocument
     public function withEvents(array $events): self
     {
         $chain = clone $this;
-        $chain->events = $events;
+        $chain->events = EntitySet::forClass(Event::class, $events);
         
         return $chain;
     }
@@ -360,10 +359,13 @@ class EventChain extends MongoDocument
      * @return Event[]
      * @throws OutOfBoundsException if event can't be found
      */
-    public function getEventsAfter($hash): array
+    public function getEventsAfter(string $hash): array
     {
         if ($this->getInitialHash() === $hash) {
-            return $this->events->getArrayCopy();
+            /** @var Event[] $events */
+            $events = $this->events->getArrayCopy();
+
+            return $events;
         }
         
         $events = null;

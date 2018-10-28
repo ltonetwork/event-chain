@@ -189,7 +189,7 @@ class PrivilegeTest extends \Codeception\Test\Unit
     public function testCreateFromResource()
     {
         $resource = $this->createMock(ResourceInterface::class);
-        $resource->schema = "http://example.com/foo/schema.json#";
+        $resource->method('getSchema')->willReturn("http://example.com/foo/schema.json#");
         
         $privilege = Privilege::create($resource);
         
@@ -201,7 +201,7 @@ class PrivilegeTest extends \Codeception\Test\Unit
     {
         $resource = $this->createMock(ExternalResource::class);
         $resource->expects($this->once())->method('getId')->willReturn('lt:/foo/123');
-        $resource->schema = "http://example.com/foo/schema.json#";
+        $resource->method('getSchema')->willReturn("http://example.com/foo/schema.json#");
         
         $privilege = Privilege::create($resource);
         

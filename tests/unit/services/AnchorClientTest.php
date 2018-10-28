@@ -12,7 +12,7 @@ class AnchorClientTest extends \Codeception\Test\Unit
     ];
 
     
-    public function testHash()
+    public function testSubmit()
     {
         $hash = 'foo';
         $encoding = 'base58';
@@ -27,7 +27,7 @@ class AnchorClientTest extends \Codeception\Test\Unit
         $httpClient = new GuzzleHttp\Client(['handler' => $handler]);
         
         $anchor = new AnchorClient($this->config, $httpClient);
-        $anchor->hash($hash, $encoding);
+        $anchor->submit($hash, $encoding);
         
         $this->assertCount(1, $container);
         
@@ -42,7 +42,7 @@ class AnchorClientTest extends \Codeception\Test\Unit
     /**
      * @expectedException GuzzleHttp\Exception\ServerException
      */
-    public function testHashError()
+    public function testSubmitError()
     {
         $hash = 'foo';
         $encoding = 'base58';
@@ -57,6 +57,6 @@ class AnchorClientTest extends \Codeception\Test\Unit
         $httpClient = new GuzzleHttp\Client(['handler' => $handler]);
         
         $anchor = new AnchorClient($this->config, $httpClient);
-        $anchor->hash($hash, $encoding);
+        $anchor->submit($hash, $encoding);
     }
 }

@@ -120,7 +120,7 @@ class IdentitySetTest extends \Codeception\Test\Unit
         
         $resource = $this->createMock(ExternalResource::class);
         $resource->method('getId')->willReturn($id);
-        $resource->schema = $schema;
+        $resource->method('getSchema')->willReturn($schema);
         
         $privileges = $this->identitySet->getPrivileges($resource);
         
@@ -149,7 +149,7 @@ class IdentitySetTest extends \Codeception\Test\Unit
         
         $resource = $this->createMock(ExternalResource::class);
         $resource->method('getId')->willReturn($id);
-        $resource->schema = $schema;
+        $resource->method('getSchema')->willReturn($schema);
         
         $privileges = $this->identitySet->getPrivileges($resource);
         
@@ -174,7 +174,7 @@ class IdentitySetTest extends \Codeception\Test\Unit
         
         $resource = $this->createMock(ExternalResource::class);
         $resource->method('getId')->willReturn($id);
-        $resource->schema = $schema;
+        $resource->method('getSchema')->willReturn($schema);
         
         $privileges = $this->identitySet->getPrivileges($resource);
         

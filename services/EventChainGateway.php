@@ -5,6 +5,8 @@ use Jasny\DB\EntitySet;
 /**
  * Stub DI while using static methods.
  * This will be fixed with the new Jasny DB abstraction layer.
+ *
+ * @codeCoverageIgnore
  */
 class EventChainGateway implements Gateway
 {

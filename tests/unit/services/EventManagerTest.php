@@ -28,41 +28,45 @@ class EventManagerTest extends \Codeception\Test\Unit
         
         return $events;
     }
-    
+
+    /**
+     * Create mock dependencies for EventManager
+     *
+     * @return array
+     */
+    protected function createMockDependencies(): array
+    {
+        $node = $this->createConfiguredMock(Account::class, ['getPublicSignKey' => '123']);
+
+        return [
+            ResourceFactory::class => $this->createMock(ResourceFactory::class),
+            ResourceStorage::class => $this->createMock(ResourceStorage::class),
+            DispatcherManager::class => $this->createMock(DispatcherManager::class),
+            EventFactory::class => $this->createConfiguredMock(EventFactory::class, ['getNodeAccount' => $node]),
+            AnchorClient::class => $this->createMock(AnchorClient::class),
+        ];
+    }
+
     /**
      * Create a partial mock EventManager
      * 
-     * @param EventChain         $chain
-     * @param array|null         $methods
-     * @param ResourceFactory    $resourceFactory
-     * @param ResourceStorage    $resourceStorage
-     * @param DispatcherManager  $dispatcher
-     * @param EventFactory       $eventFactory
-     * @param Account            $nodeAccount
+     * @param EventChain  $chain
+     * @param array|null  $methods
+     * @param array       $dependencies
      * @return EventManager|MockObject
      */
-    protected function createEventManager(
-        EventChain $chain,
-        ?array $methods = null,
-        ResourceFactory $resourceFactory = null,
-        ResourceStorage $resourceStorage = null,
-        DispatcherManager $dispatcher = null,
-        EventFactory $eventFactory = null,
-        Account $nodeAccount = null,
-        AnchorClient $anchor = null
-    ) {
-        return $this->getMockBuilder(EventManager::class)
-            ->setConstructorArgs([
-                $chain, 
-                $resourceFactory ?: $this->createMock(ResourceFactory::class),
-                $resourceStorage ?: $this->createMock(ResourceStorage::class),
-                $dispatcher ?: $this->createMock(DispatcherManager::class),
-                $eventFactory ?: $this->createMock(EventFactory::class),
-                $nodeAccount ?: $this->createMock(Account::class),
-                $anchor ?: $this->createMock(AnchorClient::class)
-            ])
+    protected function createEventManager(EventChain $chain, ?array $methods = null, array $dependencies = [])
+    {
+        $constructorArgs = array_values(array_merge($this->createMockDependencies(), $dependencies));
+
+        $eventManager = $this->getMockBuilder(EventManager::class)
+            ->setConstructorArgs($constructorArgs)
             ->setMethods($methods)
             ->getMock();
+
+        $this->setPrivateProperty($eventManager, 'chain', $chain);
+
+        return $eventManager;
     }
     
     
@@ -74,15 +78,10 @@ class EventManagerTest extends \Codeception\Test\Unit
     {
         $chain = $this->createMock(EventChain::class);
         $chain->method('isPartial')->willReturn(true);
+
+        $constructorArgs = array_values($this->createMockDependencies());
         
-        $resourceFactory = $this->createMock(ResourceFactory::class);
-        $resourceStorage = $this->createMock(ResourceStorage::class);
-        $dispatcher = $this->createMock(DispatcherManager::class);
-        $eventFactory = $this->createMock(EventFactory::class);
-        $nodeAccount = $this->createMock(Account::class);
-        $anchor = $this->createMock(AnchorClient::class);
-        
-        new EventManager($chain, $resourceFactory, $resourceStorage, $dispatcher, $eventFactory, $nodeAccount, $anchor);
+        (new EventManager(...$constructorArgs))->with($chain);
     }
     
     public function testAdd()
@@ -261,7 +260,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $dispatcher->expects($this->exactly(2))->method('dispatch')
             ->withConsecutive([$newEvents, ['ex1', 'ex2']], [$chain, ['ex3']]);
         
-        $manager = $this->createEventManager($chain, ['handleNewEvent'], null, null, $dispatcher);
+        $manager = $this->createEventManager($chain, ['handleNewEvent'], [DispatcherManager::class => $dispatcher]);
         $manager->expects($this->exactly(2))->method('handleNewEvent')
             ->withConsecutive([$this->identicalTo($events[0])], [$this->identicalTo($events[1])])
             ->willReturn(ValidationResult::success());
@@ -296,7 +295,11 @@ class EventManagerTest extends \Codeception\Test\Unit
         $resourceStorage = $this->createMock(ResourceStorage::class);
         $resourceStorage->expects($this->once())->method('store')->with($this->identicalTo($resource));
         
-        $manager = $this->createEventManager($chain, ['applyPrivilegeToResource'], $resourceFactory, $resourceStorage);
+        $manager = $this->createEventManager(
+            $chain,
+            ['applyPrivilegeToResource'],
+            [ResourceFactory::class => $resourceFactory, ResourceStorage::class => $resourceStorage]
+        );
         $manager->expects($this->once())->method('applyPrivilegeToResource')
             ->with($this->identicalTo($resource), $this->identicalTo($event))->willReturn(ValidationResult::success());
         
@@ -326,7 +329,7 @@ class EventManagerTest extends \Codeception\Test\Unit
             ->willReturn(true);
         
         $anchor = $this->createMock(AnchorClient::class);
-        $anchor->expects($this->once())->method('hash')->with('3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj');
+        $anchor->expects($this->once())->method('submit')->with('3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj');
 
         $resourceFactory = $this->createMock(ResourceFactory::class);
         $resourceFactory->expects($this->once())->method('extractFrom')
@@ -336,8 +339,13 @@ class EventManagerTest extends \Codeception\Test\Unit
         $resourceStorage->expects($this->once())->method('store')->with($this->identicalTo($resource));
         
         $manager = $this->createEventManager(
-            $chain, ['applyPrivilegeToResource'], $resourceFactory, $resourceStorage,
-            null, null, null, $anchor
+            $chain,
+            ['applyPrivilegeToResource'],
+            [
+                ResourceFactory::class => $resourceFactory,
+                ResourceStorage::class => $resourceStorage,
+                AnchorClient::class => $anchor
+            ]
         );
         $manager->expects($this->once())->method('applyPrivilegeToResource')
             ->with($this->identicalTo($resource), $this->identicalTo($event))->willReturn(ValidationResult::success());
@@ -372,7 +380,11 @@ class EventManagerTest extends \Codeception\Test\Unit
         $resourceStorage = $this->createMock(ResourceStorage::class);
         $resourceStorage->expects($this->never())->method('store');
                 
-        $manager = $this->createEventManager($chain, ['applyPrivilegeToResource'], $resourceFactory, $resourceStorage);
+        $manager = $this->createEventManager(
+            $chain,
+            ['applyPrivilegeToResource'],
+            [ResourceFactory::class => $resourceFactory, ResourceStorage::class => $resourceStorage]
+        );
         $manager->expects($this->once())->method('applyPrivilegeToResource')
             ->with($this->identicalTo($resource), $this->identicalTo($event))->willReturn($error);
         
@@ -402,7 +414,11 @@ class EventManagerTest extends \Codeception\Test\Unit
         $resourceStorage = $this->createMock(ResourceStorage::class);
         $resourceStorage->expects($this->never())->method('store');
                 
-        $manager = $this->createEventManager($chain, ['applyPrivilegeToResource'], $resourceFactory, $resourceStorage);
+        $manager = $this->createEventManager(
+            $chain,
+            ['applyPrivilegeToResource'],
+            [ResourceFactory::class => $resourceFactory, ResourceStorage::class => $resourceStorage]
+        );
         $manager->expects($this->never())->method('applyPrivilegeToResource');
         
         $validation = $manager->handleNewEvent($event);
@@ -429,7 +445,11 @@ class EventManagerTest extends \Codeception\Test\Unit
         $resourceStorage = $this->createMock(ResourceStorage::class);
         $resourceStorage->expects($this->never())->method('store');
                 
-        $manager = $this->createEventManager($chain, ['applyPrivilegeToResource'], $resourceFactory, $resourceStorage);
+        $manager = $this->createEventManager(
+            $chain,
+            ['applyPrivilegeToResource'],
+            [ResourceFactory::class => $resourceFactory, ResourceStorage::class => $resourceStorage]
+        );
         $manager->expects($this->never())->method('applyPrivilegeToResource');
         
         $validation = $manager->handleNewEvent($event);
@@ -441,23 +461,23 @@ class EventManagerTest extends \Codeception\Test\Unit
     
     public function testHandleFailedEvent()
     {
-        $event = $this->createMockEvents()[0];
+        [$event, $errorEvent] = $this->createMockEvents();
         
         $eventSet = $this->createMock(Jasny\DB\EntitySet::class);
-        $eventSet->expects($this->once())->method('add')->with($event);
+        $eventSet->expects($this->once())->method('add')->with($errorEvent);
         
         $chain = $this->createMock(EventChain::class);
         $chain->expects($this->once())->method('getEventsAfter')->
-            with('7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U')->willReturn($eventSet);
+            with('7oE75kgAjGt84qznVmX6qCnSYjBC8ZGY7JnLkXFfqF3U')->willReturn([$event]);
         $chain->events = $eventSet;
 
         $error = ValidationResult::error('something is wrong');
 
         $eventFactory = $this->createMock(EventFactory::class);
         $eventFactory->expects($this->once())->method('createErrorEvent')
-            ->with(['something is wrong'], $eventSet)->willReturn($event);
+            ->with(['something is wrong'], [$event])->willReturn($errorEvent);
         
-        $manager = $this->createEventManager($chain, null, null, null, null, $eventFactory);
+        $manager = $this->createEventManager($chain, null, [EventFactory::class => $eventFactory]);
         $manager->handleFailedEvent($event, $error);
     }
     
@@ -491,7 +511,11 @@ class EventManagerTest extends \Codeception\Test\Unit
         
         $resourceStorage = $this->createMock(ResourceStorage::class);
 
-        $manager = $this->createEventManager($chain, ['consolidatedPrivilege'], null, $resourceStorage);
+        $manager = $this->createEventManager(
+            $chain,
+            ['consolidatedPrivilege'],
+            [ResourceStorage::class => $resourceStorage]
+        );
         $manager->expects($this->once())->method('consolidatedPrivilege')
             ->with($this->identicalTo($resource), $this->identicalTo($privileges))->willReturn($privilege);
         
@@ -533,7 +557,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         
         $filteredIdentities = $this->createMock(IdentitySet::class);
         $filteredIdentities->expects($this->once())->method('getPrivileges')
-            ->with($this->identicalTo($resource))->willReturn(null);
+            ->with($this->identicalTo($resource))->willReturn([]);
         
         $identitySet = $this->createMock(IdentitySet::class);
         $identitySet->expects($this->once())->method('filterOnSignkey')->with($event->signkey)

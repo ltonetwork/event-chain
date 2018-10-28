@@ -36,11 +36,14 @@ class ResourceFactoryTest extends \Codeception\Test\Unit
      */
     public function testExtractFrom()
     {
-        $event = $this->createMock(Event::class);
-        $event->expects($this->atLeastOnce())->method('getBody')->willReturn([
+        $body = [
             '$schema' => 'http://example.com/external/schema.json#',
             'foo' => 'bar'
-        ]);
+        ];
+
+        $event = $this->createMock(Event::class);
+        $event->expects($this->atLeastOnce())->method('getBody')->willReturn($body);
+        $event->body = json_encode($body);
         
         $resource = $this->manager->extractFrom($event);
         

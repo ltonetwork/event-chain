@@ -5,7 +5,7 @@ path:
   - models
   - services
 jobs: 10
-cache: /tmp/phplint.cache
+cache: tmp/phplint.cache
 extensions:
   - php
 

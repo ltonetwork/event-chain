@@ -58,7 +58,7 @@ class ExternalResource implements ResourceInterface, Identifiable, Dynamic
      * @param string $body  Base58 JSON encoded body
      * @return $this
      */
-    public function setVersionFrom($body): self
+    public function setVersionFrom(string $body): self
     {
         $hash = hash('sha256', $body, true);
         $version = substr(base58_encode($hash), 0, 8);

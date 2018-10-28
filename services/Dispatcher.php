@@ -44,7 +44,8 @@ class Dispatcher
         ];
 
         $response = $this->httpClient->request('GET', $url, $options);
-        return json_decode($response->getBody());
+
+        return json_decode((string)($response->getBody()));
     }
 
     /**

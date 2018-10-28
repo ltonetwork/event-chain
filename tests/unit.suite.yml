@@ -4,13 +4,12 @@
 
 class_name: UnitTester
 coverage:
-    enabled: true
-    remote: false
-    include:
-        - models/*
-        - lib/NodeConfig.php
+  enabled: true
+  remote: false
+  include:
+    - models/*
+    - services/*
 modules:
-    enabled:
-        - Asserts
-        - \Helper\Unit
-
+  enabled:
+    - Asserts
+    - \Helper\Unit
