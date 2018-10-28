@@ -1,6 +1,5 @@
-<?php
+<?php declare(strict_types=1);
 
-use Psr\Container\ContainerInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Client;
 

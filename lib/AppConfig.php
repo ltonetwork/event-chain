@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpVariableVariableInspection */ declare(strict_types=1);
 
 use Jasny\Config;
 use Jasny\DotKey;
@@ -30,18 +30,14 @@ class AppConfig extends Config
      * @param string $env      Application environment
      * @param array  $options
      */
-    public function load($env, $options = [])
+    public function load($env, $options = []): void
     {
         $this->loadFromComposerJson();
-        $this->loadSettings($env);
-        $this->loadSettings($env, '.local');
+        $this->loadSettings((string)$env);
+        $this->loadSettings((string)$env, '.local');
         
         $this->addEnvironmentVariables();
         $this->addAppVersion();
-
-        if (isset($this->dynamoConfig)) {
-            $this->loadDynamoConfig();
-        }
 
         $this->addDBPrefix();
     }
@@ -49,7 +45,7 @@ class AppConfig extends Config
     /**
      * Load app settings from composer.json
      */
-    protected function loadFromComposerJson()
+    protected function loadFromComposerJson(): void
     {
         if (!file_exists('composer.json')) {
             return;
@@ -71,13 +67,13 @@ class AppConfig extends Config
      * @param string $env
      * @param string $suffix
      */
-    protected function loadSettings($env, $suffix = null)
+    protected function loadSettings($env, $suffix = null): void
     {
         if (file_exists("config/settings{$suffix}.yml")) {
             parent::load("config/settings{$suffix}.yml");
         }
         
-        $parts = explode('.', $env);
+        $parts = explode('.', (string)$env);
         
         for ($i = 1, $m = count($parts); $i <= $m; $i++) {
             $file = "config/settings." . join('.', array_slice($parts, 0, $i)) . "{$suffix}.yml";
@@ -91,7 +87,7 @@ class AppConfig extends Config
     /**
      * Add settings from environment variables
      */
-    protected function addEnvironmentVariables()
+    protected function addEnvironmentVariables(): void
     {
         if (!isset($this->environment_variables)) return;
         
@@ -106,25 +102,37 @@ class AppConfig extends Config
      * Add app version based on environment (git commit or ctime)
      * @codeCoverageIgnore
      */
-    protected function addAppVersion()
+    protected function addAppVersion(): void
     {
         if (!isset($this->app)) {
             $this->app = (object)[];
         }
         
-        if (!isset($this->app->version)) {
-            $this->app->version = is_dir('.git') ? trim(`git rev-parse HEAD`) : date('YmdHis', filectime(getcwd()));
+        if (isset($this->app->version)) {
+            // nothing
+        } elseif (is_dir('.git')) {
+            $this->app->version = trim(`git rev-parse HEAD`);
+        } else {
+            $ctime = filectime(getcwd() ?: __DIR__);
+            $this->app->version = is_int($ctime) ? date('YmdHis', $ctime) : null;
         }
     }
     
     /**
      * Add prefix in database name
      */
-    protected function addDBPrefix()
+    protected function addDBPrefix(): void
     {
-        if (isset($this->db->default->prefix)) {
-            $this->db->default->database = $this->db->default->prefix . $this->db->default->database;
-            unset($this->db->default->prefix);
+        if (!isset($this->db->default)) {
+            return;
+        }
+
+        /** @var stdClass $settings */
+        $settings = $this->db->default;
+
+         if (isset($settings->prefix)) {
+            $settings->database = $settings->prefix . $settings->database;
+            unset($settings->prefix);
         }
     }
 }

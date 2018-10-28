@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Jasny\RouterInterface;
 use Psr\Container\ContainerInterface;

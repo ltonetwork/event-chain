@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * DO NOT ADD ANYTHING TO THIS FILE!
- * @todo Handle this in middleware instead, so we can remove it altogether.
+ * @todo Handle this in middleware, so we can remove it altogether.
  */
 
 if (isset($_SERVER['HTTP_HOST'])) {

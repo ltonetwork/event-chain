@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use GuzzleHttp\ClientInterface as HttpClient;
 
@@ -8,7 +8,7 @@ use GuzzleHttp\ClientInterface as HttpClient;
 class AnchorClient
 {
     /**
-     * @var object
+     * @var stdClass
      */
     protected $config;
 
@@ -21,8 +21,8 @@ class AnchorClient
     /**
      * Class constructor
      * 
-     * @param object|array $config
-     * @param HttpClient   $httpClient
+     * @param \stdClass|array $config
+     * @param HttpClient      $httpClient
      */
     public function __construct($config, GuzzleHttp\ClientInterface $httpClient)
     {
@@ -47,6 +47,6 @@ class AnchorClient
             'query' => []
         ];
         
-        $this->httpClient->post($url, $options);
+        $this->httpClient->request('POST', $url, $options);
     }
 }

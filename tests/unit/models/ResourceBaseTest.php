@@ -9,13 +9,13 @@ use Jasny\DB\Entity\Dynamic;
 class ResourceBaseTest extends \Codeception\Test\Unit
 {
     /**
-     * @var Resource|MockObject
+     * @var ResourceInterface|MockObject
      */
     public $resource;
     
     public function _before()
     {
-        $this->resource = new class() implements Resource, Dynamic {
+        $this->resource = new class() implements ResourceInterface, Dynamic {
             use ResourceBase;
         };
     }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Class to interact with event dispatcher service.
@@ -6,7 +6,7 @@
 class Dispatcher
 {
     /**
-     * @var object
+     * @var stdClass
      */
     protected $config;
 
@@ -19,7 +19,7 @@ class Dispatcher
     /**
      * Class constructor
      * 
-     * @param object|array      $config
+     * @param stdClass|array    $config
      * @param GuzzleHttp\Client $httpClient
      */
     public function __construct($config, GuzzleHttp\ClientInterface $httpClient)
@@ -43,7 +43,7 @@ class Dispatcher
             'http_errors' => true
         ];
 
-        $response = $this->httpClient->get($url, $options);
+        $response = $this->httpClient->request('GET', $url, $options);
         return json_decode($response->getBody());
     }
 
@@ -64,7 +64,7 @@ class Dispatcher
      * @param EventChain $chain
      * @param string[]   $to     If specified will send the event to the nodes in this array
      */
-    public function queue(EventChain $chain, $to = null): void
+    public function queue(EventChain $chain, ?array $to = null): void
     {
         $endpoint = $this->config->url;
         $url = "{$endpoint}/queue";
@@ -75,10 +75,10 @@ class Dispatcher
             'query' => []
         ];
         
-        if (isset($to) && !empty($to)) {
+        if (isset($to) && $to !== []) {
             $options['query']['to'] = $to;
         }
 
-        $this->httpClient->post($url, $options);
+        $this->httpClient->request('POST', $url, $options);
     }
 }

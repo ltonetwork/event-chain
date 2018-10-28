@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Jasny\DB\Entity\Identifiable;
 
@@ -9,25 +9,25 @@ class Privilege extends MongoSubDocument
 {
     /**
      * Match resource schema
-     * @var string 
+     * @var string
      */
     public $schema;
     
     /**
      * Match resource id
-     * @var string 
+     * @var string|null
      */
     public $id;
     
     /**
      * Only these properties
-     * @var string[]
+     * @var string[]|null
      */
     public $only;
     
     /**
      * Not these properties
-     * @var string[]
+     * @var string[]|null
      */
     public $not;
     
@@ -35,18 +35,20 @@ class Privilege extends MongoSubDocument
     /**
      * Class constructor
      * 
-     * @param string|Resource $schema
-     * @param string|null     $id
+     * @param string|ResourceInterface $schema
+     * @param string|null              $id
      */
     public function __construct($schema = null, ?string $id = null)
     {
-        if ($schema instanceof Resource) {
+        if ($schema instanceof ResourceInterface) {
             $id = $schema instanceof Identifiable ? $schema->getId() : null;
-            $schema = $schema->schema;
+            $schema = $schema->getSchema();
         }
         
         $this->schema = $schema;
         $this->id = $id;
+
+        parent::__construct();
     }
     
     /**

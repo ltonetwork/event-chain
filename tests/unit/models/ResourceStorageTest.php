@@ -38,7 +38,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         
         $storage = new ResourceStorage($this->mapping, $httpClient);
         
-        $url = $storage->getURL('lt:/foos/123?v=4ZL83zt5');
+        $url = $storage->getUrl('lt:/foos/123?v=4ZL83zt5');
         
         $this->assertEquals('http://foos.example.com/things/', $url);
     }
@@ -49,7 +49,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         
         $storage = new ResourceStorage($this->mapping, $httpClient);
         
-        $url = $storage->getURL('lt:/bars/333/done');
+        $url = $storage->getUrl('lt:/bars/333/done');
         
         $this->assertEquals('http://example.com/bars/333/done', $url);
     }
@@ -63,7 +63,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         
         $storage = new ResourceStorage($this->mapping, $httpClient);
         
-        $storage->getURL('lt:/paws/777');
+        $storage->getUrl('lt:/paws/777');
     }
     
     

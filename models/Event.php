@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Jasny\ValidationResult;
 use Jasny\DB\Entity\Identifiable;
@@ -11,8 +11,7 @@ class Event extends MongoSubDocument implements Identifiable
     /**
      * The node that sent the event
      *
-     * @var string
-     * @required
+     * @var string|null
      */
     public $origin;
 
@@ -82,7 +81,10 @@ class Event extends MongoSubDocument implements Identifiable
 
 
     /**
-     * @inheritDoc
+     * Set values
+     *
+     * @param array|object $values
+     * @return $this
      */
     public function setValues($values): self
     {
@@ -92,7 +94,9 @@ class Event extends MongoSubDocument implements Identifiable
 
         $this->cachedBody = false; // Clear cached body
 
-        return parent::setValues($values);
+        parent::setValues($values);
+
+        return $this;
     }
 
     /**
@@ -144,7 +148,7 @@ class Event extends MongoSubDocument implements Identifiable
      */
     public function getBody(): ?array
     {
-        if ($this->cachedBody !== false) {
+        if (is_array($this->cachedBody)) {
             return $this->cachedBody;
         }
 

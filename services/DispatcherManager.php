@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use LTO\Account;
 use \Psr\Log\LoggerInterface;
@@ -53,10 +53,10 @@ class DispatcherManager
     /**
      * Send the event chain to the dispatcher service
      * 
-     * @param EventChain $chain
-     * @param string[]   $nodes
+     * @param EventChain    $chain
+     * @param string[]|null $nodes
      */
-    public function dispatch(EventChain $chain, array $nodes = null): void
+    public function dispatch(EventChain $chain, ?array $nodes = null): void
     {
         $event = $chain->getLastEvent();
         
@@ -64,7 +64,7 @@ class DispatcherManager
             return;
         }
 
-        $to = $nodes ? json_encode($nodes) : 'local node';
+        $to = isset($nodes) ? json_encode($nodes) : 'local node';
         $this->logger->debug("dispatcher: send message to $to");
 
         $this->dispatcher->queue($chain, $nodes);

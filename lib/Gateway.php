@@ -21,7 +21,7 @@ interface Gateway
      *
      * @param string|array $id  ID or filter
      * @param array        $opts
-     * @return Entity
+     * @return Entity|null
      */
     public function fetch($id, array $opts = []);
 

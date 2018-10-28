@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -10,7 +10,7 @@ return [
     LoggerInterface::class => function (ContainerInterface $container) {
         $rollbar = $container->get('rollbar.logger');
 
-        $handler = $rollbar
+        $handler = isset($rollbar)
             ? new PsrHandler($rollbar)
             : new ErrorLogHandler();
 

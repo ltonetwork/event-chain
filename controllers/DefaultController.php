@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Jasny\ApplicationEnv;
 use LTO\Account;
@@ -9,9 +9,9 @@ use LTO\Account;
 class DefaultController extends Jasny\Controller
 {
     /**
-     * @var object
+     * @var stdClass
      */
-    protected $config;
+    protected $app;
 
     /**
      * @var string  application environment
@@ -25,11 +25,11 @@ class DefaultController extends Jasny\Controller
 
 
     /**
-     * @param object         $appConfig  "config:app"
+     * @param stdClass       $appConfig  "config:app"
      * @param ApplicationEnv $env
      * @param Account        $node       "node.account"
      */
-    public function __construct($appConfig, ApplicationEnv $env, Account $node)
+    public function __construct(stdClass $appConfig, ApplicationEnv $env, Account $node)
     {
         $this->app = $appConfig;
         $this->env = (string)$env;
@@ -39,7 +39,7 @@ class DefaultController extends Jasny\Controller
     /**
      * Show API info
      */
-    public function run()
+    public function run(): void
     {
         $info = [
             'name' => $this->app->name ?? '',

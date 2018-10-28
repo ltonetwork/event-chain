@@ -21,7 +21,7 @@ class ResourceFactoryTest extends \Codeception\Test\Unit
     
     /**
      * @expectedException UnexpectedValueException
-     * @expectedExceptionMessage DateTime is not a Resource
+     * @expectedExceptionMessage DateTime is not a ResourceInterface
      */
     public function testAssertClassFail()
     {

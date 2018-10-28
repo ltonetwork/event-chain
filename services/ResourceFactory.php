@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Service to extract the resource from an event
@@ -34,15 +34,15 @@ class ResourceFactory
     }
 
     /**
-     * Check that each class implements the Resource interface
+     * Check that each class implements the ResourceInterface interface
      *
      * @param string $class
      * @throws UnexpectedValueException
      */
     protected function assertClassIsResource(string $class): void
     {
-        if (!is_a($class, Resource::class, true)) {
-            throw new UnexpectedValueException("$class is not a Resource");
+        if (!is_a($class, ResourceInterface::class, true)) {
+            throw new UnexpectedValueException("$class is not a ResourceInterface");
         }
     }
 
@@ -50,9 +50,9 @@ class ResourceFactory
      * Extract a resource from an event.
      * 
      * @param Event $event
-     * @return Resource
+     * @return ResourceInterface
      */
-    public function extractFrom(Event $event): Resource
+    public function extractFrom(Event $event): ResourceInterface
     {
         $body = $event->getBody();
         

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\ClientInterface as HttpClient;
@@ -100,16 +100,16 @@ class ResourceStorage
     /**
      * Store a resource
      * 
-     * @param Resource $resource
+     * @param ResourceInterface $resource
      */
-    public function store(Resource $resource): void
+    public function store(ResourceInterface $resource): void
     {
         if (!$resource instanceof ExternalResource) {
             return;
         }
         
-        $url = $this->getURL($resource->getId());
-        $this->httpClient->post($url, ['json' => $resource, 'http_errors' => true]);
+        $url = $this->getUrl($resource->getId());
+        $this->httpClient->request('POST', $url, ['json' => $resource, 'http_errors' => true]);
         
         $doneUri = preg_replace('/\?.*$/', '', $resource->getId()) . '/done';
         if ($this->hasUrl($doneUri)) {
@@ -121,6 +121,7 @@ class ResourceStorage
      * Message resources that the event chain has been processed.
      *
      * @param EventChain $chain
+     * @throws \Throwable
      */
     public function done(EventChain $chain): void
     {
@@ -134,7 +135,7 @@ class ResourceStorage
         foreach ($this->pending as $uri) {
             $url = $this->getUrl($uri);
 
-            $promises[] = $this->httpClient->postAsync($url, ['json' => $data, 'http_errors' => false])
+            $promises[] = $this->httpClient->requestAsync('POST', $url, ['json' => $data, 'http_errors' => false])
                 ->then(function(Response $response) use ($url) {
                     if ($response->getStatusCode() >= 400) {
                         $this->doneOnError($response, $url);

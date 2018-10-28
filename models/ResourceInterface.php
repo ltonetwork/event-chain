@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Jasny\DB\Entity;
 use Jasny\DB\Entity\Redactable;
@@ -6,10 +6,17 @@ use Jasny\DB\Entity\Meta;
 use Jasny\DB\Entity\Validation;
 
 /**
- * Resource interface
+ * ResourceInterface interface
  */
-interface Resource extends Entity, Redactable, Meta, Validation
+interface ResourceInterface extends Entity, Redactable, Meta, Validation
 {
+    /**
+     * Get the resource JSONSchema declaration.
+     *
+     * @return string
+     */
+    public function getSchema(): string;
+
     /**
      * Apply privilege, removing properties if needed.
      * 

@@ -1,15 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * A comment
  */
-class Comment extends MongoSubDocument implements Resource
+class Comment extends MongoSubDocument implements ResourceInterface
 {
     use ResourceBase;
     
     /**
      * The person that created the comment
-     * @var Idenity
+     * @var Identity
      */
     public $identity;
     
@@ -39,7 +39,9 @@ class Comment extends MongoSubDocument implements Resource
     
     
     /**
-     * @inheritDoc
+     * Cast all properties.
+     *
+     * @return $this
      */
     public function cast(): self
     {
@@ -47,6 +49,8 @@ class Comment extends MongoSubDocument implements Resource
             $this->content = (object)$this->content;
         }
         
-        return parent::cast();
+        parent::cast();
+
+        return $this;
     }
 }

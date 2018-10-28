@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Jasny\ValidationResult;
 use Jasny\DB\Entity\Identifiable;
@@ -12,7 +12,7 @@ use LTO\Account;
 class EventManager
 {
     /**
-     * @var string
+     * @var EventChain
      */
     protected $chain;
     
@@ -248,15 +248,15 @@ class EventManager
     /**
      * Store a new event and add it to the chain
      *
-     * @param Resource $resource
+     * @param ResourceInterface $resource
      * @return ValidationResult
      */
-    protected function storeResource(Resource $resource): ValidationResult
+    protected function storeResource(ResourceInterface $resource): ValidationResult
     {
         try {
             $this->resourceStorage->store($resource);
         } catch (RequestException $e) {
-            $id = 'resource' . ($resource instanceof Identifiable ? ' ' . $resource->getId() : '');
+            $id = 'ResourceInterface' . ($resource instanceof Identifiable ? ' ' . $resource->getId() : '');
             $reason = $e instanceof ClientException ? $e->getMessage() : 'Server error';
 
             trigger_error($e->getMessage(), E_USER_WARNING);
@@ -274,11 +274,11 @@ class EventManager
      * Apply privilege to a resource.
      * Returns false if identity has no privileges to resource.
      * 
-     * @param Resource $resource
+     * @param ResourceInterface $resource
      * @param Event    $event
-     * @return bool
+     * @return ValidationResult
      */
-    public function applyPrivilegeToResource(Resource $resource, Event $event): bool
+    public function applyPrivilegeToResource(ResourceInterface $resource, Event $event): ValidationResult
     {
         $this->assertChain();
 
@@ -291,7 +291,7 @@ class EventManager
         $identities = $this->chain->identities->filterOnSignkey($event->signkey);
         $privileges = $identities->getPrivileges($resource);
 
-        if (empty($privileges)) {
+        if ($privileges === []) {
             return ValidationResult::error("no privileges for event");
         }
 
@@ -304,11 +304,11 @@ class EventManager
     /**
      * Create a consolidated privilege from an array of privileges
      * 
-     * @param Resource    $resource
+     * @param ResourceInterface    $resource
      * @param Privilege[] $privileges
      * @return Privilege
      */
-    protected function consolidatedPrivilege(Resource $resource, array $privileges): Privilege
+    protected function consolidatedPrivilege(ResourceInterface $resource, array $privileges): Privilege
     {
         return Privilege::create($resource)->consolidate($privileges);
     }
@@ -326,14 +326,14 @@ class EventManager
 
         // send partial chain to old nodes
         $partial = $this->chain->getPartialAfter($first);
-        if (!empty($partial) && !empty($otherNodes)) {
+        if ($partial !== [] && $otherNodes !== []) {
             $this->dispatcher->dispatch($partial, $otherNodes);
         }
 
         // send full node to new nodes
         $newNodes = array_unique(array_values(array_diff($this->chain->getNodes(), $oldNodes, $systemNodes)));
 
-        if (!empty($newNodes)) {
+        if ($newNodes !== []) {
             $this->dispatcher->dispatch($this->chain, $newNodes);
         }
     }

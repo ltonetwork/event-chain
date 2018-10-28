@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -7,6 +7,8 @@ use Jasny\Config;
 use Jasny\Container\Container;
 use Jasny\Container\Loader\EntryLoader;
 use Jasny\DB;
+use Jasny\RouterInterface;
+use Jasny\HttpMessage\Emitter;
 
 /**
  * Application
@@ -33,7 +35,7 @@ class App
      * @return ContainerInterface
      * @throws LogicException if the container is not set yet
      */
-    public static function getContainer()
+    public static function getContainer(): ContainerInterface
     {
         if (!isset(self::$container)) {
             throw new LogicException("This container is not set");
@@ -47,7 +49,7 @@ class App
      *
      * @param ContainerInterface $container
      */
-    public static function setContainer(ContainerInterface $container)
+    public static function setContainer(ContainerInterface $container): void
     {
         self::$container = $container;
         self::initDB();
@@ -56,7 +58,7 @@ class App
     /**
      * Initialize the DB
      */
-    protected static function initDB()
+    protected static function initDB(): void
     {
         DB::resetGlobalState();
         DB::configure(self::config()->db);
@@ -64,29 +66,10 @@ class App
 
 
     /**
-     * Get and invoke an item from the app container.
-     * Will return the item if it is not callable.
-     * @deprecated
-     * 
-     * @param string $name
-     * @param array  $arguments
-     * @return mixed
-     */
-    public static function __callStatic($name, array $arguments)
-    {
-        trigger_error("Using App as service locator is deprecated", E_USER_WARNING);
-
-        $item = self::getContainer()->get($name);
-        
-        return is_callable($item) ? $item(...$arguments) : $item;
-    }
-    
-
-    /**
      * Get the application environment.
      * 
      * @param string  $check       Only return if env matches
-     * @return string|false
+     * @return string|bool
      */
     public static function env($check = null)
     {
@@ -101,7 +84,7 @@ class App
      *
      * @return Config
      */
-    public static function config()
+    public static function config(): Config
     {
         return self::getContainer()->get('config');
     }
@@ -110,7 +93,7 @@ class App
     /**
      * Initialize the application
      */
-    public static function init()
+    public static function init(): void
     {
         $container = new Container(self::getContainerEntries());
         self::setContainer($container);
@@ -119,23 +102,27 @@ class App
     }
 
     /**
-     * @return EntryLoader
+     * @return EntryLoader&iterable<Closure>
      */
-    public static function getContainerEntries()
+    public static function getContainerEntries(): EntryLoader
     {
         $files = new ArrayIterator(glob('declarations/{generic,models}/*.php', GLOB_BRACE));
 
-        return new EntryLoader($files);
+        /** @var EntryLoader&iterable<Closure> $entryLoader */
+        $entryLoader = new EntryLoader($files);
+
+        return $entryLoader;
     }
 
     /**
      * Init global environment
      */
-    protected static function initGlobal()
+    protected static function initGlobal(): void
     {
         $scripts = glob('declarations/global/*.php');
 
         foreach ($scripts as $script) {
+            /** @noinspection PhpIncludeInspection */
             require_once $script;
         }
     }
@@ -143,7 +130,7 @@ class App
     /**
      * Run the application
      */
-    public static function run()
+    public static function run(): void
     {
         self::init();
         self::handleRequest();
@@ -152,17 +139,21 @@ class App
     /**
      * Use the router to handle the current HTTP request.
      */
-    protected static function handleRequest()
+    protected static function handleRequest(): void
     {
         $container = self::getContainer();
 
-        /* @var $router \Jasny\Router */
-        $router = $container->get('router');
+        /* @var RouterInterface $router */
+        $router = $container->get(RouterInterface::class);
 
         $request = $container->get(ServerRequestInterface::class);
-        $response = $container->get(ResponseInterface::class);
+        $baseResponse = $container->get(ResponseInterface::class);
 
-        $router->handle($request, $response)->emit();
+        $response = $router->handle($request, $baseResponse);
+
+        /** @var Emitter $emitter */
+        $emitter = $container->get(Emitter::class);
+        $emitter->emit($response);
     }
     
     
@@ -171,7 +162,7 @@ class App
      * 
      * @param string|mixed $message
      */
-    public static function debug($message)
+    public static function debug($message): void
     {
         if (!(self::config()->debug ?? false)) {
             return;
@@ -181,7 +172,7 @@ class App
             $message = json_encode($message, JSON_PRETTY_PRINT);
         }
 
-        if (self::env('tests')) {
+        if ((bool)self::env('tests')) {
             Codeception\Util\Debug::debug($message);
             return;
         }

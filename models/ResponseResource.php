@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Jasny\ValidationResult;
 
@@ -49,6 +49,7 @@ class ResponseResource extends ExternalResource
             $values = array_without($identity->getValues(), ['privileges', 'timestamp']);
 
             foreach ($values as $key => $value) {
+                /** @noinspection PhpVariableVariableInspection */
                 $this->actor->$key = $value;
             }
         }
@@ -69,7 +70,7 @@ class ResponseResource extends ExternalResource
             $validation->addError("process id not set");
         }
 
-        // FIXME needs to work for multiple identities with same system signkey
+        // FIXME: needs to work for multiple identities with same system signkey
         /*if (isset($this->actor->id) && $this->actor->id !== $this->identity->id) {
             $validation->addError("actor '%s' is assigned to identity '%s', not '%s'", $this->actor->key,
                 $this->actor->id, $this->identity->id);

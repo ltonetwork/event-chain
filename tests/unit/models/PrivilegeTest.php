@@ -188,7 +188,7 @@ class PrivilegeTest extends \Codeception\Test\Unit
     
     public function testCreateFromResource()
     {
-        $resource = $this->createMock(Resource::class);
+        $resource = $this->createMock(ResourceInterface::class);
         $resource->schema = "http://example.com/foo/schema.json#";
         
         $privilege = Privilege::create($resource);

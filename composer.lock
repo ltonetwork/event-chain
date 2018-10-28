@@ -431,16 +431,16 @@
         },
         {
             "name": "jasny/autowire",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jasny/autowire.git",
-                "reference": "7d347d0bb873343e79c634c88b54b74a512fde36"
+                "reference": "0539e53210b6452781d16eb278c7d526d9cc2bc2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasny/autowire/zipball/7d347d0bb873343e79c634c88b54b74a512fde36",
-                "reference": "7d347d0bb873343e79c634c88b54b74a512fde36",
+                "url": "https://api.github.com/repos/jasny/autowire/zipball/0539e53210b6452781d16eb278c7d526d9cc2bc2",
+                "reference": "0539e53210b6452781d16eb278c7d526d9cc2bc2",
                 "shasum": ""
             },
             "require": {
@@ -469,7 +469,7 @@
                 }
             ],
             "description": "Autowiring for PSR-11 containers",
-            "time": "2018-09-04T18:44:07+00:00"
+            "time": "2018-10-28T13:23:42+00:00"
         },
         {
             "name": "jasny/config",
@@ -531,20 +531,21 @@
         },
         {
             "name": "jasny/container",
-            "version": "v1.1.0",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jasny/container.git",
-                "reference": "aa3af073ec8b9f697b1ea9b8ba81e154012a8e7e"
+                "reference": "5ad1e8d946efdbe9e1555d723ef3a32414084738"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasny/container/zipball/aa3af073ec8b9f697b1ea9b8ba81e154012a8e7e",
-                "reference": "aa3af073ec8b9f697b1ea9b8ba81e154012a8e7e",
+                "url": "https://api.github.com/repos/jasny/container/zipball/5ad1e8d946efdbe9e1555d723ef3a32414084738",
+                "reference": "5ad1e8d946efdbe9e1555d723ef3a32414084738",
                 "shasum": ""
             },
             "require": {
                 "container-interop/container-interop": "~1.2",
+                "ext-ctype": "*",
                 "jasny/php-functions": "^2.3|^3.1",
                 "php": ">=7.1.0",
                 "psr/container": "^1.0"
@@ -582,7 +583,7 @@
                 "dependency injection",
                 "di"
             ],
-            "time": "2018-09-04T19:26:23+00:00"
+            "time": "2018-10-28T14:54:16+00:00"
         },
         {
             "name": "jasny/controller",

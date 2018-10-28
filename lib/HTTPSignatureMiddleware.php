@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Psr\Http\Message\ServerRequestInterface as ServerRequest;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -39,7 +39,7 @@ class HTTPSignatureMiddleware
     public function __construct(AccountFactory $accountFactory, ?string $baseRewrite = null)
     {
         $this->accountFactory = $accountFactory;
-        $this->baseRewrite = $baseRewrite;
+        $this->baseRewrite = $baseRewrite ?? '';
     }
 
 
@@ -105,7 +105,7 @@ class HTTPSignatureMiddleware
      *
      * @todo Check headers on POST request. This has been disabled, because of issues on the client.
      *
-     * @param RequestInterface $request
+     * @param ServerRequest $request
      * @return array
      */
     protected function getRequiredHeaders(ServerRequest $request): array
@@ -136,7 +136,7 @@ class HTTPSignatureMiddleware
      */
     protected function baseRewrite(ServerRequest $request): ServerRequest
     {
-        if (!empty($this->baseRewrite)) {
+        if ($this->baseRewrite !== '') {
             $uri = $request->getUri();
             $newUri = $uri->withPath($this->baseRewrite . $uri->getPath());
             $request = $request->withUri($newUri);

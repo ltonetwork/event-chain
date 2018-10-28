@@ -1,12 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 use Jasny\DB\Entity\Identifiable;
 use Jasny\DB\Entity\Dynamic;
+use function Jasny\str_before;
 
 /**
  * A resource that is stored on an another system
  */
-class ExternalResource implements Resource, Identifiable, Dynamic
+class ExternalResource implements ResourceInterface, Identifiable, Dynamic
 {
     use ResourceBase {
         fromEvent as private fromEventBase;
@@ -62,7 +63,7 @@ class ExternalResource implements Resource, Identifiable, Dynamic
         $hash = hash('sha256', $body, true);
         $version = substr(base58_encode($hash), 0, 8);
         
-        $this->id = jasny\str_before($this->id, '?') . '?v=' . $version;
+        $this->id = str_before($this->id, '?') . '?v=' . $version;
         
         return $this;
     }

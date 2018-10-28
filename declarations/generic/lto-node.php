@@ -1,13 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 
 use Jasny\ApplicationEnv;
+use Jasny\Config;
 use Psr\Container\ContainerInterface;
 use LTO\AccountFactory;
 use function Jasny\arrayify;
 
 return [
     'node.account' => function(ContainerInterface $container) {
-        /** @var $factory AccountFactory */
+        /** @var AccountFactory $factory */
         $factory = $container->get(AccountFactory::class);
 
         $accountSeed = getenv('LTO_ACCOUNT_SEED_BASE58');

@@ -1,9 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 use Jasny\DB\Mongo;
-use Jasny\DB\Entity;
-use Jasny\DB\Data;
 use Jasny\DB\Entity\Enrichable;
+use MongoDB\BSON\ObjectId;
 
 /**
  * Base class for Mongo Documents.
@@ -18,17 +17,7 @@ abstract class MongoDocument extends Mongo\Document implements Enrichable
      */
     public function __construct()
     {
-        $this->cast();
-    }
-    
-    /**
-     * Cast properties
-     * 
-     * @return $this
-     */
-    public function cast()
-    {
-        return parent::cast();
+        parent::__construct();
     }
     
     /**
@@ -47,55 +36,15 @@ abstract class MongoDocument extends Mongo\Document implements Enrichable
 
     /**
      * Create entity
-     * 
+     *
+     * @param mixed ...$args
      * @return static
      */
     public static function create(...$args)
     {
         return new static(...$args);
     }
-    
-    /**
-     * Cast to data.
-     * Overwrite to support snapshot.
-     * 
-     * @return array
-     */
-    public function toData()
-    {
-        $values = call_user_func('get_object_vars', $this); // `call_user_func` is used to only get public properties
-        $meta = static::meta();
-        
-        foreach ($values as $property => &$item) {
-            if ($item instanceof Entity\Identifiable && !$meta->ofProperty($property)['snapshot']) {
-                $item = static::childEntityToId($item);
-            } elseif (
-                $item instanceof EntitySet &&
-                is_a($item->getEntityClass(), Entity\Identifiable::class, true) &&
-                !$meta->ofProperty($property)['snapshot']
-            ) {
-                $item = array_map(function($child) {
-                    return static::childEntityToId($child);
-                }, $item);
-            } elseif ($item instanceof Data) {
-                $item = $item->toData();
-            }
-        }
-        
-        if ($this instanceof Sorted && method_exists($this, 'prepareDataForSort')) {
-            $values += static::prepareDataForSort($this);
-        }
 
-        $casted = static::castForDB($values);
-        $data = static::mapToFields($casted);
-        
-        if (array_key_exists('_id', $data) && is_null($data['_id'])) {
-            unset($data['_id']);
-        }
-        
-        return $data;
-    }
-    
     /**
      * Get the persisted value of a field
      * 
@@ -110,11 +59,11 @@ abstract class MongoDocument extends Mongo\Document implements Enrichable
     /**
      * Check if a string is a valid MongoId
      * 
-     * @param string $id
+     * @param ObjectId|string $id
      * @return boolean
      */
     public static function isValidMongoId($id)
     {
-        return $id instanceof MongoId || (is_string($id) && strlen($id) === 24 && ctype_xdigit($id));
+        return $id instanceof ObjectId || (is_string($id) && strlen($id) === 24 && ctype_xdigit($id));
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Controller for processing new events.
@@ -9,13 +9,13 @@ class EventController extends Jasny\Controller
 
     /**
      * Data gateway to fetch/save event chains from/to the database.
-     * @var Gateway
+     * @var EventChainGateway
      */
     protected $eventChains;
 
     /**
      * Interact with (external) event dispatcher service.
-     * @var Dispatcher
+     * @var DispatcherManager
      */
     protected $dispatcher;
 
@@ -29,11 +29,11 @@ class EventController extends Jasny\Controller
     /**
      * Class constructor
      *
-     * @param Gateway      $eventChainGateway  "models.event_chains"
-     * @param Dispatcher   $dispatcher
-     * @param EventManager $eventManager
+     * @param EventChainGateway $eventChainGateway  "models.event_chains"
+     * @param DispatcherManager $dispatcher
+     * @param EventManager      $eventManager
      */
-    public function __construct(Gateway $eventChainGateway, Dispatcher $dispatcher, EventManager $eventManager)
+    public function __construct(Gateway $eventChainGateway, DispatcherManager $dispatcher, EventManager $eventManager)
     {
         $this->eventChains = $eventChainGateway;
         $this->dispatcher = $dispatcher;
@@ -43,7 +43,7 @@ class EventController extends Jasny\Controller
     /**
      * Before each action
      */
-    public function before()
+    public function before(): void
     {
         $this->byDefaultSerializeTo('json');
     }
@@ -52,7 +52,7 @@ class EventController extends Jasny\Controller
     /**
      * Add the chain to the queue.
      */
-    public function queueAction()
+    public function queueAction(): void
     {
         $newChain = $this->createChainFromInput();
 
@@ -70,13 +70,13 @@ class EventController extends Jasny\Controller
 
         $this->dispatcher->queueToSelf($newChain);
 
-        return $this->noContent();
+        $this->noContent();
     }
 
     /**
      * Add a new chain or new events to an existing chain.
      */
-    public function processAction()
+    public function processAction(): void
     {
         $newChain = $this->createChainFromInput();
 
@@ -93,20 +93,20 @@ class EventController extends Jasny\Controller
         $handled = $this->manager->with($chain)->add($newChain);
 
         if ($handled->failed()) {
-            return $this->badRequest($handled->getErrors());
+            $this->badRequest((string)json_encode($handled->getErrors()));
+            return;
         }
 
         $this->output($chain, 'json');
-        return $this->ok();
     }
 
 
     /**
      * Create a new chain from input data.
      *
-     * @return EventChain
+     * @return EventChain|null
      */
-    protected function createChainFromInput(): EventChain
+    protected function createChainFromInput(): ?EventChain
     {
         $data = $this->getInput();
 
@@ -114,7 +114,8 @@ class EventController extends Jasny\Controller
         $validation = $newChain->validate();
 
         if ($validation->failed()) {
-            return $this->badRequest($validation->getErrors());
+            $this->badRequest((string)json_encode($validation->getErrors()));
+            return null;
         }
 
         return $newChain;
@@ -130,7 +131,7 @@ class EventController extends Jasny\Controller
         $node = $this->dispatcher->getNode();
         $lastEvent = $newChain->getLastEvent();
 
-        $signedByUs = empty($chain->getNodes()) || $chain->isEventSignedByIdentityNode($lastEvent, $node);
+        $signedByUs = $chain->getNodes() === [] || $chain->isEventSignedByIdentityNode($lastEvent, $node);
 
         if (!$signedByUs) {
             $this->forbidden('Not allowed to send to this node from given origin');

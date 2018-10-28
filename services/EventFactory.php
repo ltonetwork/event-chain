@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use LTO\Account;
 
@@ -40,15 +40,15 @@ class EventFactory
      * @param Event[]         $events  The events that failed and haven't been processed yet
      * @return Event
      */
-    public function createErrorEvent($reason, $events): Event
+    public function createErrorEvent($reason, array $events): Event
     {
         $message = is_string($reason) ? [$reason] : $reason;
         $body = compact($message, $events);
         
-        $previous = !empty($events) ? $events[0]->previous : null;
+        $previous = $events !== [] ? $events[0]->previous : null;
         $event = new LTO\Event($body, $previous);
         $event->signWith($this->node);
         
-        return (new Event())->setValues($event);
+        return (new Event)->setValues($event);
     }
 }

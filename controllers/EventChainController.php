@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use LTO\Account;
 
@@ -11,7 +11,7 @@ class EventChainController extends Jasny\Controller
     use Jasny\Controller\RouteAction;
 
     /**
-     * @var Gateway
+     * @var EventChainGateway
      */
     protected $eventChains;
 
@@ -24,9 +24,9 @@ class EventChainController extends Jasny\Controller
     /**
      * EventChainController constructor.
      *
-     * @param Gateway $eventChainGateway  "models.event-chains"
+     * @param EventChainGateway $eventChainGateway  "models.event-chains"
      */
-    public function __construct(Gateway $eventChainGateway)
+    public function __construct(EventChainGateway $eventChainGateway)
     {
         $this->eventChains = $eventChainGateway;
     }
@@ -34,7 +34,7 @@ class EventChainController extends Jasny\Controller
     /**
      * Before each action
      */
-    public function before()
+    public function before(): void
     {
         $this->byDefaultSerializeTo('json');
 
@@ -51,7 +51,7 @@ class EventChainController extends Jasny\Controller
     /**
      * List all the event chains the authorized user is an identity in.
      */
-    public function listAction()
+    public function listAction(): void
     {
         $eventChains = $this->eventChains->fetchAll([
             'identities.signkeys.user' => $this->account->getPublicSignKey()
@@ -65,7 +65,7 @@ class EventChainController extends Jasny\Controller
      * 
      * @param string $id
      */
-    public function getAction($id)
+    public function getAction($id): void
     {
         $eventChain = $this->eventChains->fetch([
             'id' => $id,
@@ -73,7 +73,8 @@ class EventChainController extends Jasny\Controller
         ]);
         
         if (!isset($eventChain)) {
-            return $this->notFound("Event not found");
+            $this->notFound("Event not found");
+            return;
         }
 
         $this->output($eventChain, 'json');
@@ -84,7 +85,7 @@ class EventChainController extends Jasny\Controller
      *
      * @param string $id
      */
-    public function deleteAction($id)
+    public function deleteAction($id): void
     {
         $eventChain = $this->eventChains->fetch([
             'id' => $id,

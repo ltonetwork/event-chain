@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Receipt.
@@ -6,5 +6,8 @@
  */
 class Receipt extends MongoSubDocument
 {
+    /**
+     * @var string
+     */
     public $targetHash;
 }

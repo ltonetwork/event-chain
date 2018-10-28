@@ -1,11 +1,19 @@
 parameters:
-    level: 7
+    level: 4
     paths:
         - controllers
         - declarations
         - lib
         - models
         - services
+    checkAlwaysTrueCheckTypeFunctionCall: false
+    checkAlwaysTrueInstanceof: false
+    checkAlwaysTrueStrictComparison: false
+    ignoreErrors:
+        - "/Function base58_\\w+ invoked with 1 parameter, 0 required/"
+        - "/Call to function is_\\w++\\(\\) with .+? will always evaluate to false/"
+        - "/Casting to .+? something that's already .+?/"
 
 includes:
   	- vendor/phpstan/phpstan-strict-rules/rules.neon
+

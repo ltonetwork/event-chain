@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 use Jasny\DB\Entity;
 
 /**
- * Resource base class
+ * ResourceInterface base class
  */
 trait ResourceBase
 {
@@ -46,7 +46,7 @@ trait ResourceBase
         
         return $this->metaCast();
     }
-    
+
     /**
      * Set the values of the resource
      * 
@@ -75,8 +75,9 @@ trait ResourceBase
      * 
      * @return array
      */
-    public function getValues()
+    public function getValues(): array
     {
+        /** @var array $values  Bug in Jasny DB */
         $values = $this->getUnredactedValues();
         
         foreach (array_keys($values) as $property) {
@@ -93,7 +94,17 @@ trait ResourceBase
         
         return $values;
     }
-    
+
+    /**
+     * Get the resource JSONSchema declaration.
+     *
+     * @return string
+     */
+    public function getSchema(): string
+    {
+        return $this->schema;
+    }
+
     /**
      * Apply privilege, removing properties if needed.
      * 
@@ -123,7 +134,7 @@ trait ResourceBase
      */
     public function setIdentity(Identity $identity): self
     {
-        if (property_exists(get_class($this), 'identity')) {
+        if (property_exists($this, 'identity')) {
             $this->identity = $identity;
         }
         

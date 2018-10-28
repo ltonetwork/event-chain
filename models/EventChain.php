@@ -1,9 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
+use Jasny\DB\EntitySet;
 use Jasny\DB\Entity\Identifiable;
 use Jasny\ValidationResult;
 use kornrunner\Keccak;
 use LTO\Account;
+use function Jasny\str_before;
 
 /**
  * EventChain entity
@@ -20,32 +22,46 @@ class EventChain extends MongoDocument
     
     /**
      * List of event
-     * @var Event[]|Jasny\DB\EntitySet
+     * @var EntitySet|iterable<Event>
      * @snapshot
      */
-    public $events = [];
+    public $events;
     
     /**
      * Projected identities
-     * @var Identity[]|IdentitySet
+     * @var IdentitySet|iterable<Identity>
      * @snapshot
      */
-    public $identities = [];
+    public $identities;
 
     /**
      * Projected comments
-     * @var Comment[]|Jasny\DB\EntitySet
+     * @var EntitySet|iterable<Comment>
      * @snapshot
      */
-    public $comments = [];
+    public $comments;
     
     /**
      * Resources that are part of this chain
-     * @var array
+     * @var EntitySet|iterable<ResourceInterface>
      */
-    public $resources = [];
-    
-    
+    public $resources;
+
+
+    /**
+     * Class constructor.
+     */
+    public function __construct()
+    {
+        $this->events = $this->events ?? EntitySet::forClass(Event::class);
+        $this->identities = new IdentitySet();
+        $this->comments = $this->events ?? EntitySet::forClass(Comment::class);
+        $this->resources = $this->events ?? EntitySet::forClass(ResourceInterface::class);
+
+        parent::__construct();
+    }
+
+
     /**
      * Get the initial hash which is based on the event chain id.
      * 
@@ -80,7 +96,7 @@ class EventChain extends MongoDocument
         if (count($this->events) === 0) {
             throw new UnderflowException("chain has no events");
         }
-        
+
         return $this->events[0];
     }
     
@@ -107,13 +123,13 @@ class EventChain extends MongoDocument
      */
     public function getNodes(): array
     {
-        return $this->identities ? $this->identities->node : [];
+        return isset($this->identities) ? $this->identities->__get('node') : [];
     }
     
     /**
      * Get the nodes of the identities matching system sign key
      * 
-     * @param $signKey
+     * @param string $signKey
      * @return string[]
      */
     public function getNodesForSystem(string $signKey): array
@@ -159,7 +175,7 @@ class EventChain extends MongoDocument
     {
         $nodes = array_merge($this->getNodesForUser($signKey), $this->getNodesForSystem($signKey));
 
-        return in_array($node, $nodes);
+        return in_array($node, $nodes, true);
     }
 
     /**
@@ -212,7 +228,7 @@ class EventChain extends MongoDocument
      */
     public function isEventSignedByIdentityNode(Event $event, ?string $node = null): bool
     {
-        $node = isset($node) ? $node : $event->origin;
+        $node = $node ?? $event->origin;
 
         return isset($node) && $this->hasNodesForUserAndSystem($event->signkey, $node);
     }
@@ -255,7 +271,7 @@ class EventChain extends MongoDocument
         $firstEvent = $this->getFirstEvent();
         
         $signkey = base58_decode($firstEvent->signkey);
-        $signkeyHashed = substr(Keccak::hash(sodium_crypto_generichash($signkey, null, 32), 256), 0, 40);
+        $signkeyHashed = substr(Keccak::hash(sodium_crypto_generichash($signkey, '', 32), 256), 0, 40);
         
         $vars = unpack('Cversion/H40nonce/H40keyhash/H8checksum', $decodedId);
         
@@ -384,9 +400,9 @@ class EventChain extends MongoDocument
     /**
      * Register that a resource is used in this chain
      * 
-     * @param Resource $resource
+     * @param ResourceInterface $resource
      */
-    public function registerResource(Resource $resource): void
+    public function registerResource(ResourceInterface $resource): void
     {
         if ($resource instanceof Identity) {
             $this->identities->set($resource);
@@ -399,9 +415,9 @@ class EventChain extends MongoDocument
         }
         
         if ($resource instanceof Identifiable) {
-            $id = jasny\str_before($resource->getId(), '?'); // No (version) arguments
+            $id = str_before($resource->getId(), '?'); // No (version) arguments
 
-            if (!in_array($id, $this->resources)) {
+            if (!in_array($id, $this->resources, true)) {
                 $this->resources[] = $id;
             }
         }

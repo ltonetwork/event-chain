@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * Initialize how global errors are being handled.
@@ -7,20 +7,22 @@
  */
 
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use Jasny\ErrorHandler;
 use Jasny\ErrorHandlerInterface;
 use Monolog\Logger;
 use Monolog\Handler\ErrorLogHandler;
+use function Jasny\expect_type;
 
 return function (ContainerInterface $container) {
-    /* @var $logger stdClass */
+    /* @var stdClass $logger */
     $config = $container->get('config');
 
-    /* @var $logger Logger */
-    $logger = $container->get('logger');
+    /* @var Logger $logger */
+    $logger = $container->get(LoggerInterface::class);
+    expect_type($logger, Logger::class);
 
-
-    if (!empty($config->debug)) {
+    if ((bool)($config->debug ?? false)) {
         error_reporting(E_ALL & ~E_STRICT);
 
         $display_errors = isset($config->display_errors)
@@ -40,7 +42,7 @@ return function (ContainerInterface $container) {
     }, false);
 
 
-    if (!ini_get('display_errors') && !$stdlog) {
+    if (!(bool)ini_get('display_errors') && !$stdlog) {
         $errorHandler = $container->get(ErrorHandlerInterface::class);
 
         $errorHandler->setLogger($logger);

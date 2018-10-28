@@ -1,11 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
 use Jasny\DB\Entity\Identifiable;
+use Jasny\DB\EntitySet;
 
 /**
  * Identity entity
  */
-class Identity extends MongoSubDocument implements Resource, Identifiable
+class Identity extends MongoSubDocument implements ResourceInterface, Identifiable
 {
     use ResourceBase;
     
@@ -55,7 +56,7 @@ class Identity extends MongoSubDocument implements Resource, Identifiable
     
     /**
      * Privileges
-     * @var Privilege[]|EntitySet
+     * @var EntitySet&iterable<Privilege>
      */
     public $privileges;
     

@@ -281,7 +281,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $eventSet = $this->createMock(Jasny\DB\EntitySet::class);
         $eventSet->expects($this->once())->method('add')->with($event);
         
-        $resource = $this->createMock(Resource::class);
+        $resource = $this->createMock(ResourceInterface::class);
         $resource->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
         
         $chain = $this->createMock(EventChain::class);
@@ -314,7 +314,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $eventSet = $this->createMock(Jasny\DB\EntitySet::class);
         $eventSet->expects($this->once())->method('add')->with($event);
         
-        $resource = $this->createMock(Resource::class);
+        $resource = $this->createMock(ResourceInterface::class);
         $resource->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
         
         $chain = $this->createMock(EventChain::class);
@@ -358,7 +358,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $eventSet = $this->createMock(Jasny\DB\EntitySet::class);
         $eventSet->expects($this->never())->method('add');
         
-        $resource = $this->createMock(Resource::class);
+        $resource = $this->createMock(ResourceInterface::class);
         $resource->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
         
         $chain = $this->createMock(EventChain::class);
@@ -471,7 +471,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $privileges = [ $this->createMock(Privilege::class) ];
         $privilege = $this->createMock(Privilege::class); // consolidated
         
-        $resource = $this->createMock(Resource::class);
+        $resource = $this->createMock(ResourceInterface::class);
         $resource->schema = "http://example.com/foo/schema.json#";
         $resource->expects($this->once())->method('applyPrivilege')->with($this->identicalTo($privilege));
         $resource->expects($this->once())->method('setIdentity')->with($this->identicalTo($identity));
@@ -526,7 +526,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $event = $this->createMockEvents()[0];
         $event->signkey = "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj";
         
-        $resource = $this->createMock(Resource::class);
+        $resource = $this->createMock(ResourceInterface::class);
         $resource->schema = "http://example.com/foo/schema.json#";
         $resource->expects($this->never())->method('applyPrivilege');
         $resource->expects($this->never())->method('setIdentity');
@@ -553,7 +553,7 @@ class EventManagerTest extends \Codeception\Test\Unit
     {
         $chain = $this->createMock(EventChain::class);
         
-        $resource = $this->createMock(Resource::class);
+        $resource = $this->createMock(ResourceInterface::class);
         $resource->schema = "http://example.com/foo/schema.json#";
         
         $privileges = [ $this->createMock(Privilege::class) ];

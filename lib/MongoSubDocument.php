@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Jasny\DB\BasicEntity;
 use Jasny\DB\Entity\ChangeAware;
@@ -38,7 +38,8 @@ class MongoSubDocument extends BasicEntity implements ChangeAware, Meta, Validat
     
     /**
      * Create entity
-     * 
+     *
+     * @param mixed ...$args
      * @return static
      */
     public static function create(...$args)
