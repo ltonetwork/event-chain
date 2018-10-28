@@ -63,7 +63,7 @@ class EventChain extends MongoDocument
 
     /**
      * Get the initial hash which is based on the event chain id.
-     * 
+     *
      * @return string
      */
     public function getInitialHash(): string
@@ -76,7 +76,7 @@ class EventChain extends MongoDocument
     /**
      * Get the latest hash.
      * Expecting a new event to use this as previous property.
-     * 
+     *
      * @return string
      */
     public function getLatestHash(): string
@@ -86,7 +86,7 @@ class EventChain extends MongoDocument
     
     /**
      * Get the first event of the chain.
-     * 
+     *
      * @return Event
      * @throws UnderflowException
      */
@@ -101,7 +101,7 @@ class EventChain extends MongoDocument
     
     /**
      * Get the last event of the chain.
-     * 
+     *
      * @return Event
      * @throws UnderflowException
      */
@@ -117,7 +117,7 @@ class EventChain extends MongoDocument
     
     /**
      * Get the nodes of the identities
-     * 
+     *
      * @return string[]
      */
     public function getNodes(): array
@@ -127,7 +127,7 @@ class EventChain extends MongoDocument
     
     /**
      * Get the nodes of the identities matching system sign key
-     * 
+     *
      * @param string $signKey
      * @return string[]
      */
@@ -135,7 +135,7 @@ class EventChain extends MongoDocument
     {
         $nodes = [];
         
-        foreach($this->identities as $identity) {
+        foreach ($this->identities as $identity) {
             if (isset($identity->signkeys['system']) && $identity->signkeys['system'] == $signKey) {
                 $nodes[] = $identity->node;
             }
@@ -146,7 +146,7 @@ class EventChain extends MongoDocument
 
     /**
      * Get the nodes of the identities matching user sign key
-     * 
+     *
      * @param string $signKey
      * @return string[]
      */
@@ -154,7 +154,7 @@ class EventChain extends MongoDocument
     {
         $nodes = [];
         
-        foreach($this->identities as $identity) {
+        foreach ($this->identities as $identity) {
             if (isset($identity->signkeys['user']) && $identity->signkeys['user'] == $signKey) {
                 $nodes[] = $identity->node;
             }
@@ -186,7 +186,7 @@ class EventChain extends MongoDocument
      */
     public function hasSystemKeyForIdentity(string $userSignKey, string $nodeSignKey): bool
     {
-        foreach($this->identities as $identity) {
+        foreach ($this->identities as $identity) {
             if (isset($identity->signkeys['user']) && $identity->signkeys['user'] == $userSignKey &&
                 isset($identity->signkeys['system']) && $identity->signkeys['system'] == $nodeSignKey) {
                 return true;
@@ -235,7 +235,7 @@ class EventChain extends MongoDocument
     
     /**
      * Check if this chain has the genisis event or is empty.
-     * 
+     *
      * @return bool
      */
     public function isPartial(): bool
@@ -245,7 +245,7 @@ class EventChain extends MongoDocument
     
     /**
      * Check if the chain has events.
-     * 
+     *
      * @return bool
      */
     public function isEmpty(): bool
@@ -256,7 +256,7 @@ class EventChain extends MongoDocument
     
     /**
      * Check if id is valid
-     * 
+     *
      * @return bool
      */
     public function isValidId(): bool
@@ -282,7 +282,7 @@ class EventChain extends MongoDocument
     
     /**
      * Validate the chain
-     * 
+     *
      * @return ValidationResult
      */
     public function validate(): ValidationResult
@@ -291,7 +291,7 @@ class EventChain extends MongoDocument
         
         if (count($this->events) === 0) {
             $validation->addError('no events');
-        } else if ($this->getFirstEvent()->previous === $this->getInitialHash() && !$this->isValidId()) {
+        } elseif ($this->getFirstEvent()->previous === $this->getInitialHash() && !$this->isValidId()) {
             $validation->addError('invalid id');
         }
         
@@ -302,7 +302,7 @@ class EventChain extends MongoDocument
     
     /**
      * Validate chain integrity
-     * 
+     *
      * @return ValidationResult
      */
     protected function validateIntegrity(): ValidationResult
@@ -314,7 +314,9 @@ class EventChain extends MongoDocument
             if (isset($previous) && $event->previous !== $previous) {
                 $validation->addError(
                     "broken chain; previous of '%s' is '%s', expected '%s'",
-                    $event->hash, $event->previous, $previous
+                    $event->hash,
+                    $event->previous,
+                    $previous
                 );
             }
             
@@ -326,7 +328,7 @@ class EventChain extends MongoDocument
     
     /**
      * Return an event chain without any events
-     * 
+     *
      * @return static
      */
     public function withoutEvents(): self
@@ -339,7 +341,7 @@ class EventChain extends MongoDocument
 
     /**
      * Return an event chain with the given events
-     * 
+     *
      * @param Event[] $events
      * @return static
      */
@@ -354,7 +356,7 @@ class EventChain extends MongoDocument
     
     /**
      * Get all events that follow the specified event.
-     * 
+     *
      * @param string $hash
      * @return Event[]
      * @throws OutOfBoundsException if event can't be found
@@ -387,7 +389,7 @@ class EventChain extends MongoDocument
     
     /**
      * Get a partial chain consisting of all events that follow the specified event.
-     * 
+     *
      * @param string $hash
      * @return EventChain
      * @throws OutOfBoundsException if event can't be found
@@ -401,7 +403,7 @@ class EventChain extends MongoDocument
     
     /**
      * Register that a resource is used in this chain
-     * 
+     *
      * @param ResourceInterface $resource
      */
     public function registerResource(ResourceInterface $resource): void

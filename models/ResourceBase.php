@@ -20,7 +20,7 @@ trait ResourceBase
     
     /**
      * JSONSchema uri
-     * 
+     *
      * @var string
      */
     public $schema;
@@ -35,7 +35,7 @@ trait ResourceBase
     /**
      * Cast properties
      * @codeCoverageIgnore
-     * 
+     *
      * @return $this
      */
     public function cast()
@@ -49,7 +49,7 @@ trait ResourceBase
 
     /**
      * Set the values of the resource
-     * 
+     *
      * @param array|object $values
      * @return $this
      */
@@ -72,7 +72,7 @@ trait ResourceBase
     
     /**
      * Get (filtered) values of the resource
-     * 
+     *
      * @return array
      */
     public function getValues(): array
@@ -107,7 +107,7 @@ trait ResourceBase
 
     /**
      * Apply privilege, removing properties if needed.
-     * 
+     *
      * @param Privilege $privilege
      * @return $this
      */
@@ -128,7 +128,7 @@ trait ResourceBase
     
     /**
      * Set the identity that created this (version of the) resource
-     * 
+     *
      * @param Identity $identity
      * @return $this
      */
@@ -143,7 +143,7 @@ trait ResourceBase
 
     /**
      * Extract a resource from an event
-     * 
+     *
      * @param Event $event
      * @return static
      */
@@ -161,7 +161,7 @@ trait ResourceBase
     
     /**
      * JSON Serialize
-     * 
+     *
      * @return object
      */
     public function jsonSerializeFilterSchema(stdClass $object)

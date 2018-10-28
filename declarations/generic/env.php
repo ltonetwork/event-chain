@@ -10,7 +10,7 @@ return [
     ApplicationEnv::class => function () {
         return new ApplicationEnv(getenv('APPLICATION_ENV') ?: 'dev');
     },
-    'app.env' => function(ContainerInterface $container) {
+    'app.env' => function (ContainerInterface $container) {
         return $container->get(ApplicationEnv::class);
     }
 ];

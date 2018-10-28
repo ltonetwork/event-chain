@@ -49,7 +49,7 @@ class EventManager
     
     /**
      * Class constructor
-     * 
+     *
      * @param ResourceFactory   $resourceFactory
      * @param ResourceStorage   $resourceStorage
      * @param DispatcherManager $dispatcher
@@ -62,8 +62,7 @@ class EventManager
         DispatcherManager $dispatcher,
         EventFactory $eventFactory,
         AnchorClient $anchor
-    )
-    {
+    ) {
         $this->resourceFactory = $resourceFactory;
         $this->resourceStorage = $resourceStorage;
         $this->dispatcher = $dispatcher;
@@ -112,7 +111,7 @@ class EventManager
 
     /**
      * Add new events
-     * 
+     *
      * @param EventChain $newEvents
      * @return ValidationResult
      */
@@ -164,7 +163,9 @@ class EventManager
             $this->dispatch($first, $oldNodes);
         }
         
-        if ($validation->succeeded() && $this->chain->isEventSignedByAccount($this->chain->getLastEvent(), $this->node)) {
+        if ($validation->succeeded() &&
+            $this->chain->isEventSignedByAccount($this->chain->getLastEvent(), $this->node)
+        ) {
             $this->resourceStorage->done($this->chain);
         }
         
@@ -174,7 +175,7 @@ class EventManager
     
     /**
      * Add an event to the event chain.
-     * 
+     *
      * @param Event $event
      * @return ValidationResult
      */
@@ -214,7 +215,7 @@ class EventManager
     
     /**
      * Add an error event to the event chain.
-     * 
+     *
      * @param Event             $event
      * @param ValidationResult  $validation  The validation that failed
      */
@@ -273,7 +274,7 @@ class EventManager
     /**
      * Apply privilege to a resource.
      * Returns false if identity has no privileges to resource.
-     * 
+     *
      * @param ResourceInterface $resource
      * @param Event    $event
      * @return ValidationResult
@@ -303,7 +304,7 @@ class EventManager
     
     /**
      * Create a consolidated privilege from an array of privileges
-     * 
+     *
      * @param ResourceInterface    $resource
      * @param Privilege[] $privileges
      * @return Privilege
@@ -315,7 +316,7 @@ class EventManager
     
     /**
      * Send a partial or full chain to the event dispatcher service
-     * 
+     *
      * @param string   $first     The hash of the event from which the partial chain should be created
      * @param string[] $oldNodes  The old nodes of the chain before it was updated
      */

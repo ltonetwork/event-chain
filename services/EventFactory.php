@@ -15,7 +15,7 @@ class EventFactory
     
     /**
      * Class constructor
-     * 
+     *
      * @param Account $nodeAccount
      */
     public function __construct(Account $nodeAccount)
@@ -35,7 +35,7 @@ class EventFactory
     
     /**
      * Create an error event
-     * 
+     *
      * @param string|string[] $reason  The reason for failure
      * @param Event[]         $events  The events that failed and haven't been processed yet
      * @return Event

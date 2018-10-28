@@ -19,7 +19,7 @@ interface ResourceInterface extends Entity, Redactable, Meta, Validation
 
     /**
      * Apply privilege, removing properties if needed.
-     * 
+     *
      * @param Privilege $privilege
      * @return $this
      */
@@ -27,7 +27,7 @@ interface ResourceInterface extends Entity, Redactable, Meta, Validation
  
     /**
      * Set the identity that created this (version of the) resource.
-     * 
+     *
      * @param Identity $identity
      * @return $this
      */
@@ -36,7 +36,7 @@ interface ResourceInterface extends Entity, Redactable, Meta, Validation
     
     /**
      * Extract an identity from an event
-     * 
+     *
      * @param Event $event
      * @return static
      */

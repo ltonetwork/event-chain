@@ -62,7 +62,7 @@ class EventChainController extends Jasny\Controller
 
     /**
      * Output a single event chain.
-     * 
+     *
      * @param string $id
      */
     public function getAction($id): void

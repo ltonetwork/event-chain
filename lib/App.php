@@ -31,7 +31,7 @@ class App
 
     /**
      * Get the app container
-     * 
+     *
      * @return ContainerInterface
      * @throws LogicException if the container is not set yet
      */
@@ -67,7 +67,7 @@ class App
 
     /**
      * Get the application environment.
-     * 
+     *
      * @param string  $check       Only return if env matches
      * @return string|bool
      */
@@ -159,7 +159,7 @@ class App
     
     /**
      * Send a message to the configured logger.
-     * 
+     *
      * @param string|mixed $message
      */
     public static function debug($message): void

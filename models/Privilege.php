@@ -34,7 +34,7 @@ class Privilege extends MongoSubDocument
     
     /**
      * Class constructor
-     * 
+     *
      * @param string|ResourceInterface $schema
      * @param string|null              $id
      */
@@ -53,7 +53,7 @@ class Privilege extends MongoSubDocument
     
     /**
      * Check if privilege matches schema and id
-     * 
+     *
      * @param string      $schema
      * @param string|null $id
      * @return bool
@@ -67,7 +67,7 @@ class Privilege extends MongoSubDocument
     
     /**
      * Combine privileges.
-     * 
+     *
      * @param Privilege[] $privileges
      * @return $this
      */
@@ -91,7 +91,7 @@ class Privilege extends MongoSubDocument
     
     /**
      * Combine a privilege with a 'only' property
-     * 
+     *
      * @param Privilege $privilege
      * @return bool
      */
@@ -114,7 +114,7 @@ class Privilege extends MongoSubDocument
     
     /**
      * Combine a privilege with a 'not' property
-     * 
+     *
      * @param Privilege $privilege
      * @return bool
      */
@@ -136,7 +136,7 @@ class Privilege extends MongoSubDocument
     
     /**
      * Combine a privilege without limitations
-     * 
+     *
      * @return bool
      */
     protected function consolidateAll(): bool

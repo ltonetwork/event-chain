@@ -22,7 +22,7 @@ class ResourceFactory
     
     /**
      * Class constructor
-     * 
+     *
      * @param array|null $mapping  Map schema to resource class
      */
     public function __construct(?array $mapping = null)
@@ -48,7 +48,7 @@ class ResourceFactory
 
     /**
      * Extract a resource from an event.
-     * 
+     *
      * @param Event $event
      * @return ResourceInterface
      */

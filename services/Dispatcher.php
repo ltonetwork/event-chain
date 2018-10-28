@@ -18,7 +18,7 @@ class Dispatcher
     
     /**
      * Class constructor
-     * 
+     *
      * @param stdClass|array    $config
      * @param GuzzleHttp\Client $httpClient
      */
@@ -31,7 +31,7 @@ class Dispatcher
     
     /**
      * Get info about the dispatcher
-     * 
+     *
      * @return stdClass
      */
     public function info(): stdClass
@@ -50,7 +50,7 @@ class Dispatcher
 
     /**
      * Get the node url that the dispatcher is running on
-     * 
+     *
      * @return string
      */
     public function getNode(): string
@@ -61,7 +61,7 @@ class Dispatcher
     
     /**
      * Add the event to the queue of the node
-     * 
+     *
      * @param EventChain $chain
      * @param string[]   $to     If specified will send the event to the nodes in this array
      */

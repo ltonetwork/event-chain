@@ -20,7 +20,7 @@ class AnchorClient
     
     /**
      * Class constructor
-     * 
+     *
      * @param \stdClass|array $config
      * @param HttpClient      $httpClient
      */
@@ -33,7 +33,7 @@ class AnchorClient
     
     /**
      * Anchor the given hash.
-     * 
+     *
      * @param string $hash
      * @param string $encoding
      */

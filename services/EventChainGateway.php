@@ -72,4 +72,4 @@ class EventChainGateway implements Gateway
     {
         return EventChain::count($filter, $opts);
     }
-};
+}

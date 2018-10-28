@@ -19,7 +19,7 @@ return [
 
         return Yaml::parse($yaml);
     },
-    'router.middleware' => function() {
+    'router.middleware' => function () {
         $sources = glob('declarations/middleware/*.php');
 
         return array_reduce($sources, function (array $middleware, string $source) {
@@ -34,7 +34,7 @@ return [
     },
 
     ControllerFactory::class => function (AutowireContainerInterface $container) {
-        return new ControllerFactory(function(string $controllerClass) use ($container) {
+        return new ControllerFactory(function (string $controllerClass) use ($container) {
             return $container->autowire($controllerClass);
         });
     },

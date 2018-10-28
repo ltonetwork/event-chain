@@ -49,7 +49,7 @@ class MongoSubDocument extends BasicEntity implements ChangeAware, Meta, Validat
     
     /**
      * Cast all properties
-     * 
+     *
      * @return $this
      */
     public function cast()
@@ -60,7 +60,7 @@ class MongoSubDocument extends BasicEntity implements ChangeAware, Meta, Validat
     
     /**
      * Get the field map
-     * 
+     *
      * @return array
      */
     public static function getFieldMap()

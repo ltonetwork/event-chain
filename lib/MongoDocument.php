@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use Jasny\DB\Data;
+use Jasny\DB\Dataset\Sorted;
 use Jasny\DB\Entity;
 use Jasny\DB\EntitySet;
 use Jasny\DB\Mongo;
@@ -25,7 +26,7 @@ abstract class MongoDocument extends Mongo\Document implements Enrichable
     
     /**
      * Get the unmodified value of a field
-     * 
+     *
      * @param string $property
      * @return mixed
      */
@@ -50,7 +51,7 @@ abstract class MongoDocument extends Mongo\Document implements Enrichable
 
     /**
      * Get the persisted value of a field
-     * 
+     *
      * @param string $property
      * @return mixed
      */
@@ -61,7 +62,7 @@ abstract class MongoDocument extends Mongo\Document implements Enrichable
 
     /**
      * Check if a string is a valid MongoId
-     * 
+     *
      * @param ObjectId|string $id
      * @return boolean
      */
@@ -84,12 +85,11 @@ abstract class MongoDocument extends Mongo\Document implements Enrichable
         foreach ($values as $property => &$item) {
             if ($item instanceof Entity\Identifiable && !$meta->ofProperty($property)['snapshot']) {
                 $item = static::childEntityToId($item);
-            } elseif (
-                $item instanceof EntitySet &&
+            } elseif ($item instanceof EntitySet &&
                 is_a($item->getEntityClass(), Entity\Identifiable::class, true) &&
                 !$meta->ofProperty($property)['snapshot']
             ) {
-                $item = array_map(function($child) {
+                $item = array_map(function ($child) {
                     return static::childEntityToId($child);
                 }, $item);
             } elseif ($item instanceof Data) {
@@ -97,8 +97,9 @@ abstract class MongoDocument extends Mongo\Document implements Enrichable
             }
         }
 
-        if ($this instanceof Sorted && method_exists($this, 'prepareDataForSort')) {
-            $values += static::prepareDataForSort($this);
+        $class = get_class($this);
+        if ($this instanceof Sorted && is_callable([$class, 'prepareDataForSort'])) {
+            $values += $class::prepareDataForSort($this);
         }
         $casted = static::castForDB($values);
         $data = static::mapToFields($casted);

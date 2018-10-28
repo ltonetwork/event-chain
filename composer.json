@@ -50,7 +50,7 @@
             "phplint",
             "phpstan analyse",
             "codecept run",
-            "phpcs -p src"
+            "phpcs -p controllers declarations lib models services"
         ]
     },
     "config": {

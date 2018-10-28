@@ -7,7 +7,7 @@ use LTO\AccountFactory;
 use function Jasny\arrayify;
 
 return [
-    'node.account' => function(ContainerInterface $container) {
+    'node.account' => function (ContainerInterface $container) {
         /** @var AccountFactory $factory */
         $factory = $container->get(AccountFactory::class);
 

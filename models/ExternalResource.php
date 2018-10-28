@@ -34,7 +34,7 @@ class ExternalResource implements ResourceInterface, Identifiable, Dynamic
     
     /**
      * Get the identifier
-     * 
+     *
      * @return string
      */
     public function getId(): string
@@ -44,7 +44,7 @@ class ExternalResource implements ResourceInterface, Identifiable, Dynamic
     
     /**
      * Get the identifier
-     * 
+     *
      * @return string
      */
     public static function getIdProperty(): string
@@ -54,7 +54,7 @@ class ExternalResource implements ResourceInterface, Identifiable, Dynamic
     
     /**
      * Set version by hashing the body
-     * 
+     *
      * @param string $body  Base58 JSON encoded body
      * @return $this
      */
@@ -70,7 +70,7 @@ class ExternalResource implements ResourceInterface, Identifiable, Dynamic
 
     /**
      * Extract a resource from an event
-     * 
+     *
      * @param Event $event
      * @return static
      */

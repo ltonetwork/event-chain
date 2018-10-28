@@ -8,7 +8,7 @@ use Jasny\ApplicationEnv;
  * Application config
  *
  * Get's app's name, version and description from composer.json.
- * 
+ *
  * Uses the application environment to load environment specific configuration files.
  * If the configuration exists in DynamoDB, it will override the configuration from file.
  * Eg when `APPLICATION_ENV='dev.foo.bar'`, loads
@@ -25,7 +25,7 @@ class AppConfig extends Config
 {
     /**
      * Load the application settings.
-     * 
+     *
      * @param mixed $source    Application environment
      * @param array $options
      */
@@ -68,7 +68,7 @@ class AppConfig extends Config
     
     /**
      * Load configuration settings.
-     * 
+     *
      * @param ApplicationEnv $env
      * @param string         $suffix
      */
@@ -92,7 +92,9 @@ class AppConfig extends Config
      */
     protected function addEnvironmentVariables(): void
     {
-        if (!isset($this->environment_variables)) return;
+        if (!isset($this->environment_variables)) {
+            return;
+        }
         
         foreach ($this->environment_variables as $var => $key) {
             if (getenv($var) !== false) {
@@ -133,7 +135,7 @@ class AppConfig extends Config
         /** @var stdClass $settings */
         $settings = $this->db->default;
 
-         if (isset($settings->prefix)) {
+        if (isset($settings->prefix)) {
             $settings->database = $settings->prefix . $settings->database;
             unset($settings->prefix);
         }

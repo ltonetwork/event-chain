@@ -5,7 +5,7 @@ use GuzzleHttp\ClientInterface as HttpClient;
 
 /**
  * Class to store an external resource.
- * 
+ *
  * @todo sign requests
  */
 class ResourceStorage
@@ -29,7 +29,7 @@ class ResourceStorage
     
     /**
      * Class constructor
-     * 
+     *
      * @param array      $mapping     URI to URL mapping
      * @param HttpClient $httpClient
      */
@@ -41,7 +41,7 @@ class ResourceStorage
     
     /**
      * Try to get an URL from a URI
-     * 
+     *
      * @param string $uri
      * @return string|null
      */
@@ -69,7 +69,7 @@ class ResourceStorage
     
     /**
      * Check if URI has a URL
-     * 
+     *
      * @param string $uri
      * @return bool
      */
@@ -80,7 +80,7 @@ class ResourceStorage
     
     /**
      * Get an URL from a URI
-     * 
+     *
      * @param string $uri
      * @return string
      * @throws OutOfRangeException if not URL exist for the URI
@@ -99,7 +99,7 @@ class ResourceStorage
     
     /**
      * Store a resource
-     * 
+     *
      * @param ResourceInterface $resource
      */
     public function store(ResourceInterface $resource): void
@@ -136,7 +136,7 @@ class ResourceStorage
             $url = $this->getUrl($uri);
 
             $promises[] = $this->httpClient->requestAsync('POST', $url, ['json' => $data, 'http_errors' => false])
-                ->then(function(Response $response) use ($url) {
+                ->then(function (Response $response) use ($url) {
                     if ($response->getStatusCode() >= 400) {
                         $this->doneOnError($response, $url);
                     }

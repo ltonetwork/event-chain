@@ -32,7 +32,7 @@ class HTTPSignatureMiddleware
 
     /**
      * Class constructor.
-     * 
+     *
      * @param AccountFactory $accountFactory
      * @param string|null    $baseRewrite
      */
@@ -45,7 +45,7 @@ class HTTPSignatureMiddleware
 
     /**
      * Invoke middleware.
-     * 
+     *
      * @param ServerRequest  $request
      * @param Response       $response
      * @param callable       $next

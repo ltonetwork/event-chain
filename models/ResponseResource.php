@@ -22,7 +22,7 @@ class ResponseResource extends ExternalResource
     
     /**
      * Get the identifier
-     * 
+     *
      * @return string
      */
     public function getId(): string
@@ -37,7 +37,7 @@ class ResponseResource extends ExternalResource
     
     /**
      * Set the identity that created this (version of the) resource.
-     * 
+     *
      * @param Identity $identity
      * @return $this
      */
@@ -59,7 +59,7 @@ class ResponseResource extends ExternalResource
     
     /**
      * Validate the response.
-     * 
+     *
      * @return ValidationResult
      */
     public function validate(): ValidationResult
@@ -81,7 +81,7 @@ class ResponseResource extends ExternalResource
     
     /**
      * Remove identity in json output
-     * 
+     *
      * @param stdClass $object
      * @return stdClass
      */

@@ -7,7 +7,7 @@ use Jasny\Autowire\ReflectionAutowire;
 use Jasny\ReflectionFactory\ReflectionFactory;
 
 return [
-    Autowire::class => function(ContainerInterface $container) {
+    Autowire::class => function (ContainerInterface $container) {
         return new ReflectionAutowire(
             $container,
             $container->get(ReflectionFactory::class)
@@ -15,7 +15,7 @@ return [
     },
 
     // Alias for BC
-    AutowireInterface::class => function(ContainerInterface $container) {
+    AutowireInterface::class => function (ContainerInterface $container) {
         return $container->get(Autowire::class);
     }
 ];

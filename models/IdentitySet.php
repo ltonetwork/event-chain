@@ -11,7 +11,7 @@ class IdentitySet extends EntitySet
 {
     /**
      * Add or update an identity
-     * 
+     *
      * @param Identity $entity
      */
     public function set(Identity $entity): void
@@ -28,7 +28,7 @@ class IdentitySet extends EntitySet
     
     /**
      * Get a set with only identities that have specified signkey
-     * 
+     *
      * @param string $signkey
      * @return static
      */
@@ -36,7 +36,7 @@ class IdentitySet extends EntitySet
     {
         $filteredSet = clone $this;
         
-        $filteredSet->entities = array_values(array_filter($filteredSet->entities, function($entity) use ($signkey) {
+        $filteredSet->entities = array_values(array_filter($filteredSet->entities, function ($entity) use ($signkey) {
             return in_array($signkey, $entity->signkeys, true);
         }));
         
@@ -45,7 +45,7 @@ class IdentitySet extends EntitySet
     
     /**
      * Get all privileges for a resource.
-     * 
+     *
      * @param ResourceInterface $resource
      * @return Privilege[]
      */

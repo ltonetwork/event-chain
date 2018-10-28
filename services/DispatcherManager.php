@@ -26,7 +26,7 @@ class DispatcherManager
 
     /**
      * Class constructor
-     * 
+     *
      * @param Dispatcher      $dispatcher
      * @param Account         $nodeAccount
      * @param LoggerInterface $logger
@@ -52,7 +52,7 @@ class DispatcherManager
     
     /**
      * Send the event chain to the dispatcher service
-     * 
+     *
      * @param EventChain    $chain
      * @param string[]|null $nodes
      */
@@ -72,7 +72,7 @@ class DispatcherManager
     
     /**
      * Get the node url that the dispatcher is running on
-     * 
+     *
      * @return string
      */
     public function getNode(): string

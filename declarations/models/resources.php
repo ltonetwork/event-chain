@@ -4,7 +4,7 @@ use Psr\Container\ContainerInterface;
 use GuzzleHttp\ClientInterface;
 
 return [
-    ResourceFactory::class => function() {
+    ResourceFactory::class => function () {
         return new ResourceFactory();
     },
     ResourceStorage::class => function (ContainerInterface $container) {
