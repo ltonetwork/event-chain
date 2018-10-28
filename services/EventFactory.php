@@ -22,7 +22,17 @@ class EventFactory
     {
         $this->node = $nodeAccount;
     }
-    
+
+
+    /**
+     * Get the account of the node.
+     *
+     * @return Account
+     */
+    public function getNodeAccount(): Account
+    {
+        return $this->node;
+    }
     
     /**
      * Create an error event

@@ -43,13 +43,13 @@ class EventManagerTest extends \Codeception\Test\Unit
      */
     protected function createEventManager(
         EventChain $chain,
-        $methods = null,
+        ?array $methods = null,
         ResourceFactory $resourceFactory = null,
         ResourceStorage $resourceStorage = null,
         DispatcherManager $dispatcher = null,
         EventFactory $eventFactory = null,
         Account $nodeAccount = null,
-        Anchor $anchor = null
+        AnchorClient $anchor = null
     ) {
         return $this->getMockBuilder(EventManager::class)
             ->setConstructorArgs([
@@ -59,7 +59,7 @@ class EventManagerTest extends \Codeception\Test\Unit
                 $dispatcher ?: $this->createMock(DispatcherManager::class),
                 $eventFactory ?: $this->createMock(EventFactory::class),
                 $nodeAccount ?: $this->createMock(Account::class),
-                $anchor ?: $this->createMock(Anchor::class)
+                $anchor ?: $this->createMock(AnchorClient::class)
             ])
             ->setMethods($methods)
             ->getMock();
@@ -80,7 +80,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         $dispatcher = $this->createMock(DispatcherManager::class);
         $eventFactory = $this->createMock(EventFactory::class);
         $nodeAccount = $this->createMock(Account::class);
-        $anchor = $this->createMock(Anchor::class);
+        $anchor = $this->createMock(AnchorClient::class);
         
         new EventManager($chain, $resourceFactory, $resourceStorage, $dispatcher, $eventFactory, $nodeAccount, $anchor);
     }
@@ -325,7 +325,7 @@ class EventManagerTest extends \Codeception\Test\Unit
             ->with($this->identicalTo($event))
             ->willReturn(true);
         
-        $anchor = $this->createMock(Anchor::class);
+        $anchor = $this->createMock(AnchorClient::class);
         $anchor->expects($this->once())->method('hash')->with('3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj');
 
         $resourceFactory = $this->createMock(ResourceFactory::class);

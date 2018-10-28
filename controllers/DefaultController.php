@@ -1,18 +1,15 @@
 <?php
 
-use Jasny\Config;
 use Jasny\ApplicationEnv;
 use LTO\Account;
 
 /**
- * Default controller
+ * Controller that provides information about the service.
  */
 class DefaultController extends Jasny\Controller
 {
-    use Jasny\Controller\RouteAction;
-
     /**
-     * @var Config
+     * @var object
      */
     protected $config;
 
@@ -28,13 +25,13 @@ class DefaultController extends Jasny\Controller
 
 
     /**
-     * @param Config         $config  "config"
+     * @param object         $appConfig  "config:app"
      * @param ApplicationEnv $env
-     * @param Account        $node    "node.account"
+     * @param Account        $node       "node.account"
      */
-    public function __construct(Config $config, ApplicationEnv $env, Account $node)
+    public function __construct($appConfig, ApplicationEnv $env, Account $node)
     {
-        $this->config = $config;
+        $this->app = $appConfig;
         $this->env = (string)$env;
         $this->node = $node;
     }
@@ -42,12 +39,12 @@ class DefaultController extends Jasny\Controller
     /**
      * Show API info
      */
-    public function infoAction()
+    public function run()
     {
         $info = [
-            'name' => $this->config->app->name ?? '',
-            'version' => $this->config->app->version ?? '',
-            'description' => $this->config->app->description ?? '',
+            'name' => $this->app->name ?? '',
+            'version' => $this->app->version ?? '',
+            'description' => $this->app->description ?? '',
             'env' => $this->env,
             'url' => defined('BASE_URL') ? BASE_URL : null,
             'signkey' => $this->node->getPublicSignKey()

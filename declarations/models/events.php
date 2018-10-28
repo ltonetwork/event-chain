@@ -1,10 +1,14 @@
 <?php
 
 use Psr\Container\ContainerInterface;
+use Jasny\Container\AutowireContainerInterface;
 
 return [
-    'models.events.factory' => function(ContainerInterface $container) {
+    EventFactory::class => function(ContainerInterface $container) {
         $account = $container->get('node.account');
         return new EventFactory($account);
+    },
+    EventManager::class => function(AutowireContainerInterface $container) {
+        $container->autowire(EventFactory::class);
     }
 ];

@@ -1,13 +1,14 @@
 {
     "name": "legalthings/legalevents",
     "description": "Event chain service",
+    "license": "proprietary",
     "require": {
         "php": ">=7.1",
         "ext-json": "*",
         "ext-sodium": "2.*",
         "jasny/config" : "^1.1.2",
-        "jasny/db": "dev-master as 2.4.12",
-        "jasny/db-mongo" : "dev-master as 1.3.0",
+        "jasny/db": "^2.4.12",
+        "jasny/db-mongo" : "^1.3.0",
         "jasny/router": "^1.1",
         "jasny/http-message": "^1.3",
         "jasny/controller": "^1.2",
@@ -23,7 +24,8 @@
         "legalthings/base58-compat": "^0.1.0",
         "jasny/container": "^1.0",
         "jasny/application-env": "^1.0",
-        "jasny/autowire": "^1.0"
+        "jasny/autowire": "^1.0",
+        "improved/function": "dev-master as 1.0.0"
     },
     "require-dev" : {
         "jasny/php-code-quality" : "^2.0.0",
@@ -33,7 +35,9 @@
         "mikey179/vfsStream": "~1.2"
     },
     "autoload": {
-        "classmap": ["lib/", "models/", "controllers/"],
+        "psr-0": {
+            "": ["lib/", "models/", "services/", "controllers/"]
+        },
         "files": ["vendor/jasny/php-functions/global.php"]
     },
     "config": {

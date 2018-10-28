@@ -9,6 +9,10 @@ db:
     database: legalevents
 
 email:
-    from: info@legalthings.io
-    from_name: Legalthings
+  from: info@legalthings.io
+  from_name: Legalthings
 
+environment_variables:
+  MONGO_DB: db.default.client
+  MONGO_DB_PREFIX: db.default.prefix
+  ANCHOR_URL: anchor.url

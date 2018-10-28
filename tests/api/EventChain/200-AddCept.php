@@ -41,7 +41,7 @@ $data = [
     ]
 ];
 
-// Anchor
+// AnchorClient
 $I->expectHttpRequest(function (Request $request) use ($I) {
     $I->assertEquals('http://anchor/hash', (string)$request->getUri());
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
@@ -61,7 +61,7 @@ $I->expectHttpRequest(function (Request $request) use ($I) {
     return new Response(200);
 });
 
-// Anchor
+// AnchorClient
 $I->expectHttpRequest(function (Request $request) use ($I) {
     $I->assertEquals('http://anchor/hash', (string)$request->getUri());
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
@@ -81,7 +81,7 @@ $I->expectHttpRequest(function (Request $request) use ($I) {
     return new Response(200);
 });
 
-// Anchor
+// AnchorClient
 $I->expectHttpRequest(function (Request $request) use ($I) {
     $I->assertEquals('http://anchor/hash', (string)$request->getUri());
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));

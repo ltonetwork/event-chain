@@ -7,7 +7,7 @@ use GuzzleHttp\Exception\RequestException;
 use LTO\Account;
 
 /**
- * Handle new events
+ * Service to handle new events.
  */
 class EventManager
 {
@@ -42,7 +42,7 @@ class EventManager
     protected $node;
     
     /**
-     * @var Anchor
+     * @var AnchorClient
      */
     protected $anchor;
 
@@ -50,38 +50,66 @@ class EventManager
     /**
      * Class constructor
      * 
-     * @param EventChain $chain
-     * @param ResourceFactory $resourceFactory
-     * @param ResourceStorage $resourceStorage
+     * @param ResourceFactory   $resourceFactory
+     * @param ResourceStorage   $resourceStorage
      * @param DispatcherManager $dispatcher
-     * @param EventFactory $eventFactory
-     * @param Account $nodeAccount
-     * @param Anchor $anchor
-     * @throws UnexpectedValueException
+     * @param EventFactory      $eventFactory
+     * @param AnchorClient            $anchor
      */
     public function __construct(
-        EventChain $chain,
         ResourceFactory $resourceFactory,
         ResourceStorage $resourceStorage,
         DispatcherManager $dispatcher,
         EventFactory $eventFactory,
-        Account $nodeAccount,
-        Anchor $anchor
+        AnchorClient $anchor
     )
     {
-        if ($chain->isPartial()) {
-            throw new UnexpectedValueException("Event chain doesn't contain the genesis event");
-        }
-        
-        $this->chain = $chain;
         $this->resourceFactory = $resourceFactory;
         $this->resourceStorage = $resourceStorage;
         $this->dispatcher = $dispatcher;
         $this->eventFactory = $eventFactory;
-        $this->node = $nodeAccount;
+        $this->node = $eventFactory->getNodeAccount();
         $this->anchor = $anchor;
     }
-    
+
+    /**
+     * Create a manager for specified chain.
+     *
+     * @param EventChain $chain
+     * @return static
+     * @throws UnexpectedValueException for a partial chain
+     */
+    public function with(EventChain $chain): self
+    {
+        if (isset($this->chain)) {
+            throw new BadMethodCallException("Chain already set");
+        }
+
+        if ($chain->isPartial()) {
+            throw new UnexpectedValueException("Event chain doesn't contain the genesis event");
+        }
+
+        $clone = clone $this;
+        $clone->chain = $chain;
+
+        return $clone;
+    }
+
+
+    /**
+     * Assert that a chain has been set
+     *
+     * @return void
+     * @throw BadMethodCallException if no chain is set.
+     */
+    protected function assertChain(): void
+    {
+        if (!isset($this->chain)) {
+            throw new BadMethodCallException("Chain not set; use the `withChain()` method.");
+        }
+    }
+
+
     /**
      * Add new events
      * 
@@ -90,6 +118,8 @@ class EventManager
      */
     public function add(EventChain $newEvents)
     {
+        $this->assertChain();
+
         if ($this->chain->id !== $newEvents->id) {
             throw new UnexpectedValueException("Can't add events of a different chain");
         }
@@ -150,6 +180,8 @@ class EventManager
      */
     public function handleNewEvent(Event $event)
     {
+        $this->assertChain();
+
         $validation = $this->validateNewEvent($event);
 
         if ($validation->failed()) {
@@ -188,6 +220,8 @@ class EventManager
      */
     public function handleFailedEvent(Event $event, ValidationResult $validation)
     {
+        $this->assertChain();
+
         $after = $this->chain->getEventsAfter($event->previous);
         $errorEvent = $this->eventFactory->createErrorEvent($validation->getErrors(), $after);
         $this->chain->events->add($errorEvent);
@@ -246,6 +280,8 @@ class EventManager
      */
     public function applyPrivilegeToResource(Resource $resource, Event $event)
     {
+        $this->assertChain();
+
         if ($this->chain->isEmpty()) {
             return $resource instanceof Identity ?
                 ValidationResult::success() :

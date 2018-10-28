@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class to interact with event dispatcher service
+ * Class to interact with event dispatcher service.
  */
 class Dispatcher
 {

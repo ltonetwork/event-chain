@@ -6,7 +6,8 @@ use Jasny\DB\Data;
 use Jasny\DB\Entity\Enrichable;
 
 /**
- * Base class for Mongo Documents
+ * Base class for Mongo Documents.
+ * @deprecated To be replaced with the new Jasny DB layer.
  */
 abstract class MongoDocument extends Mongo\Document implements Enrichable
 {

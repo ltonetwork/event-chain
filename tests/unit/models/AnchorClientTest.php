@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @covers Anchor
+ * @covers AnchorClient
  */
-class AnchorTest extends \Codeception\Test\Unit
+class AnchorClientTest extends \Codeception\Test\Unit
 {
     use Jasny\TestHelper;
     
@@ -26,7 +26,7 @@ class AnchorTest extends \Codeception\Test\Unit
         $handler->push($history);
         $httpClient = new GuzzleHttp\Client(['handler' => $handler]);
         
-        $anchor = new Anchor($this->config, $httpClient);
+        $anchor = new AnchorClient($this->config, $httpClient);
         $anchor->hash($hash, $encoding);
         
         $this->assertCount(1, $container);
@@ -56,7 +56,7 @@ class AnchorTest extends \Codeception\Test\Unit
         $handler->push($history);
         $httpClient = new GuzzleHttp\Client(['handler' => $handler]);
         
-        $anchor = new Anchor($this->config, $httpClient);
+        $anchor = new AnchorClient($this->config, $httpClient);
         $anchor->hash($hash, $encoding);
     }
 }

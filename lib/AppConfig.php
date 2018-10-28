@@ -38,6 +38,11 @@ class AppConfig extends Config
         
         $this->addEnvironmentVariables();
         $this->addAppVersion();
+
+        if (isset($this->dynamoConfig)) {
+            $this->loadDynamoConfig();
+        }
+
         $this->addDBPrefix();
     }
 

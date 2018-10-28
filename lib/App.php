@@ -50,7 +50,6 @@ class App
     public static function setContainer(ContainerInterface $container)
     {
         self::$container = $container;
-
         self::initDB();
     }
 
@@ -124,7 +123,7 @@ class App
      */
     public static function getContainerEntries()
     {
-        $files = new ArrayIterator(glob('declarations/{services,models}/*.php', GLOB_BRACE));
+        $files = new ArrayIterator(glob('declarations/{generic,models}/*.php', GLOB_BRACE));
 
         return new EntryLoader($files);
     }

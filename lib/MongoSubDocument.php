@@ -9,6 +9,7 @@ use Jasny\DB\Mongo\Document\MetaImplementation;
 
 /**
  * Embedded document in MongoDB
+ * @deprecated To be replaced with the new Jasny DB layer.
  */
 class MongoSubDocument extends BasicEntity implements ChangeAware, Meta, Validation, FieldMapping
 {

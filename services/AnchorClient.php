@@ -3,7 +3,7 @@
 /**
  * Class to interact with anchor service
  */
-class Anchor
+class AnchorClient
 {
     /**
      * @var object
@@ -30,7 +30,7 @@ class Anchor
     
     
     /**
-     * Anchor the given hash
+     * AnchorClient the given hash
      * 
      * @param string  $hash
      * @param string  $encoding

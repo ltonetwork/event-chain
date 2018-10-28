@@ -21,7 +21,7 @@ return [
         }, []);
     },
     'router.runner' => function (ContainerInterface $container) {
-        return (new Runner())->withFactory($container->get('controller.factory'));
+        return (new Runner)->withFactory($container->get(ControllerFactory::class));
     },
 
     RoutesInterface::class => function (ContainerInterface $container) {
@@ -31,9 +31,7 @@ return [
         $router = new Router($container->get(RoutesInterface::class));
         $router->setRunner($container->get('router.runner'));
 
-        $middleware = $container->get('router.middleware');
-
-        foreach ($middleware as $fn) {
+        foreach ($container->get('router.middleware') as $fn) {
             $router->add($fn($router, $container));
         }
 

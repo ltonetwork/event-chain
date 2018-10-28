@@ -1,6 +1,12 @@
+## Public and private key pair for the node.
+##
+## This is only for the dev environment and won't work on production.
+## When deploying you must set the `LTO_ACCOUNT_SEED_BASE58` environment variable.
+---
 sign:
   secretkey: wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp
   publickey: FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y
+
 encrypt:
   secretkey: BnjFJJarge15FiqcxrB7Mzt68nseBXXR4LQ54qFBsWJN
   publickey: BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6
