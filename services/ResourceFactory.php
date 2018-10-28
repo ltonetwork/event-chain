@@ -52,7 +52,7 @@ class ResourceFactory
      * @param Event $event
      * @return Resource
      */
-    public function extractFrom(Event $event): void
+    public function extractFrom(Event $event): Resource
     {
         $body = $event->getBody();
         

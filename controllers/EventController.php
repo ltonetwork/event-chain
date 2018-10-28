@@ -43,7 +43,7 @@ class EventController extends Jasny\Controller
     /**
      * Before each action
      */
-    public function before(): void
+    public function before()
     {
         $this->byDefaultSerializeTo('json');
     }
@@ -52,7 +52,7 @@ class EventController extends Jasny\Controller
     /**
      * Add the chain to the queue.
      */
-    public function queueAction(): void
+    public function queueAction()
     {
         $newChain = $this->createChainFromInput();
 
@@ -76,7 +76,7 @@ class EventController extends Jasny\Controller
     /**
      * Add a new chain or new events to an existing chain.
      */
-    public function processAction(): void
+    public function processAction()
     {
         $newChain = $this->createChainFromInput();
 

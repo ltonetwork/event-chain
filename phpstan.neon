@@ -1,0 +1,11 @@
+parameters:
+    level: 7
+    paths:
+        - controllers
+        - declarations
+        - lib
+        - models
+        - services
+
+includes:
+  	- vendor/phpstan/phpstan-strict-rules/rules.neon

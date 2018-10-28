@@ -1,0 +1,11 @@
+path:
+  - controllers
+  - declarations
+  - lib
+  - models
+  - services
+jobs: 10
+cache: /tmp/phplint.cache
+extensions:
+  - php
+

@@ -16,6 +16,8 @@ composer install
 The code is analysed using [PHPStan](https://phpstan) (static code analyses) and
 [PHP Code Sniffer](https://github.com/squizlabs/PHP_CodeSniffer) (coding statyle).
 
+Before running the test for the first time run `bin/codecept build`.
+
 Testing is done using the [Codeception test framework](https://codeception.com/). The project contains unit and api
 tests.
 

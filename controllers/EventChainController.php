@@ -34,7 +34,7 @@ class EventChainController extends Jasny\Controller
     /**
      * Before each action
      */
-    public function before(): void
+    public function before()
     {
         $this->byDefaultSerializeTo('json');
 
@@ -51,7 +51,7 @@ class EventChainController extends Jasny\Controller
     /**
      * List all the event chains the authorized user is an identity in.
      */
-    public function listAction(): void
+    public function listAction()
     {
         $eventChains = $this->eventChains->fetchAll([
             'identities.signkeys.user' => $this->account->getPublicSignKey()
@@ -65,7 +65,7 @@ class EventChainController extends Jasny\Controller
      * 
      * @param string $id
      */
-    public function getAction($id): void
+    public function getAction($id)
     {
         $eventChain = $this->eventChains->fetch([
             'id' => $id,
@@ -84,7 +84,7 @@ class EventChainController extends Jasny\Controller
      *
      * @param string $id
      */
-    public function deleteAction($id): void
+    public function deleteAction($id)
     {
         $eventChain = $this->eventChains->fetch([
             'id' => $id,
