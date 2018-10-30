@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use Improved\IteratorPipeline\Pipeline;
 use Jasny\DB\EntitySet;
 use Jasny\DB\Entity\Identifiable;
 use Jasny\ValidationResult;
@@ -133,15 +134,13 @@ class EventChain extends MongoDocument
      */
     public function getNodesForSystem(string $signKey): array
     {
-        $nodes = [];
-        
-        foreach ($this->identities as $identity) {
-            if (isset($identity->signkeys['system']) && $identity->signkeys['system'] == $signKey) {
-                $nodes[] = $identity->node;
-            }
-        }
-        
-        return array_unique($nodes);
+        return Pipeline::with($this->identities)
+            ->filter(function(Identity $identity) use ($signKey) {
+                return isset($identity->signkeys['system']) && $identity->signkeys['system'] === $signKey;
+            })
+            ->column('node')
+            ->unique()
+            ->toArray();
     }
 
     /**
@@ -152,15 +151,13 @@ class EventChain extends MongoDocument
      */
     public function getNodesForUser(string $signKey): array
     {
-        $nodes = [];
-        
-        foreach ($this->identities as $identity) {
-            if (isset($identity->signkeys['user']) && $identity->signkeys['user'] == $signKey) {
-                $nodes[] = $identity->node;
-            }
-        }
-        
-        return array_unique($nodes);
+        return Pipeline::with($this->identities)
+            ->filter(function(Identity $identity) use ($signKey) {
+                return isset($identity->signkeys['user']) && $identity->signkeys['user'] === $signKey;
+            })
+            ->column('node')
+            ->unique()
+            ->toArray();
     }
 
     /**
@@ -178,7 +175,7 @@ class EventChain extends MongoDocument
     }
 
     /**
-     * Check if the chain has identity which belongs to a given node sign key
+     * Check if the chain has identity which belongs to a given node sign key.
      *
      * @param string $userSignKey
      * @param string $nodeSignKey
@@ -186,14 +183,12 @@ class EventChain extends MongoDocument
      */
     public function hasSystemKeyForIdentity(string $userSignKey, string $nodeSignKey): bool
     {
-        foreach ($this->identities as $identity) {
-            if (isset($identity->signkeys['user']) && $identity->signkeys['user'] == $userSignKey &&
-                isset($identity->signkeys['system']) && $identity->signkeys['system'] == $nodeSignKey) {
-                return true;
-            }
-        }
-
-        return false;
+        return Pipeline::with($this->identities)
+            ->hasAny(function(Identity $identity) use ($userSignKey, $nodeSignKey) {
+                return
+                    isset($identity->signkeys['user']) && $identity->signkeys['user'] == $userSignKey &&
+                    isset($identity->signkeys['system']) && $identity->signkeys['system'] == $nodeSignKey;
+            });
     }
     
     /**
@@ -309,17 +304,14 @@ class EventChain extends MongoDocument
     {
         $validation = new ValidationResult();
         $previous = null;
-        
+
         foreach ($this->events as $event) {
             if (isset($previous) && $event->previous !== $previous) {
-                $validation->addError(
-                    "broken chain; previous of '%s' is '%s', expected '%s'",
-                    $event->hash,
-                    $event->previous,
-                    $previous
-                );
+                $msg = "broken chain; previous of '%s' is '%s', expected '%s'";
+                $validation->addError($msg, $event->hash, $event->previous, $previous);
+                break;
             }
-            
+
             $previous = $event->hash;
         }
         
