@@ -33,8 +33,8 @@ class AnchorEvent
     /**
      * AnchorEvent constructor.
      *
-     * @param EventChain $chain
-     * @param Account $node
+     * @param EventChain   $chain
+     * @param Account      $node
      * @param AnchorClient $anchor
      */
     public function __construct(EventChain $chain, Account $node, AnchorClient $anchor)

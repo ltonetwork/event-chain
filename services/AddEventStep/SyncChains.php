@@ -47,7 +47,7 @@ class SyncChains
             $validation->addError("events don't fit on chain, '%s' not found", $previous);
         }
 
-        $known = array_values($following) + array_fill(null, 0, count($newEvents->events));
+        $known = array_values($following) + array_fill(0, count($newEvents->events), null);
 
         return Pipeline::with(new CombineIterator($known, $newEvents->events));
     }
