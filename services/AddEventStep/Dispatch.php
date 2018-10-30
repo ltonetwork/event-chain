@@ -3,7 +3,16 @@
 namespace AddEventStep;
 
 use EventChain;
+use DispatcherManager;
+use LTO\Account;
 
+/**
+ * The dispatcher service sends new events to nodes of the other participants. If a participant has used our node to
+ * add events, it's up to us to send it to the other nodes.
+ *
+ * An identity event can add a new participant with possibly a new node, or change the node of an existing
+ * participant. In that case we send the whole event chain to that node.
+ */
 class Dispatch
 {
     /**
@@ -12,26 +21,41 @@ class Dispatch
     protected $chain;
 
     /**
+     * @var DispatcherManager
+     */
+    protected $dispatcher;
+
+    /**
+     * @var Account
+     */
+    protected $node;
+
+    /**
      * @var string[]
      */
     protected $oldNodes;
 
+
     /**
      * Dispatch constructor.
      *
-     * @param EventChain $chain
-     * @param string[]   $oldNodes
+     * @param EventChain        $chain
+     * @param DispatcherManager $dispatcher
+     * @param Account           $node
+     * @param string[]          $oldNodes     URLs of the nodes that are on the chain before processing new events.
      */
-    public function __construct(EventChain $chain, array $oldNodes = [])
+    public function __construct(EventChain $chain, DispatcherManager $dispatcher, Account $node, array $oldNodes = [])
     {
         $this->chain = $chain;
+        $this->dispatcher = $dispatcher;
+        $this->node = $node;
         $this->oldNodes = $oldNodes;
     }
 
     /**
      * Invoke this step
      *
-     * @param EventChain $events
+     * @param EventChain $partial
      * @return EventChain
      */
     public function __invoke(EventChain $partial): EventChain

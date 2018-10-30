@@ -139,14 +139,14 @@ class EventManager
             $newEvents,
             new Step\ValidateInput($this->chain),
             new Step\SyncChains($this->chain),
-            new Step\SkipKnownEvents($this->eventFactory),
+            new Step\SkipKnownEvents(),
             new Step\ValidateNewEvent($this->chain),
             new Step\StoreResource($this->chain, $this->resourceFactory, $this->resourceStorage),
             new Step\HandleFailed($this->chain, $this->eventFactory),
             new Step\SaveEvent($this->chain),
             new Step\Walk($this->chain), // <-- Nothing will happen without this step
-            new Step\Dispatch($this->chain, $this->dispatcher, $this->chain->getNodes()),
-            new Step\TriggerResourceServices()
+            new Step\Dispatch($this->chain, $this->dispatcher, $this->node, $this->chain->getNodes()),
+            new Step\TriggerResourceServices($this->chain, $this->resourceStorage, $this->node)
         );
     }
 }

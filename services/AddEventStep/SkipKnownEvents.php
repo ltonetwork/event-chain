@@ -28,13 +28,13 @@ class SkipKnownEvents
     {
         $forked = false;
 
-        return $pipeline->filter(function(Event $new, Event $known) use ($validation, &$forked): bool {
-            if (isset($know) && $known->hash !== $new->hash) {
+        return $pipeline->filter(function(Event $new, ?Event $known) use ($validation, &$forked): bool {
+            if (isset($known) && $known->hash !== $new->hash) {
                 $validation->addError("fork detected; conflict on '%s' and '%s'", $new->hash, $known->hash);
                 $forked = true;
             }
 
-            return !isset($know) || $forked;
+            return !isset($known) || $forked;
         });
     }
 }

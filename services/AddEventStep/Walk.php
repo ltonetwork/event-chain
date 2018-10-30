@@ -32,7 +32,7 @@ class Walk
      * @param Pipeline $pipeline
      * @return EventChain
      */
-    public function __invoke(Pipeline $pipeline): array
+    public function __invoke(Pipeline $pipeline): EventChain
     {
         $events = $pipeline->toArray();
 

@@ -3,6 +3,7 @@
 namespace AddEventStep;
 
 use AnchorClient;
+use Event;
 use EventChain;
 use Improved\IteratorPipeline\Pipeline;
 use Jasny\ValidationResult;

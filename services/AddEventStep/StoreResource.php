@@ -9,15 +9,20 @@ use Improved\IteratorPipeline\Pipeline;
 use Jasny\ValidationResult;
 use ResourceFactory;
 use ResourceStorage;
+use ResourceInterface;
+use Privilege;
 use Jasny\DB\Entity\Identifiable;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 
 /**
  * Extract and store the resource from the event. A resource might be a workflow action, a comment, an identity or
- * some asset.
+ * some asset. These assets may be stored at an external service. Comments and identities are embedded in the event
+ * chain.
  *
- * These assets may be stored at an external service. Comments and identities are embedded in the event chain.
+ * Some resource services, specifically the workflow engine can reject the new resource. In this case we can't
+ * continue with added the rest of the events on the chain. Instead everything will halt. The HandleFailed action
+ * collects subsequent actions and adds an error action to the chain.
  */
 class StoreResource
 {

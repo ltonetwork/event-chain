@@ -3,6 +3,7 @@
 namespace AddEventStep;
 
 use EventChain;
+use LTO\Account;
 use ResourceStorage;
 use Jasny\ValidationResult;
 
@@ -22,6 +23,11 @@ class TriggerResourceServices
      */
     protected $resourceStorage;
 
+    /**
+     * @var Account
+     */
+    protected $node;
+
 
     /**
      * Class constructor.
@@ -29,10 +35,11 @@ class TriggerResourceServices
      * @param EventChain $chain
      * @param ResourceStorage $storage
      */
-    public function __construct(EventChain $chain, ResourceStorage $storage)
+    public function __construct(EventChain $chain, ResourceStorage $storage, Account $node)
     {
         $this->chain = $chain;
         $this->resourceStorage = $storage;
+        $this->node = $node;
     }
 
     /**

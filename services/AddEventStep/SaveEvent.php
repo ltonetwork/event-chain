@@ -2,9 +2,9 @@
 
 namespace AddEventStep;
 
+use Event;
 use EventChain;
 use Improved\IteratorPipeline\Pipeline;
-use Jasny\ValidationResult;
 
 /**
  * Everything has checked out and the event has been processed. It is added to the event chain and stored to the DB.
@@ -29,13 +29,12 @@ class SaveEvent
     /**
      * Invoke the step
      *
-     * @param Pipeline         $pipeline
-     * @param ValidationResult $validation
+     * @param Pipeline $pipeline
      * @return Pipeline
      */
-    public function __invoke(Pipeline $pipeline, ValidationResult $validation): Pipeline
+    public function __invoke(Pipeline $pipeline): Pipeline
     {
-        return $pipeline->apply(function(Event $event) use ($validation) {
+        return $pipeline->apply(function(Event $event) {
             $this->chain->events->add($event);
 
             // TODO: Use a service for this. Active records suck.
