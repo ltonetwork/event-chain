@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fb370a7998995fd7b26b6ea7bd91283b",
+    "content-hash": "cf3a019c86b42109d5bdf38cd67b8f89",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -387,6 +387,146 @@
             ],
             "description": "Function handling and functional programming",
             "time": "2018-10-17T18:49:56+00:00"
+        },
+        {
+            "name": "improved/iterable",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/improved-php-library/iterable.git",
+                "reference": "05202755e15be536b893aa2c09fc0ba0f5231df4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/improved-php-library/iterable/zipball/05202755e15be536b893aa2c09fc0ba0f5231df4",
+                "reference": "05202755e15be536b893aa2c09fc0ba0f5231df4",
+                "shasum": ""
+            },
+            "require": {
+                "improved/type": "dev-master",
+                "php": ">=7.1.0"
+            },
+            "provide": {
+                "ext-improved_iterable": "*"
+            },
+            "require-dev": {
+                "jasny/php-code-quality": "~2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Improved\\Iterator\\": "src/Iterator/",
+                    "Improved\\IteratorPipeline\\": "src/IteratorPipeline/"
+                },
+                "files": [
+                    "src/functions-const.php",
+                    "src/functions/iterable_apply.php",
+                    "src/functions/iterable_average.php",
+                    "src/functions/iterable_chunk.php",
+                    "src/functions/iterable_cleanup.php",
+                    "src/functions/iterable_column.php",
+                    "src/functions/iterable_concat.php",
+                    "src/functions/iterable_count.php",
+                    "src/functions/iterable_expect_type.php",
+                    "src/functions/iterable_fill.php",
+                    "src/functions/iterable_filter.php",
+                    "src/functions/iterable_find.php",
+                    "src/functions/iterable_find_key.php",
+                    "src/functions/iterable_first.php",
+                    "src/functions/iterable_flatten.php",
+                    "src/functions/iterable_flip.php",
+                    "src/functions/iterable_group.php",
+                    "src/functions/iterable_has_all.php",
+                    "src/functions/iterable_has_any.php",
+                    "src/functions/iterable_has_none.php",
+                    "src/functions/iterable_keys.php",
+                    "src/functions/iterable_last.php",
+                    "src/functions/iterable_map_keys.php",
+                    "src/functions/iterable_map.php",
+                    "src/functions/iterable_max.php",
+                    "src/functions/iterable_min.php",
+                    "src/functions/iterable_project.php",
+                    "src/functions/iterable_reduce.php",
+                    "src/functions/iterable_reshape.php",
+                    "src/functions/iterable_reverse.php",
+                    "src/functions/iterable_separate.php",
+                    "src/functions/iterable_slice.php",
+                    "src/functions/iterable_sort_keys.php",
+                    "src/functions/iterable_sort.php",
+                    "src/functions/iterable_sum.php",
+                    "src/functions/iterable_to_array.php",
+                    "src/functions/iterable_to_iterator.php",
+                    "src/functions/iterable_to_traversable.php",
+                    "src/functions/iterable_type_check.php",
+                    "src/functions/iterable_type_cast.php",
+                    "src/functions/iterable_unique.php",
+                    "src/functions/iterable_values.php",
+                    "src/functions/iterable_walk.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnold Daniels",
+                    "email": "arnold@jasny.net",
+                    "homepage": "http://www.jasny.net"
+                }
+            ],
+            "description": "Functions to interact with arrays, iterators and other traversable objects",
+            "time": "2018-10-30T03:00:07+00:00"
+        },
+        {
+            "name": "improved/type",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/improved-php-library/type.git",
+                "reference": "964eb1f15cca603342de7dd4048703c8fff31da0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/improved-php-library/type/zipball/964eb1f15cca603342de7dd4048703c8fff31da0",
+                "reference": "964eb1f15cca603342de7dd4048703c8fff31da0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1.0"
+            },
+            "require-dev": {
+                "jasny/php-code-quality": "~2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions-const.php",
+                    "src/functions/internal/type_cast_var.php",
+                    "src/functions/internal/type_check_error.php",
+                    "src/functions/internal/type_describe_type.php",
+                    "src/functions/internal/type_describe_value.php",
+                    "src/functions/internal/type_is_internal_func.php",
+                    "src/functions/internal/type_join_descriptions.php",
+                    "src/functions/type_check.php",
+                    "src/functions/type_cast.php",
+                    "src/functions/type_describe.php",
+                    "src/functions/type_is.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnold Daniels",
+                    "email": "arnold@jasny.net",
+                    "homepage": "http://www.jasny.net"
+                }
+            ],
+            "description": "Type handling",
+            "time": "2018-10-30T02:22:48+00:00"
         },
         {
             "name": "jasny/application-env",
@@ -4979,18 +5119,13 @@
             "time": "2018-01-29T19:49:41+00:00"
         }
     ],
-    "aliases": [
-        {
-            "alias": "1.0.0",
-            "alias_normalized": "1.0.0.0",
-            "version": "9999999-dev",
-            "package": "improved/function"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "legalthings/lto-api": 20,
         "improved/function": 20,
+        "improved/type": 20,
+        "improved/iterable": 20,
         "jasny/codeception-module": 20
     },
     "prefer-stable": false,

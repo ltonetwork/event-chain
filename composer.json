@@ -27,7 +27,9 @@
         "jasny/container": "^1.0",
         "jasny/application-env": "^1.0",
         "jasny/autowire": "^1.0",
-        "improved/function": "dev-master as 1.0.0"
+        "improved/function": "dev-master",
+        "improved/type": "dev-master",
+        "improved/iterable": "dev-master"
     },
     "require-dev" : {
         "jasny/php-code-quality" : "^2.0.0",
