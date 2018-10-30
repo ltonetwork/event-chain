@@ -49,7 +49,7 @@ class HandleFailed
             $failed = [];
 
             foreach ($events as $event) {
-                if ($validation->isSuccess()) {
+                if ($validation->succeeded()) {
                     yield $event;
                 } else {
                     $failed[] = $event;
