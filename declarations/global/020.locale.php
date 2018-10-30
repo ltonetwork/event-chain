@@ -1,21 +1,26 @@
 <?php declare(strict_types=1);
 
 /**
- * Set the system locale
+ * Set the system locale.
+ * @internal This doesn't need to come from the config, let's change that.
  */
 
-if (!isset(App::config()->locale)) {
-    return;
-}
+use Psr\Container\ContainerInterface;
 
-$locale = App::config()->locale;
+return function (ContainerInterface $container) {
+    if (!$container->has('config.locale')) {
+        return;
+    }
 
-$localeCharset = setlocale(LC_ALL, "$locale.UTF-8", $locale);
+    $locale = $container->get('config.locale');
 
-if ($localeCharset === false) {
-    trigger_error("Failed to set locale to '$locale'", E_USER_WARNING);
-    return;
-}
+    $localeCharset = setlocale(LC_ALL, "$locale.UTF-8", $locale);
 
-Locale::setDefault($localeCharset);
-putenv("LC_ALL=$localeCharset");
+    if ($localeCharset === false) {
+        trigger_error("Failed to set locale to '$locale'", E_USER_WARNING);
+        return;
+    }
+
+    Locale::setDefault($localeCharset);
+    putenv("LC_ALL=$localeCharset");
+};

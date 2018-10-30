@@ -2,8 +2,7 @@
 
 /**
  * Initialize how global errors are being handled.
- *
- * TODO: Clean up and simplify.
+ * @todo Clean up and simplify.
  */
 
 use Psr\Container\ContainerInterface;

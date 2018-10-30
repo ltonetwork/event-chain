@@ -13,6 +13,7 @@ use Jasny\HttpMessage\Emitter;
 /**
  * Application
  * @codeCoverageIgnore
+ * @deprecated Moving away from static class to full container based DI.
  */
 class App
 {
@@ -30,7 +31,8 @@ class App
     }
 
     /**
-     * Get the app container
+     * Get the app container.
+     * @deprecated
      *
      * @return ContainerInterface
      * @throws LogicException if the container is not set yet
@@ -45,51 +47,16 @@ class App
     }
 
     /**
-     * Set the container
+     * Set the container.
+     * @deprecated
      *
      * @param ContainerInterface $container
      */
     public static function setContainer(ContainerInterface $container): void
     {
         self::$container = $container;
-        self::initDB();
     }
 
-    /**
-     * Initialize the DB
-     */
-    protected static function initDB(): void
-    {
-        DB::resetGlobalState();
-        DB::configure(self::config()->db);
-    }
-
-
-    /**
-     * Get the application environment.
-     *
-     * @param string  $check       Only return if env matches
-     * @return string|bool
-     */
-    public static function env($check = null)
-    {
-        /** @var Jasny\ApplicationEnv $env */
-        $env = self::getContainer()->get('app.env');
-
-        return isset($check) ? $env->is($check) : (string)$env;
-    }
-
-    /**
-     * Get the application configuration
-     *
-     * @return Config
-     */
-    public static function config(): Config
-    {
-        return self::getContainer()->get('config');
-    }
-
-    
     /**
      * Initialize the application
      */
@@ -98,7 +65,7 @@ class App
         $container = new Container(self::getContainerEntries());
         self::setContainer($container);
 
-        self::initGlobal();
+        self::initGlobal($container);
     }
 
     /**
@@ -117,13 +84,15 @@ class App
     /**
      * Init global environment
      */
-    protected static function initGlobal(): void
+    protected static function initGlobal(ContainerInterface $container): void
     {
         $scripts = glob('declarations/global/*.php');
 
         foreach ($scripts as $script) {
             /** @noinspection PhpIncludeInspection */
-            require_once $script;
+            $callback = require_once $script;
+
+            $callback($container);
         }
     }
     
