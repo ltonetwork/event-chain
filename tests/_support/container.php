@@ -43,4 +43,7 @@ $container = new Container($entries);
 // Setup global state
 App::setContainer($container);
 
+Jasny\DB::resetGlobalState();
+Jasny\DB::configure($container->get('config.db'));
+
 return $container;

@@ -5,10 +5,8 @@
  */
 
 use Psr\Container\ContainerInterface;
+use Jasy\DB;
 
 return function (ContainerInterface $container) {
-    $db = $container->get('config.db');
-
-    DB::resetGlobalState();
-    DB::configure($db);
+    DB::configure($container->get('config.db'));
 };
