@@ -83,7 +83,6 @@ class StoreResource
         });
     }
 
-
     /**
      * Store a new event and add it to the chain
      *
@@ -97,8 +96,6 @@ class StoreResource
         } catch (RequestException $e) {
             $id = 'ResourceInterface' . ($resource instanceof Identifiable ? ' ' . $resource->getId() : '');
             $reason = $e instanceof ClientException ? $e->getMessage() : 'Server error';
-
-            trigger_error($e->getMessage(), E_USER_WARNING);
 
             return ValidationResult::error("Failed to store %s: %s", $id, $reason);
         }
@@ -140,6 +137,7 @@ class StoreResource
     /**
      * Create a consolidated privilege from an array of privileges
      *
+     * @codeCoverageIgnore
      * @param ResourceInterface $resource
      * @param Privilege[]       $privileges
      * @return Privilege
