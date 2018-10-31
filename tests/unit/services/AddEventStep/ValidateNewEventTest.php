@@ -37,43 +37,60 @@ class ValidateNewEventTest extends \Codeception\Test\Unit
 
     public function test()
     {
+        $events = [
+            $this->createMock(Event::class),
+            $this->createMock(Event::class),
+            $this->createMock(Event::class),
+            $this->createMock(Event::class),
+        ];
+
+        $events[0]->hash = 'a';
+        $events[1]->hash = 'b';
+        $events[2]->hash = 'c';
+        $events[3]->hash = 'd';
+
+        $events[0]->previous = 'hh';
+        $events[1]->previous = 'hh';
+        $events[2]->previous = 'gg';
+        $events[3]->previous = 'hh';
+
+        $validations = [
+            $this->createMock(ValidationResult::class),
+            $this->createMock(ValidationResult::class),
+            $this->createMock(ValidationResult::class),
+            $this->createMock(ValidationResult::class),
+        ];
+
+        $events[0]->expects($this->any())->method('validate')->willReturn($validations[0]);
+        $events[1]->expects($this->any())->method('validate')->willReturn($validations[1]);
+        $events[2]->expects($this->any())->method('validate')->willReturn($validations[2]);
+        $events[3]->expects($this->any())->method('validate')->willReturn($validations[3]);
+
+        $addValidation = [
+            [$validations[0], "event 'a': "],
+            [$validations[1], "event 'b': "],
+            [$validations[2], "event 'c': "]
+        ];
+
+        $failed = [false, false, false, true];
+
         $validationResult = $this->createMock(ValidationResult::class);
 
         $validation = $this->createMock(ValidationResult::class);
-        $validation->expects($this->once())->method('add')->with($validationResult);
+        $validation->expects($this->exactly(4))->method('failed')
+            ->willReturnOnConsecutiveCalls(...$failed);
 
-        $newEvents = $this->createMock(EventChain::class);
-        $newEvents->id = 'foo';
-        $this->chain->id = 'foo';
+        $validation->expects($this->exactly(3))->method('add')
+            ->willReturnOnConsecutiveCalls(...$addValidation);
 
-        $newEvents->expects($this->once())->method('validate')->willReturn($validationResult);
-               
-        $result = i\function_call($this->step, $newEvents, $validation);
-        $this->assertSame($newEvents, $result);
-    }
+        $this->chain->expects($this->exactly(3))->method('getLatestHash')->willReturn('hh');
 
-    public function exceptionProvider()
-    {
-        return [
-            [12, '12'],
-            ['foo', 'bar']
-        ];
-    }
+        $validation->expects($this->once())->method('addError')->with("event '%s' doesn't fit on chain", 'c');
+        
+        $pipeline = Pipeline::with($events);               
+        $ret = i\function_call($this->step, $pipeline, $validation);
 
-    /**
-     * @dataProvider exceptionProvider
-     * @expectedException UnexpectedValueException
-     * @expectedExceptionMessage Can't add events of a different chain
-     */
-    public function testException($id, $newId)
-    {
-        $validation = $this->createMock(ValidationResult::class);
-        $validation->expects($this->never())->method('add');
-
-        $newEvents = $this->createMock(EventChain::class);
-        $newEvents->id = $newId;
-        $this->chain->id = $id;
-               
-        $result = i\function_call($this->step, $newEvents, $validation);        
-    }
+        $this->assertSame($pipeline, $ret);
+        $this->assertEquals($events, $pipeline->toArray());
+    }    
 }
