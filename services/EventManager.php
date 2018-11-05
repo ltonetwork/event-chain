@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use AddEventStep as Step;
+use Jasny\DB\EntitySet;
 use Jasny\ValidationResult;
 use LTO\Account;
 
@@ -13,7 +14,7 @@ class EventManager
      * @var EventChain
      */
     protected $chain;
-    
+
     /**
      * @var ResourceFactory
      */
@@ -44,7 +45,12 @@ class EventManager
      */
     protected $anchor;
 
-    
+    /**
+     * @var EventChainGateway
+     */
+    protected $chainGateway;
+
+
     /**
      * Class constructor
      *
@@ -59,7 +65,8 @@ class EventManager
         ResourceStorage $resourceStorage,
         DispatcherManager $dispatcher,
         EventFactory $eventFactory,
-        AnchorClient $anchor
+        AnchorClient $anchor,
+        EventChainGateway $chainGateway
     ) {
         $this->resourceFactory = $resourceFactory;
         $this->resourceStorage = $resourceStorage;
@@ -67,6 +74,7 @@ class EventManager
         $this->eventFactory = $eventFactory;
         $this->node = $eventFactory->getNodeAccount();
         $this->anchor = $anchor;
+        $this->chainGateway = $chainGateway;
     }
 
     /**
@@ -126,7 +134,7 @@ class EventManager
     }
 
     /**
-     * Add new events
+     * Add new events to an event chain.
      *
      * @param EventChain $newEvents
      * @return ValidationResult
@@ -143,10 +151,10 @@ class EventManager
             new Step\ValidateNewEvent($this->chain),
             new Step\StoreResource($this->chain, $this->resourceFactory, $this->resourceStorage),
             new Step\HandleFailed($this->chain, $this->eventFactory),
-            new Step\SaveEvent($this->chain),
+            new Step\SaveEvent($this->chain, $this->chainGateway),
             new Step\Walk($this->chain), // <-- Nothing will happen without this step
             new Step\Dispatch($this->chain, $this->dispatcher, $this->node, $this->chain->getNodes()),
-            new Step\TriggerResourceServices($this->chain, $this->resourceStorage, $this->node)
+            new Step\TriggerResourceServices($this->chain, $this->resourceFactory, $this->resourceStorage, $this->node)
         );
     }
 }

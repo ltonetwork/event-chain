@@ -5,7 +5,7 @@
  */
 
 use Psr\Container\ContainerInterface;
-use Jasy\DB;
+use Jasny\DB;
 
 return function (ContainerInterface $container) {
     DB::configure($container->get('config.db'));

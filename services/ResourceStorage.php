@@ -1,7 +1,10 @@
 <?php declare(strict_types=1);
 
-use GuzzleHttp\Psr7\Response;
+use Improved as i;
+use const Improved\FUNCTION_ARGUMENT_PLACEHOLDER as __;
+use Improved\IteratorPipeline\Pipeline;
 use GuzzleHttp\ClientInterface as HttpClient;
+use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Class to store an external resource.
@@ -11,7 +14,7 @@ use GuzzleHttp\ClientInterface as HttpClient;
 class ResourceStorage
 {
     /**
-     * @var array
+     * @var ResourceMapping
      */
     protected $mapping;
     
@@ -19,84 +22,28 @@ class ResourceStorage
      * @var HttpClient
      */
     protected $httpClient;
-    
+
     /**
-     * URL for requests that need to be called on done
-     * @var string[]
+     * @var HttpErrorWarning
      */
-    protected $pending = [];
-    
+    protected $errorWarning;
+
     
     /**
      * Class constructor
      *
-     * @param array      $mapping     URI to URL mapping
-     * @param HttpClient $httpClient
+     * @param ResourceMapping  $mapping     URI to URL mapping
+     * @param HttpClient       $httpClient
+     * @param HttpErrorWarning $errorWarning
      */
-    public function __construct(array $mapping, HttpClient $httpClient)
+    public function __construct(ResourceMapping $mapping, HttpClient $httpClient, HttpErrorWarning $errorWarning)
     {
         $this->mapping = $mapping;
         $this->httpClient = $httpClient;
+        $this->errorWarning = $errorWarning;
     }
-    
-    /**
-     * Try to get an URL from a URI
-     *
-     * @param string $uri
-     * @return string|null
-     */
-    protected function findURL(string $uri): ?string
-    {
-        $url = null;
-        $uriBase = preg_replace('/\?.*/', '', $uri);
-        
-        foreach ($this->mapping as $search => $endpoint) {
-            if (!Jasny\fnmatch_extended($search, $uriBase)) {
-                continue;
-            }
-            
-            $parts = explode('/', $uriBase);
-            $url = preg_replace_callback('/\\$(\d+)/', function ($match) use ($parts) {
-                $i = $match[1];
-                return $parts[$i];
-            }, $endpoint);
 
-            break;
-        }
-        
-        return $url;
-    }
-    
-    /**
-     * Check if URI has a URL
-     *
-     * @param string $uri
-     * @return bool
-     */
-    public function hasUrl($uri): bool
-    {
-        return $this->findURL($uri) !== null;
-    }
-    
-    /**
-     * Get an URL from a URI
-     *
-     * @param string $uri
-     * @return string
-     * @throws OutOfRangeException if not URL exist for the URI
-     */
-    public function getUrl($uri): string
-    {
-        $url = $this->findURL($uri);
-        
-        if (!isset($url)) {
-            throw new OutOfRangeException("Not URL found for '$uri'");
-        }
-        
-        return $url;
-    }
-    
-    
+
     /**
      * Store a resource
      *
@@ -108,58 +55,60 @@ class ResourceStorage
             return;
         }
         
-        $url = $this->getUrl($resource->getId());
+        $url = $this->mapping->getUrl($resource->getId());
         $this->httpClient->request('POST', $url, ['json' => $resource, 'http_errors' => true]);
-        
-        $doneUri = preg_replace('/\?.*$/', '', $resource->getId()) . '/done';
-        if ($this->hasUrl($doneUri)) {
-            $this->pending[] = $doneUri;
-        }
     }
-    
+
     /**
      * Message resources that the event chain has been processed.
      *
-     * @param EventChain $chain
-     * @throws \Throwable
+     * @param iterable<ResourceInterface> $resources
+     * @param EventChain         $chain
      */
-    public function done(EventChain $chain): void
+    public function done(iterable $resources, EventChain $chain): void
     {
         $data = [
             'id' => $chain->getId(),
             'lastHash' => $chain->getLatestHash()
         ];
-        
-        $promises = [];
 
-        foreach ($this->pending as $uri) {
-            $url = $this->getUrl($uri);
-
-            $promises[] = $this->httpClient->requestAsync('POST', $url, ['json' => $data, 'http_errors' => false])
-                ->then(function (Response $response) use ($url) {
-                    if ($response->getStatusCode() >= 400) {
-                        $this->doneOnError($response, $url);
-                    }
-                });
-        }
+        $promises = Pipeline::with($resources)
+            ->filter(function(ResourceInterface $resource) {
+                return $resource instanceof ExternalResource && $this->mapping->hasDoneUrl($resource->getId());
+            })
+            ->map(function(ExternalResource $resource) {
+                return $this->mapping->getDoneUrl($resource->getId());
+            })
+            ->map(function(string $url) use ($data) {
+                return $this->httpClient->requestAsync('POST', $url, ['json' => $data, 'http_errors' => false])
+                    ->then(i\function_partial($this->errorWarning, __, $url));
+            })
+            ->toArray();
 
         GuzzleHttp\Promise\unwrap($promises);
     }
 
     /**
-     * Handler an error on done
+     * Delete all projected resources
      *
-     * @param Response $response
-     * @param string $url
+     * @param iterable $resources
+     * @return void
      */
-    protected function doneOnError(Response $response, string $url): void
+    public function deleteProjected(iterable $resources): void
     {
-        $status = $response->getStatusCode() . ' ' . $response->getReasonPhrase();
+        $promises = Pipeline::with($resources)
+            ->filter(function(ResourceInterface $resource) {
+                return $resource instanceof ExternalResource && $this->mapping->hasDoneUrl($resource->getId());
+            })
+            ->map(function(ExternalResource $resource) {
+                return $this->mapping->getDoneUrl($resource->getId());
+            })
+            ->map(function(string $url) {
+                return $this->httpClient->requestAsync('DELETE', $url, ['http_errors' => false])
+                    ->then(i\function_partial($this->errorWarning, __, $url));
+            })
+            ->toArray();
 
-        $hasMessage = $response->getStatusCode() < 500
-            && preg_match('~^(text/plain|application/json)(;|$)~', $response->getHeaderLine('Content-Type'));
-        $message = $hasMessage ? ': ' . $response->getBody() : '';
-
-        trigger_error("POST $url resulted in a `$status` response" . $message, E_USER_WARNING);
+        GuzzleHttp\Promise\unwrap($promises);
     }
 }

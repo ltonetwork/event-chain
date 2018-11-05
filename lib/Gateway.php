@@ -53,4 +53,21 @@ interface Gateway
      * @return int
      */
     public function count(array $filter = [], array $opts = []): int;
+
+
+    /**
+     * Add or update the entity to the DB.
+     *
+     * @param Entity $entity
+     * @param array $opts
+     */
+    public function save(Entity $entity, array $opts = []): void;
+
+    /**
+     * Delete the entity from the DB.
+     *
+     * @param Entity $entity
+     * @param array $opts
+     */
+    public function delete(Entity $entity, array $opts = []): void;
 }

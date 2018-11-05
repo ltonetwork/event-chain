@@ -2,10 +2,9 @@
 
 namespace AddEventStep;
 
-use EventChain;
-use LTO\Account;
-use ResourceStorage;
+use Improved as i;
 use Jasny\ValidationResult;
+use LTO\Account;
 
 /**
  * Some services want to know if all new events of a chain have been processed. This is especially true for the
@@ -14,12 +13,17 @@ use Jasny\ValidationResult;
 class TriggerResourceServices
 {
     /**
-     * @var EventChain
+     * @var \EventChain
      */
     protected $chain;
 
     /**
-     * @var ResourceStorage
+     * @var \ResourceFactory
+     */
+    protected $resourceFactory;
+
+    /**
+     * @var \ResourceStorage
      */
     protected $resourceStorage;
 
@@ -32,12 +36,15 @@ class TriggerResourceServices
     /**
      * Class constructor.
      *
-     * @param EventChain $chain
-     * @param ResourceStorage $storage
+     * @param \EventChain      $chain
+     * @param \ResourceFactory $factory
+     * @param \ResourceStorage $storage
+     * @param Account          $node
      */
-    public function __construct(EventChain $chain, ResourceStorage $storage, Account $node)
+    public function __construct(\EventChain $chain, \ResourceFactory $factory, \ResourceStorage $storage, Account $node)
     {
         $this->chain = $chain;
+        $this->resourceFactory = $factory;
         $this->resourceStorage = $storage;
         $this->node = $node;
     }
@@ -45,11 +52,11 @@ class TriggerResourceServices
     /**
      * Invoke the step.
      *
-     * @param EventChain       $partial
+     * @param \EventChain      $partial
      * @param ValidationResult $validation
-     * @return EventChain
+     * @return \EventChain
      */
-    public function __invoke(EventChain $partial, ValidationResult $validation): EventChain
+    public function __invoke(\EventChain $partial, ValidationResult $validation): \EventChain
     {
         $signal =
             $validation->succeeded() &&
@@ -57,9 +64,20 @@ class TriggerResourceServices
             $this->chain->isEventSignedByAccount($partial->getLastEvent(), $this->node);
 
         if ($signal) {
-            $this->resourceStorage->done($this->chain);
+            $this->signalResources($partial);
         }
 
         return $partial;
+    }
+
+    /**
+     * Signal the resources that we're done adding events.
+     *
+     * @param \EventChain $partial
+     */
+    protected function signalResources(\EventChain $partial): void
+    {
+        $resources = i\iterable_map($partial->events, [$this->resourceFactory, 'extractFrom']);
+        $this->resourceStorage->done($resources, $this->chain);
     }
 }

@@ -7,71 +7,11 @@ class ResourceStorageTest extends \Codeception\Test\Unit
 {
     use Jasny\TestHelper;
     
-    public $mapping = [
-        'lt:/colors/*' => 'http://main.example.com/colors/',
-        'lt:/foos/*' => 'http://foos.example.com/things/',
-        'lt:/bars/*' => 'http://example.com/bars/',
-        'lt:/bars/*/done' => 'http://example.com/bars/$2/done'
-    ];
-    
-    public function testHasUrlTrue()
-    {
-        $httpClient = $this->createMock(GuzzleHttp\Client::class);
-        
-        $storage = new ResourceStorage($this->mapping, $httpClient);
-        
-        $this->assertTrue($storage->hasUrl('lt:/foos/123?v=4ZL83zt5'));
-    }
-
-    public function testHasUrlFalse()
-    {
-        $httpClient = $this->createMock(GuzzleHttp\Client::class);
-        
-        $storage = new ResourceStorage($this->mapping, $httpClient);
-        
-        $this->assertFalse($storage->hasUrl('lt:/paws/777'));
-    }
-    
-    public function testGetUrl()
-    {
-        $httpClient = $this->createMock(GuzzleHttp\Client::class);
-        
-        $storage = new ResourceStorage($this->mapping, $httpClient);
-        
-        $url = $storage->getUrl('lt:/foos/123?v=4ZL83zt5');
-        
-        $this->assertEquals('http://foos.example.com/things/', $url);
-    }
-    
-    public function testGetUrlParameter()
-    {
-        $httpClient = $this->createMock(GuzzleHttp\Client::class);
-        
-        $storage = new ResourceStorage($this->mapping, $httpClient);
-        
-        $url = $storage->getUrl('lt:/bars/333/done');
-        
-        $this->assertEquals('http://example.com/bars/333/done', $url);
-    }
-    
-    /**
-     * @expectedException OutOfRangeException
-     */
-    public function testGetUrlNotFound()
-    {
-        $httpClient = $this->createMock(GuzzleHttp\Client::class);
-        
-        $storage = new ResourceStorage($this->mapping, $httpClient);
-        
-        $storage->getUrl('lt:/paws/777');
-    }
-    
-    
     public function storeProvider()
     {
         return [
-            ["lt:/foos/123?v=4ZL83zt5", 'http://foos.example.com/things/', []],
-            ["lt:/bars/123?v=4ZL83zt5", 'http://example.com/bars/', ['lt:/bars/123/done']]
+            ["lt:/foos/123?v=4ZL83zt5", 'http://foos.example.com/things/'],
+            ["lt:/bars/123?v=4ZL83zt5", 'http://example.com/bars/']
         ];
     }
     
@@ -80,9 +20,8 @@ class ResourceStorageTest extends \Codeception\Test\Unit
      * 
      * @param string $id
      * @param string $url
-     * @param array  $pending
      */
-    public function testStore($id, $url, array $pending)
+    public function testStore($id, $url)
     {
         $data = [
             '$schema' => 'http://example.com/foo/schema.json#',
@@ -90,7 +29,10 @@ class ResourceStorageTest extends \Codeception\Test\Unit
             'foo' => 'bar',
             'color' => 'red'
         ];
-        
+
+        $mapping = $this->createMock(ResourceMapping::class);
+        $mapping->expects($this->once())->method('getUrl')->with($id)->willReturn($url);
+
         $resource = $this->createMock(ExternalResource::class);
         $resource->method('getId')->willReturn($id);
         $resource->expects($this->once())->method('jsonSerialize')->willReturn($data);
@@ -105,8 +47,11 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         $handler->push($history);
 
         $httpClient = new GuzzleHttp\Client(['handler' => $handler]);
-        
-        $storage = new ResourceStorage($this->mapping, $httpClient);
+
+        $httpError = $this->createMock(HttpErrorWarning::class);
+        $httpError->expects($this->never())->method('__invoke');
+
+        $storage = new ResourceStorage($mapping, $httpClient, $httpError);
         
         $storage->store($resource);
         
@@ -118,8 +63,6 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         $this->assertEquals(['Content-Type' => ['application/json']],
             jasny\array_only($request->getHeaders(), ['Content-Type']));
         $this->assertJsonStringEqualsJsonString(json_encode($data), (string)$request->getBody());
-        
-        $this->assertAttributeEquals($pending, 'pending', $storage);
     }
     
     /**
@@ -127,25 +70,34 @@ class ResourceStorageTest extends \Codeception\Test\Unit
      */
     public function testStoreError()
     {
+        $id = "lt:/foos/123?v=4ZL83zt5";
+
         $data = [
             '$schema' => 'http://example.com/foo/schema.json#',
             'id' => "lt:/foos/123?v=4ZL83zt5",
             'foo' => 'bar',
             'color' => 'red'
         ];
-        
+
+        $mapping = $this->createMock(ResourceMapping::class);
+        $mapping->expects($this->once())->method('getId')->with($id)
+            ->willReturn('http://foos.example.com/things/123');
+
         $resource = $this->createMock(ExternalResource::class);
-        $resource->method('getId')->willReturn("lt:/foos/123?v=4ZL83zt5");
+        $resource->method('getId')->willReturn($id);
         $resource->expects($this->once())->method('jsonSerialize')->willReturn($data);
-        
+
         $mock = new GuzzleHttp\Handler\MockHandler([
             new GuzzleHttp\Psr7\Response(500)
         ]);
         $handler = GuzzleHttp\HandlerStack::create($mock);
         
         $httpClient = new GuzzleHttp\Client(['handler' => $handler]);
-        
-        $storage = new ResourceStorage($this->mapping, $httpClient);
+
+        $httpError = $this->createMock(HttpErrorWarning::class);
+        $httpError->expects($this->never())->method('__invoke');
+
+        $storage = new ResourceStorage($mapping, $httpClient, $httpError);
         
         $storage->store($resource);
     }
@@ -158,8 +110,11 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         $handler = GuzzleHttp\HandlerStack::create($mock);
         
         $httpClient = new GuzzleHttp\Client(['handler' => $handler]);
-        
-        $storage = new ResourceStorage($this->mapping, $httpClient);
+
+        $httpError = $this->createMock(HttpErrorWarning::class);
+        $httpError->expects($this->never())->method('__invoke');
+
+        $storage = new ResourceStorage($this->mapping, $httpClient, $httpError);
         
         $storage->store($resource);
     }
@@ -171,7 +126,10 @@ class ResourceStorageTest extends \Codeception\Test\Unit
             'lt:/bars/123/done' => 'http://example.com/bars/123/done',
             'lt:/bars/890/done' => 'http://example.com/bars/890/done'
         ];
-        
+
+        $mapping = $this->createMock(ResourceMapping::class);
+        $mapping->expects($this->exactly(2))->withConsecutive(array_keys($urls));
+
         $mock = new GuzzleHttp\Handler\MockHandler([
             new GuzzleHttp\Psr7\Response(200),
             new GuzzleHttp\Psr7\Response(200)
@@ -183,8 +141,11 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         $handler->push($history);
         
         $httpClient = new GuzzleHttp\Client(['handler' => $handler]);
-        
-        $storage = new ResourceStorage($this->mapping, $httpClient);
+
+        $httpError = $this->createMock(HttpErrorWarning::class);
+        $httpError->expects($this->never())->method('__invoke');
+
+        $storage = new ResourceStorage($mapping, $httpClient, $httpError);
         $this->setPrivateProperty($storage, 'pending', array_keys($urls));
         
         $chain = $this->createMock(EventChain::class);

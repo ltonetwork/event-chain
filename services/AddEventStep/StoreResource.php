@@ -2,18 +2,12 @@
 
 namespace AddEventStep;
 
-use Event;
-use EventChain;
-use Identity;
 use Improved\IteratorPipeline\Pipeline;
 use Jasny\ValidationResult;
-use ResourceFactory;
-use ResourceStorage;
-use ResourceInterface;
-use Privilege;
 use Jasny\DB\Entity\Identifiable;
+use Jasny\DB\EntitySet;
 use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Extract and store the resource from the event. A resource might be a workflow action, a comment, an identity or
@@ -27,29 +21,28 @@ use GuzzleHttp\Exception\RequestException;
 class StoreResource
 {
     /**
-     * @var EventChain
+     * @var \EventChain
      */
     protected $chain;
 
     /**
-     * @var ResourceFactory
+     * @var \ResourceFactory
      */
     protected $resourceFactory;
 
     /**
-     * @var ResourceStorage
+     * @var \ResourceStorage
      */
     protected $resourceStorage;
-
 
     /**
      * StoreResource constructor.
      *
-     * @param EventChain      $chain
-     * @param ResourceFactory $factory
-     * @param ResourceStorage $storage
+     * @param \EventChain      $chain
+     * @param \ResourceFactory $factory
+     * @param \ResourceStorage $storage
      */
-    public function __construct(EventChain $chain, ResourceFactory $factory, ResourceStorage $storage)
+    public function __construct(\EventChain $chain, \ResourceFactory $factory, \ResourceStorage $storage)
     {
         $this->chain = $chain;
         $this->resourceFactory = $factory;
@@ -63,7 +56,7 @@ class StoreResource
      */
     public function __invoke(Pipeline $pipeline, ValidationResult $validation): Pipeline
     {
-        return $pipeline->apply(function(Event $event) use ($validation): void {
+        return $pipeline->apply(function(\Event $event) use ($validation): void {
             if ($validation->failed()) {
                 return;
             }
@@ -86,15 +79,15 @@ class StoreResource
     /**
      * Store a new event and add it to the chain
      *
-     * @param ResourceInterface $resource
+     * @param \ResourceInterface $resource
      * @return ValidationResult
      */
-    protected function storeResource(ResourceInterface $resource): ValidationResult
+    protected function storeResource(\ResourceInterface $resource): ValidationResult
     {
         try {
             $this->resourceStorage->store($resource);
-        } catch (RequestException $e) {
-            $id = 'ResourceInterface' . ($resource instanceof Identifiable ? ' ' . $resource->getId() : '');
+        } catch (GuzzleException $e) {
+            $id = '\ResourceInterface' . ($resource instanceof Identifiable ? ' ' . $resource->getId() : '');
             $reason = $e instanceof ClientException ? $e->getMessage() : 'Server error';
 
             return ValidationResult::error("Failed to store %s: %s", $id, $reason);
@@ -109,14 +102,14 @@ class StoreResource
      * Apply privilege to a resource.
      * Returns false if identity has no privileges to resource.
      *
-     * @param ResourceInterface $resource
-     * @param Event             $event
+     * @param \ResourceInterface $resource
+     * @param \Event             $event
      * @return ValidationResult
      */
-    public function applyPrivilegeToResource(ResourceInterface $resource, Event $event): ValidationResult
+    public function applyPrivilegeToResource(\ResourceInterface $resource, \Event $event): ValidationResult
     {
         if ($this->chain->isEmpty()) {
-            return $resource instanceof Identity ?
+            return $resource instanceof \Identity ?
                 ValidationResult::success() :
                 ValidationResult::error("initial resource must be an identity");
         }
@@ -136,14 +129,14 @@ class StoreResource
 
     /**
      * Create a consolidated privilege from an array of privileges
-     *
      * @codeCoverageIgnore
-     * @param ResourceInterface $resource
-     * @param Privilege[]       $privileges
-     * @return Privilege
+     *
+     * @param \ResourceInterface     $resource
+     * @param \Privilege[]  $privileges
+     * @return \Privilege
      */
-    protected function consolidatedPrivilege(ResourceInterface $resource, array $privileges): Privilege
+    protected function consolidatedPrivilege(\ResourceInterface $resource, array $privileges): \Privilege
     {
-        return Privilege::create($resource)->consolidate($privileges);
+        return \Privilege::create($resource)->consolidate($privileges);
     }
 }

@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+use Improved as i;
+use Jasny\DB\Entity;
 use Jasny\DB\EntitySet;
 
 /**
@@ -71,5 +73,32 @@ class EventChainGateway implements Gateway
     public function count(array $filter = [], array $opts = []): int
     {
         return EventChain::count($filter, $opts);
+    }
+
+
+    /**
+     * Add or update the entity to the DB.
+     *
+     * @param EventChain $entity
+     * @param array $opts
+     */
+    public function save(Entity $entity, array $opts = []): void
+    {
+        i\type_check($entity, EventChain::class);
+
+        $entity->save($opts);
+    }
+
+    /**
+     * Delete the entity from the DB.
+     *
+     * @param EventChain $entity
+     * @param array $opts
+     */
+    public function delete(Entity $entity, array $opts = []): void
+    {
+        i\type_check($entity, EventChain::class);
+
+        $entity->delete($opts);
     }
 }

@@ -4,6 +4,7 @@ namespace AddEventStep;
 
 use Event;
 use EventChain;
+use EventChainGateway;
 use Improved\IteratorPipeline\Pipeline;
 
 /**
@@ -17,13 +18,20 @@ class SaveEvent
     protected $chain;
 
     /**
+     * @var EventChainGateway
+     */
+    protected $chainGateway;
+
+    /**
      * SaveEvent constructor.
      *
-     * @param EventChain $chain
+     * @param EventChain        $chain
+     * @param EventChainGateway $chainGateway
      */
-    public function __construct(EventChain $chain)
+    public function __construct(EventChain $chain, EventChainGateway $chainGateway)
     {
         $this->chain = $chain;
+        $this->chainGateway = $chainGateway;
     }
 
     /**
@@ -36,9 +44,7 @@ class SaveEvent
     {
         return $pipeline->apply(function(Event $event) {
             $this->chain->events->add($event);
-
-            // TODO: Use a service for this. Active records suck.
-            $this->chain->save();
+            $this->chainGateway->save($this->chain);
         });
     }
 }

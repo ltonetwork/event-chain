@@ -3,24 +3,22 @@
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Jasny\Config;
+use Jasny\ApplicationEnv;
 use Jasny\Container\Container;
 use Jasny\Container\Loader\EntryLoader;
-use Jasny\DB;
 use Jasny\RouterInterface;
 use Jasny\HttpMessage\Emitter;
 
 /**
  * Application
  * @codeCoverageIgnore
- * @deprecated Moving away from static class to full container based DI.
  */
 class App
 {
     /**
      * @var ContainerInterface
      */
-    public static $container;
+    protected static $container;
 
     
     /**
@@ -133,7 +131,9 @@ class App
      */
     public static function debug($message): void
     {
-        if (!(self::config()->debug ?? false)) {
+        $container = self::getContainer();
+
+        if (!($container->get('config')->debug ?? false)) {
             return;
         }
 
@@ -141,11 +141,11 @@ class App
             $message = json_encode($message, JSON_PRETTY_PRINT);
         }
 
-        if ((bool)self::env('tests')) {
+        if ($container->get(ApplicationEnv::class)->is('tests')) {
             Codeception\Util\Debug::debug($message);
             return;
         }
 
-        self::getContainer()->get('logger')->debug($message);
+        $container->get('logger')->debug($message);
     }
 }
