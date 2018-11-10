@@ -55,15 +55,20 @@ class ConflictResolver
         $ourEvent = $ourChain->getFirstEvent();
         $theirEvent = $theirChain->getFirstEvent();
 
+        if ($ourEvent->hash === $theirEvent->hash) {
+            $hash = $ourEvent->hash;
+            throw new InvalidArgumentException("First event of partial chains should differ, both are '$hash'");
+        }
+
         if ($this->getEarliestEvent($ourEvent, $theirEvent) === $ourEvent) {
             return $ourChain->withEvents([]);
         }
 
-        $fullChain = $this->rebaser->rebase($theirChain, $ourChain);
+        $mergedChain = $this->rebaser->rebase($theirChain, $ourChain);
 
-        $this->resourceStorage->deleteProjected($fullChain->resources);
+        $this->resourceStorage->deleteProjected($mergedChain->resources);
 
-        return $fullChain;
+        return $mergedChain;
     }
 
     /**
@@ -80,7 +85,7 @@ class ConflictResolver
             return Pipeline::with($events)
                 ->flip()
                 ->map(function ($_, Event $event) {
-                    return $event->getHash();
+                    return $event->hash;
                 })
                 ->then([$this->anchor, 'fetchMultiple']) // Loops through all events and returns a new iterator.
                 ->sort(function (stdClass $info1, stdClass $info2) {
@@ -107,7 +112,7 @@ class ConflictResolver
     protected function notAnchoredException(array $events)
     {
         $hashes = Pipeline::with($events)
-            ->map(function (Event $event) { return $event->getHash(); })
+            ->map(function (Event $event) { return $event->hash; })
             ->concat("', '");
 
         return new UnresolvableConflictException(
