@@ -3,16 +3,22 @@ LegalThings Event Chain Service
 
 See https://legalthings.github.io/livecontracts-specs/01-event-chain/
 
+## Requirements
+
+- [PHP](http://www.php.net) >= 7.2.0
+- [MongoDB](http://www.mongodb.org/) >= 3.2
+- [Git](http://git-scm.com)
+
+_Required PHP extensions are marked by composer_
+
 ## Installation
 
 ```
-git clone git@github.com:legalthings/legalevents-poc.git
-cd legalevents-poc
+git clone git@github.com:legalthings/legalevents.git
+cd legalevents
 composer install
 bin/codecept build
 ```
-
-_Due to a dependency on the MongoDB extension, this service currently requires PHP 5.6._
 
 ## Tests
 
