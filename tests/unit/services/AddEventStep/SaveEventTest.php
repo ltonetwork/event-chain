@@ -5,6 +5,7 @@ namespace AddEventStep;
 use Improved as i;
 use Event;
 use EventChain;
+use EventChainGateway;
 use EventFactory;
 use AnchorClient;
 use Jasny\DB\EntitySet;
@@ -32,8 +33,9 @@ class SaveEventTest extends \Codeception\Test\Unit
     {
         $this->chain = $this->createMock(EventChain::class);
         $this->chain->events = $this->createMock(EntitySet::class);
+        $this->chainGateway = $this->createMock(EventChainGateway::class);
 
-        $this->step = new SaveEvent($this->chain);
+        $this->step = new SaveEvent($this->chain, $this->chainGateway);
     }
 
     public function test()
@@ -47,7 +49,7 @@ class SaveEventTest extends \Codeception\Test\Unit
         $events[1]->hash = 'abcde';
 
         $this->chain->events->expects($this->exactly(2))->method('add')->withConsecutive([$events[0]], [$events[1]]);
-        $this->chain->expects($this->exactly(2))->method('save');
+        $this->chainGateway->expects($this->exactly(2))->method('save');
         
         $pipeline = Pipeline::with($events);
         $ret = i\function_call($this->step, $pipeline);
