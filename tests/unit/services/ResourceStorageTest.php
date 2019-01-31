@@ -80,7 +80,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         ];
 
         $mapping = $this->createMock(ResourceMapping::class);
-        $mapping->expects($this->once())->method('getId')->with($id)
+        $mapping->expects($this->once())->method('getUrl')->with($id)
             ->willReturn('http://foos.example.com/things/123');
 
         $resource = $this->createMock(ExternalResource::class);
@@ -105,6 +105,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
     public function testStoreNone()
     {
         $resource = $this->createMock(Comment::class);
+        $mapping = $this->createMock(ResourceMapping::class);
         
         $mock = new GuzzleHttp\Handler\MockHandler([]);
         $handler = GuzzleHttp\HandlerStack::create($mock);
@@ -114,7 +115,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         $httpError = $this->createMock(HttpErrorWarning::class);
         $httpError->expects($this->never())->method('__invoke');
 
-        $storage = new ResourceStorage($this->mapping, $httpClient, $httpError);
+        $storage = new ResourceStorage($mapping, $httpClient, $httpError);
         
         $storage->store($resource);
     }
@@ -122,13 +123,20 @@ class ResourceStorageTest extends \Codeception\Test\Unit
     
     public function testDone()
     {
-        $urls = [
-            'lt:/bars/123/done' => 'http://example.com/bars/123/done',
-            'lt:/bars/890/done' => 'http://example.com/bars/890/done'
+        $ids = ['lt:/bars/123/done', 'lt:/bars/890/done'];
+        $urls = ['http://example.com/bars/123/done', 'http://example.com/bars/890/done'];
+
+        $resources = [
+            $this->createMock(ExternalResource::class),
+            $this->createMock(ExternalResource::class)
         ];
 
+        $resources[0]->expects($this->any())->method('getId')->willReturn('lt:/bars/123/done');
+        $resources[1]->expects($this->any())->method('getId')->willReturn('lt:/bars/890/done');
+
         $mapping = $this->createMock(ResourceMapping::class);
-        $mapping->expects($this->exactly(2))->withConsecutive(array_keys($urls));
+        $mapping->expects($this->exactly(2))->method('hasDoneUrl')->withConsecutive([$ids[0]], [$ids[1]])->willReturn(true);
+        $mapping->expects($this->exactly(2))->method('getDoneUrl')->withConsecutive([$ids[0]], [$ids[1]])->willReturnOnConsecutiveCalls($urls[0], $urls[1]);
 
         $mock = new GuzzleHttp\Handler\MockHandler([
             new GuzzleHttp\Psr7\Response(200),
@@ -143,20 +151,22 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         $httpClient = new GuzzleHttp\Client(['handler' => $handler]);
 
         $httpError = $this->createMock(HttpErrorWarning::class);
-        $httpError->expects($this->never())->method('__invoke');
+        $httpError->expects($this->exactly(2))->method('__invoke')->withConsecutive(
+            [new GuzzleHttp\Psr7\Response(200), $urls[0]],
+            [new GuzzleHttp\Psr7\Response(200), $urls[1]]
+        );
 
         $storage = new ResourceStorage($mapping, $httpClient, $httpError);
-        $this->setPrivateProperty($storage, 'pending', array_keys($urls));
         
         $chain = $this->createMock(EventChain::class);
         $chain->expects($this->atLeastOnce())->method('getId')->willReturn('123');
         $chain->expects($this->atLeastOnce())->method('getLatestHash')->willReturn('abc');
         
-        $storage->done($chain);
+        $storage->done($resources, $chain);
         
         $this->assertCount(2, $container);
         
-        foreach (array_values($urls) as $i => $url) {
+        foreach ($urls as $i => $url) {
             $request = $container[$i]['request'];
             $this->assertEquals('POST', $request->getMethod());
             $this->assertEquals($url, (string)$request->getUri());
