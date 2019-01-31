@@ -7,6 +7,7 @@ use Event;
 use EventChain;
 use EventFactory;
 use AnchorClient;
+use ResourceFactory;
 use ResourceStorage;
 use Jasny\DB\EntitySet;
 use Improved\IteratorPipeline\Pipeline;
@@ -42,10 +43,11 @@ class TriggerResourceServicesTest extends \Codeception\Test\Unit
     public function setUp()
     {
         $this->chain = $this->createMock(EventChain::class);
+        $this->resourceFactory = $this->createMock(ResourceFactory::class);
         $this->resourceStorage = $this->createMock(ResourceStorage::class);
         $this->node = $this->createMock(Account::class);
 
-        $this->step = new TriggerResourceServices($this->chain, $this->resourceStorage, $this->node);
+        $this->step = new TriggerResourceServices($this->chain, $this->resourceFactory, $this->resourceStorage, $this->node);
     }
 
     public function provider()
@@ -77,9 +79,13 @@ class TriggerResourceServicesTest extends \Codeception\Test\Unit
         $partial->expects($this->any())->method('getLastEvent')->willReturn($lastEvent);
         $this->chain->expects($this->any())->method('isEventSignedByAccount')->with($lastEvent, $this->node)->willReturn($isEventSigned);
 
-        $done ? 
-            $this->resourceStorage->expects($this->once())->method('done')->with($this->chain) :
+        if ($done) {
+            $this->resourceStorage->expects($this->once())->method('done')->with($this->callback(function($resources) {
+                return $resources instanceof \Generator;
+            }), $this->chain);            
+        } else {            
             $this->resourceStorage->expects($this->never())->method('done');
+        }
        
         $result = i\function_call($this->step, $partial, $validation);
         $this->assertSame($partial, $result);
