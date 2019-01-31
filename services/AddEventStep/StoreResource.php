@@ -87,7 +87,7 @@ class StoreResource
         try {
             $this->resourceStorage->store($resource);
         } catch (GuzzleException $e) {
-            $id = '\ResourceInterface' . ($resource instanceof Identifiable ? ' ' . $resource->getId() : '');
+            $id = 'ResourceInterface' . ($resource instanceof Identifiable ? ' ' . $resource->getId() : '');
             $reason = $e instanceof ClientException ? $e->getMessage() : 'Server error';
 
             return ValidationResult::error("Failed to store %s: %s", $id, $reason);
