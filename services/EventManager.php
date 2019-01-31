@@ -59,6 +59,7 @@ class EventManager
      * @param DispatcherManager $dispatcher
      * @param EventFactory      $eventFactory
      * @param AnchorClient      $anchor
+     * @param EventChainGateway $chainGateway
      */
     public function __construct(
         ResourceFactory $resourceFactory,
@@ -143,8 +144,20 @@ class EventManager
     {
         $this->assertChain();
 
-        return $this->step(
-            $newEvents,
+        $steps = $this->getSteps();
+        
+        return $this->step($newEvents, ...$steps);
+    }
+
+    /**
+     * Get all steps to process event
+     *
+     * @codeCoverageIgnore
+     * @return array
+     */
+    protected function getSteps(): array
+    {
+        return [
             new Step\ValidateInput($this->chain),
             new Step\SyncChains($this->chain),
             new Step\SkipKnownEvents(),
@@ -155,6 +168,6 @@ class EventManager
             new Step\Walk($this->chain), // <-- Nothing will happen without this step
             new Step\Dispatch($this->chain, $this->dispatcher, $this->node, $this->chain->getNodes()),
             new Step\TriggerResourceServices($this->chain, $this->resourceFactory, $this->resourceStorage, $this->node)
-        );
+        ];
     }
 }
