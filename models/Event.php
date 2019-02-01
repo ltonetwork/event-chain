@@ -80,6 +80,14 @@ class Event extends MongoSubDocument implements Identifiable
      */
     public $receipt;
 
+    /**
+     * Receipt for anchoring on public blockchain
+     *
+     * @var Event
+     * @immutable
+     */
+    public $original;
+
 
     /**
      * Set values
@@ -209,6 +217,10 @@ class Event extends MongoSubDocument implements Identifiable
             $validation->addError('invalid hash');
         }
 
+        if (isset($this->original)) {
+            $validation->add($this->original->validate(), "original event;");
+        }
+
         if (isset($this->receipt)) {
             $validation->add($this->receipt->validate(), "invalid receipt;");
 
@@ -219,4 +231,37 @@ class Event extends MongoSubDocument implements Identifiable
 
         return $validation;
     }
+
+
+    /**
+     * Turn entity into data to be stored in the DB.
+     *
+     * @return array
+     */
+    public function toData()
+    {
+        $data = parent::toData();
+
+        if (isset($data['original'])) {
+            unset($data['original']['origin'], $data['original']['body']);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Turn entity into data to be stored in the DB.
+     *
+     * @param array $data
+     * @return Event
+     */
+    public static function fromData(array $data): Event
+    {
+        if (isset($data['original']) {
+            $data['original']['body'] = $data['body'];
+        }
+
+        return parent::fromData($data);
+    }
 }
+
