@@ -20,5 +20,9 @@ return [
     // Alias
     'errorHandler' => function (ContainerInterface $container) {
         return $container->get(ErrorHandlerInterface::class);
+    },
+
+    HttpErrorWarning::class => function (ContainerInterface $container) {
+        return new HttpErrorWarning();
     }
 ];

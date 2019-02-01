@@ -8,7 +8,7 @@ return [
         return new ResourceFactory();
     },
     ResourceMapping::class => function (ContainerInterface $container) {
-        $endpoints = $container->get('config.endpoints');
+        $endpoints = (array)$container->get('config.endpoints');
 
         return new ResourceMapping($endpoints);
     },
