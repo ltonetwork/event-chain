@@ -80,6 +80,19 @@ class Event extends MongoSubDocument implements Identifiable
      */
     public $receipt;
 
+    /**
+     * Cast all properties
+     *
+     * @return $this
+     */
+    public function cast()
+    {
+        if ($this->timestamp instanceof MongoDB\BSON\Int64) {
+            $this->timestamp = (string)$this->timestamp;
+        }
+
+        return parent::cast();
+    }
 
     /**
      * Set values

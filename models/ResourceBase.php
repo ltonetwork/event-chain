@@ -45,6 +45,8 @@ trait ResourceBase
     {
         if (is_int($this->timestamp) || (is_string($this->timestamp) && ctype_digit($this->timestamp))) {
             $this->timestamp = DateTime::createFromFormat('U', (string)$this->timestamp);
+        } elseif (is_string($this->timestamp) && strpos($this->timestamp, '(') !== false) { //Remove timezone in brackets, that can cause an error
+            $this->timestamp = DateTime::createFromFormat('D M d Y H:i:s e+', $this->timestamp);
         }
         
         return $this->metaCast();
