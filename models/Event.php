@@ -81,7 +81,7 @@ class Event extends MongoSubDocument implements Identifiable
     public $receipt; 
 
     /**
-     * Receipt for anchoring on public blockchain
+     * Original event if event is stitched
      *
      * @var Event
      * @immutable
@@ -268,10 +268,10 @@ class Event extends MongoSubDocument implements Identifiable
      * @param array $data
      * @return Event
      */
-    public static function fromData(array $data): Event
+    public static function fromData($data)
     {
-        if (isset($data['original']) {
-            $data['original']['body'] = $data['body'];
+        if (isset($data->original)) {
+            $data->original['body'] = $data->body;
         }
 
         return parent::fromData($data);
