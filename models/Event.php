@@ -78,7 +78,7 @@ class Event extends MongoSubDocument implements Identifiable
      * @var Receipt
      * @immutable
      */
-    public $receipt;
+    public $receipt; 
 
     /**
      * Receipt for anchoring on public blockchain
@@ -88,6 +88,19 @@ class Event extends MongoSubDocument implements Identifiable
      */
     public $original;
 
+    /**
+     * Cast all properties
+     *
+     * @return $this
+     */
+    public function cast()
+    {
+        if ($this->timestamp instanceof MongoDB\BSON\Int64) {
+            $this->timestamp = (string)$this->timestamp;
+        }
+
+        return parent::cast();
+    }
 
     /**
      * Set values

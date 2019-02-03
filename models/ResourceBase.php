@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use Jasny\DB\Entity;
+use Meta\AnnotationsImplementation;
 
 /**
  * ResourceInterface base class
@@ -10,12 +11,14 @@ trait ResourceBase
     use Entity\Implementation,
         Entity\Redactable\Implementation,
         Entity\Meta\Implementation,
-        Entity\Validation\MetaImplementation
+        Entity\Validation\MetaImplementation,
+        AnnotationsImplementation
     {
         Entity\Meta\Implementation::cast as private metaCast;
         Entity\Implementation::setValues as private setValuesRaw;
         Entity\Implementation::getValues as private getUnredactedValues;
         Entity\Implementation::jsonSerializeFilter insteadof Entity\Meta\Implementation;
+        Meta\AnnotationsImplementation::meta insteadof Entity\Meta\Implementation;
     }
     
     /**
@@ -42,6 +45,8 @@ trait ResourceBase
     {
         if (is_int($this->timestamp) || (is_string($this->timestamp) && ctype_digit($this->timestamp))) {
             $this->timestamp = DateTime::createFromFormat('U', (string)$this->timestamp);
+        } elseif (is_string($this->timestamp) && strpos($this->timestamp, '(') !== false) { //Remove timezone in brackets, that can cause an error
+            $this->timestamp = DateTime::createFromFormat('D M d Y H:i:s e+', $this->timestamp);
         }
         
         return $this->metaCast();
