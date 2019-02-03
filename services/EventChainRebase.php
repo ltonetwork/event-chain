@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use LTO\Account;
+use Jasny\DB\EntitySet;
 use Improved\Iterator\CombineIterator;
 use Improved\IteratorPipeline\Pipeline;
 
@@ -10,24 +11,25 @@ use Improved\IteratorPipeline\Pipeline;
 class EventChainRebase
 {
     /**
-     * @var EventChainGateway
-     */
-    protected $gateway;
-
-    /**
      * @var Account
      **/
     protected $node;
 
     /**
+     * Pbject to perform events stitching
+     * @var EventsStitch
+     **/
+    protected $stitcher;
+
+    /**
      * EventChainRebase constructor.
      *
-     * @param EventChainGateway $gateway
+     * @param Account $node
      */
-    public function __construct(EventChainGateway $gateway, Account $node)
+    public function __construct(Account $node, EventsStitch $stitcher)
     {
         $this->node = $node;
-        $this->gateway = $gateway;
+        $this->stitcher = $stitcher;
     }
 
     /**
@@ -45,15 +47,7 @@ class EventChainRebase
         $pipe->apply(function(?Event $forkEvent, ?Event $chainEvent) use ($events) {
             $previous = count($events) === 0 ? $chain->getFirstEvent() : end($events);
 
-            if ($forkEvent === null) {
-                $event = $this->rebaseEvent($chainEvent, $previous);
-            } elseif ($chainEvent === null) {
-                $event = $this->rebaseEvent($forkEvent, $previous);
-            } else {
-                $event = $this->stitchEvents($chainEvent, $forkEvent, $previous);                
-            }
-
-            $events[] = $event;
+            $events[] = $this->stitcher($chainEvent, $forkEvent, $previous);
         });
 
         $chain = (new EventChain())->with($events);
@@ -82,8 +76,8 @@ class EventChainRebase
      */
     protected function mapBranches(EventChain $chain, EventChain $fork): Pipeline
     {
-        $chainEvents = $chain->events;
-        $forkEvents = $fork->events;
+        $chainEvents = $chain->events instanceof EntitySet ? $chain->events->getArrayCopy() : $chain->events;
+        $forkEvents = $fork->events instanceof EntitySet ? $fork->events->getArrayCopy() : $fork->events;
 
         if (count($chainEvents) > count($forkEvents)) {
             $forkEvents = array_pad($forkEvents, count($chainEvents), null);
@@ -92,69 +86,5 @@ class EventChainRebase
         }
         
         return Pipeline::with(new CombineIterator($chainEvents, $forkEvents));
-    }
-
-    /**
-     * Rebase event without stitching
-     *
-     * @param Event $event
-     * @param Event|null $previous 
-     * @return Event
-     */
-    protected function rebaseEvent(Event $event, ?Event $previous): Event
-    {
-        $event->setValues([
-            'timestamp' => (new DateTime)->getTimestamp(),
-            'previous' => $previous ? $previous->getHash() : null
-        ]);
-
-        $event->signWith($this->node);
-
-        return $event;
-    }
-
-    /**
-     * Stitch two events
-     *
-     * @param Event $chainEvent
-     * @param Event $forkEvent 
-     * @param Event $previous
-     * @return Event
-     */
-    protected function stitchEvents(Event $chainEvent, Event $forkEvent, ?Event $previous): Event
-    {        
-        if ($forkEvent->timestamp > $chainEvent->timestamp) {
-            $original = $chainEvent;
-            $stitched = $forkEvent;
-        } else {
-            $original = $forkEvent;
-            $stitched = $chainEvent;                
-        }
-
-        $values = $this->getStitchValues($stitched, $original, $previous);        
-
-        $event = new Event();
-        $event->setValues($values);
-        $event->signWith($this->node);
-
-        return $event;
-    }
-
-    /**
-     * Get values to create stitched event
-     *
-     * @param Event $stitched
-     * @param Event $original 
-     * @param Event|null $previous 
-     * @return array
-     */
-    protected function getStitchValues(Event $stitched, Event $original, ?Event $previous): array
-    {
-        $values = array_only($stitched->getValues(), ['origin', 'body', 'receipt']);
-        $values['original'] = array_only($original->getValues(), ['timestamp', 'previous', 'signkey', 'signature', 'hash', 'receipt']);
-        $values['timestamp'] = (new DateTime)->getTimestamp();
-        $values['previous'] = $previous ? $previous->getHash() : null;
-
-        return $values;
     }
 }

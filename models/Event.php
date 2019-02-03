@@ -122,6 +122,17 @@ class Event extends MongoSubDocument implements Identifiable
     }
 
     /**
+     * Sign this event
+     * 
+     * @param Account $account
+     * @return $this
+     */
+    public function signWith(Account $account): self
+    {
+        return $account->signEvent($this);
+    }
+
+    /**
      * Add a receipt to the event
      *
      * @param Receipt $receipt
