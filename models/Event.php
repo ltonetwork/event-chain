@@ -270,8 +270,10 @@ class Event extends MongoSubDocument implements Identifiable
      */
     public static function fromData($data)
     {
-        if (isset($data->original)) {
-            $data->original['body'] = $data->body;
+        $data = (array)$data;
+
+        if (isset($data['original'])) {
+            $data['original']['body'] = $data['body'];
         }
 
         return parent::fromData($data);
