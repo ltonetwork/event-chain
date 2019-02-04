@@ -4,7 +4,7 @@ use LTO\Account;
 use Jasny\DB\EntitySet;
 use Improved\Iterator\CombineIterator;
 use Improved\IteratorPipeline\Pipeline;
-use EventChainRebase\EventsStitch;
+use EventChainRebase\EventStitch;
 
 /**
  * Service to rebase a fork of an event chain upon the leading chain.
@@ -18,7 +18,7 @@ class EventChainRebase
 
     /**
      * Pbject to perform events stitching
-     * @var EventsStitch
+     * @var EventStitch
      **/
     protected $stitcher;
 
@@ -27,7 +27,7 @@ class EventChainRebase
      *
      * @param Account $node
      */
-    public function __construct(Account $node, EventsStitch $stitcher)
+    public function __construct(Account $node, EventStitch $stitcher)
     {
         $this->node = $node;
         $this->stitcher = $stitcher;

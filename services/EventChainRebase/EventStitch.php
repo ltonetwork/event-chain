@@ -8,7 +8,7 @@ use InvalidArgumentException;
 /**
  * Stitch two events when rebasing event chains
  */
-class EventsStitch
+class EventStitch
 {
     /**
      * @var Account
@@ -16,7 +16,7 @@ class EventsStitch
     protected $node;
 
     /**
-     * EventsStitch constructor.
+     * EventStitch constructor.
      *
      * @param Account $node
      */

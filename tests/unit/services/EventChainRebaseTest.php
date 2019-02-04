@@ -3,7 +3,7 @@
 use Improved as i;
 use LTO\Account;
 use Jasny\DB\EntitySet;
-use EventChainRebase\EventsStitch;
+use EventChainRebase\EventStitch;
 
 /**
  * @covers EventChainRebase
@@ -16,7 +16,7 @@ class EventChainRebaseTest extends \Codeception\Test\Unit
     protected $node;
 
     /**
-     * @var EventsStitch
+     * @var EventStitch
      **/
     protected $stitcher;
 
@@ -31,7 +31,7 @@ class EventChainRebaseTest extends \Codeception\Test\Unit
     public function _before()
     {
         $this->node = $this->createMock(Account::class);
-        $this->stitcher = $this->createMock(EventsStitch::class);
+        $this->stitcher = $this->createMock(EventStitch::class);
         $this->rebaser = new EventChainRebase($this->node, $this->stitcher);
     }
 
