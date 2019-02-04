@@ -4,6 +4,7 @@ use LTO\Account;
 use Jasny\DB\EntitySet;
 use Improved\Iterator\CombineIterator;
 use Improved\IteratorPipeline\Pipeline;
+use EventChainRebase\EventsStitch;
 
 /**
  * Service to rebase a fork of an event chain upon the leading chain.
@@ -44,13 +45,12 @@ class EventChainRebase
         $events = [];
         $pipe = $this->mapBranches($chain, $fork);
 
-        $pipe->apply(function(?Event $forkEvent, ?Event $chainEvent) use ($events) {
-            $previous = count($events) === 0 ? $chain->getFirstEvent() : end($events);
+        $pipe->apply(function(?Event $forkEvent, ?Event $chainEvent) use ($chain, &$events) {
+            $previous = $this->getPreviousHash($chain, $events);
+            $events[] = ($this->stitcher)($chainEvent, $forkEvent, $previous);
+        })->walk();
 
-            $events[] = $this->stitcher($chainEvent, $forkEvent, $previous);
-        });
-
-        $chain = (new EventChain())->with($events);
+        $chain = (new EventChain())->withEvents($events);
 
         return $chain;
     }
@@ -86,5 +86,25 @@ class EventChainRebase
         }
         
         return Pipeline::with(new CombineIterator($chainEvents, $forkEvents));
+    }
+
+    /**
+     * Get previous event hash for current processing event
+     *
+     * @param EventChain $chain
+     * @param array $events 
+     * @return string|null
+     */
+    protected function getPreviousHash(EventChain $chain, array $events): ?string
+    {
+        if (count($events) === 0) {
+            $first = $chain->getFirstEvent();
+
+            return $first->previous;
+        }
+
+        $last = end($events);
+
+        return $last->hash;
     }
 }

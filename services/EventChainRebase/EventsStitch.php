@@ -2,6 +2,7 @@
 
 namespace EventChainRebase;
 
+use Event;
 use InvalidArgumentException;
 
 /**
@@ -27,23 +28,23 @@ class EventsStitch
     /**
      * Stitch two events
      *
-     * @param Event|null $event1
-     * @param Event|null $event2 
-     * @param Event|null $previous 
+     * @param Event|null $chainEvent
+     * @param Event|null $forkEvent 
+     * @param string|null $previous 
      * @return Event
      */
-    public function stitch(?Event $event1, ?Event $event2, ?Event $previous): Event
+    public function stitch(?Event $chainEvent, ?Event $forkEvent, ?string $previous): Event
     {
-        if ($event1 === null && $event2 === null) {
+        if ($chainEvent === null && $forkEvent === null) {
             throw new InvalidArgumentException('Can not stitch two empty events');
         }
 
-        if ($event1 === null) {
-            $event = $this->rebaseEvent($event2, $previous);
-        } elseif ($event2 === null) {
-            $event = $this->rebaseEvent($event1, $previous);
+        if ($chainEvent === null) {
+            $event = $this->rebase($forkEvent, $previous);
+        } elseif ($forkEvent === null) {
+            $event = $this->rebase($chainEvent, $previous);
         } else {
-            $event = $this->stitchEvents($event2, $event1, $previous);                
+            $event = $this->stitchEvents($chainEvent, $forkEvent, $previous);                
         }
 
         return $event;
@@ -52,29 +53,29 @@ class EventsStitch
     /**
      * Alias of `stitch()`
      *
-     * @param Event|null $event1
-     * @param Event|null $event2 
-     * @param Event|null $previous 
+     * @param Event|null $chainEvent
+     * @param Event|null $forkEvent 
+     * @param string|null $previous 
      * @return Event
      */
-    final public function __invoke(?Event $event1, ?Event $event2, ?Event $previous): Event
+    final public function __invoke(?Event $chainEvent, ?Event $forkEvent, ?string $previous): Event
     {
-        return $this->stitch($event1, $event2, $previous);
+        return $this->stitch($chainEvent, $forkEvent, $previous);
     }
 
     /**
      * Rebase event without stitching
      *
      * @param Event $event
-     * @param Event|null $previous 
+     * @param string|null $previous 
      * @return Event
      */
-    protected function rebaseEvent(Event $event, ?Event $previous): Event
+    protected function rebaseEvent(Event $event, ?string $previous): Event
     {
         $event = clone $event;
         $event->setValues([
             'timestamp' => (new DateTime)->getTimestamp(),
-            'previous' => $previous ? $previous->hash : null
+            'previous' => $previous
         ]);
 
         $event->signWith($this->node);
@@ -87,10 +88,10 @@ class EventsStitch
      *
      * @param Event $chainEvent
      * @param Event $forkEvent 
-     * @param Event $previous
+     * @param string|null $previous
      * @return Event
      */
-    protected function stitchEvents(Event $chainEvent, Event $forkEvent, ?Event $previous): Event
+    protected function stitchEvents(Event $chainEvent, Event $forkEvent, ?string $previous): Event
     {        
         if ($forkEvent->timestamp > $chainEvent->timestamp) {
             $original = $chainEvent;
@@ -114,15 +115,15 @@ class EventsStitch
      *
      * @param Event $stitched
      * @param Event $original 
-     * @param Event|null $previous 
+     * @param string|null $previous 
      * @return array
      */
-    protected function getStitchValues(Event $stitched, Event $original, ?Event $previous): array
+    protected function getStitchValues(Event $stitched, Event $original, ?string $previous): array
     {
         $values = array_only($stitched->getValues(), ['origin', 'body', 'receipt']);
         $values['original'] = array_only($original->getValues(), ['timestamp', 'previous', 'signkey', 'signature', 'hash', 'receipt']);
         $values['timestamp'] = (new DateTime)->getTimestamp();
-        $values['previous'] = $previous ? $previous->hash : null;
+        $values['previous'] = $previous;
 
         return $values;
     }
