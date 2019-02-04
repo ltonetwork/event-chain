@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use LTO\Account;
 use Jasny\ValidationResult;
 use Jasny\DB\Entity\Identifiable;
 

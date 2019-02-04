@@ -2,7 +2,9 @@
 
 namespace EventChainRebase;
 
+use LTO\Account;
 use Event;
+use DateTime;
 use InvalidArgumentException;
 
 /**
@@ -35,14 +37,14 @@ class EventStitch
      */
     public function stitch(?Event $chainEvent, ?Event $forkEvent, ?string $previous): Event
     {
-        if ($chainEvent === null && $forkEvent === null) {
+        if (!isset($chainEvent) && !isset($forkEvent)) {
             throw new InvalidArgumentException('Can not stitch two empty events');
         }
 
-        if ($chainEvent === null) {
-            $event = $this->rebase($forkEvent, $previous);
-        } elseif ($forkEvent === null) {
-            $event = $this->rebase($chainEvent, $previous);
+        if (!isset($chainEvent)) {
+            $event = $this->rebaseEvent($forkEvent, $previous);
+        } elseif (!isset($forkEvent)) {
+            $event = $this->rebaseEvent($chainEvent, $previous);
         } else {
             $event = $this->stitchEvents($chainEvent, $forkEvent, $previous);                
         }
@@ -72,8 +74,9 @@ class EventStitch
      */
     protected function rebaseEvent(Event $event, ?string $previous): Event
     {
-        $event = clone $event;
+        $event = $this->createTargetEvent($event);
         $event->setValues([
+            'original' => null,
             'timestamp' => (new DateTime)->getTimestamp(),
             'previous' => $previous
         ]);
@@ -103,7 +106,7 @@ class EventStitch
 
         $values = $this->getStitchValues($stitched, $original, $previous);        
 
-        $event = new Event();
+        $event = $this->createTargetEvent();
         $event->setValues($values);
         $event->signWith($this->node);
 
@@ -121,10 +124,22 @@ class EventStitch
     protected function getStitchValues(Event $stitched, Event $original, ?string $previous): array
     {
         $values = array_only($stitched->getValues(), ['origin', 'body', 'receipt']);
-        $values['original'] = array_only($original->getValues(), ['timestamp', 'previous', 'signkey', 'signature', 'hash', 'receipt']);
+        $values['original'] = clone $original;
         $values['timestamp'] = (new DateTime)->getTimestamp();
         $values['previous'] = $previous;
 
         return $values;
+    }
+
+    /**
+     * Create target stitched event
+     *
+     * @codeCoverageIgnore
+     * @param Event|null $source
+     * @return Event
+     */
+    protected function createTargetEvent(?Event $source = null)
+    {
+        return isset($source) ? clone $source : new Event();
     }
 }
