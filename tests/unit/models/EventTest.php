@@ -1,5 +1,7 @@
 <?php
 
+use LTO\Account;
+
 /**
  * @covers Event
  */
@@ -250,5 +252,44 @@ class EventTest extends \Codeception\Test\Unit
         $event->expects($this->once())->method('isNew')->willReturn(false);
         
         $event->setValues([]);
+    }
+
+    /**
+     * Test 'signWith' method
+     */
+    public function testSignWith()
+    {
+        $event = $this->createPartialMock(Event::class, ['castToLtoEvent', 'setValues']);
+        $ltoEvent = $this->createMock(LTO\Event::class);
+        $node = $this->createMock(Account::class);
+
+        $ltoEvent->signkey = 'foo';
+        $ltoEvent->signature = 'bar';
+        $ltoEvent->hash = 'baz';
+
+        $event->expects($this->once())->method('castToLtoEvent')->willReturn($ltoEvent);
+        $node->expects($this->once())->method('signEvent')->with($ltoEvent)->willReturn($ltoEvent);
+        $event->expects($this->once())->method('setValues')->with([
+            'signkey' => 'foo',
+            'signature' => 'bar',
+            'hash' => 'baz'
+        ]);
+
+        $result = $event->signWith($node);
+        $this->assertSame($event, $result);
+    }
+
+    /**
+     * Test 'castToLtoEvent' method
+     */
+    public function testCastToLtoEvent()
+    {
+        $event = new Event();
+        $event->body = 'foo';
+
+        $result = $event->castToLtoEvent();
+
+        $this->assertInstanceOf(LTO\Event::class, $result);
+        $this->assertSame('foo', $result->body);
     }
 }

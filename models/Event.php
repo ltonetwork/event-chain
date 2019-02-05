@@ -130,7 +130,26 @@ class Event extends MongoSubDocument implements Identifiable
      */
     public function signWith(Account $account): self
     {
-        return $account->signEvent($this);
+        $ltoEvent = $this->castToLtoEvent();
+        $ltoEvent = $account->signEvent($ltoEvent);
+
+        $this->setValues([
+            'signkey' => $ltoEvent->signkey,
+            'signature' => $ltoEvent->signature,
+            'hash' => $ltoEvent->hash,
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * Cast to LTO\Event
+     *
+     * @return LTO\Event
+     */
+    public function castToLtoEvent(): \LTO\Event
+    {
+        return (new TypeCast($this))->to(\LTO\Event::class);
     }
 
     /**
