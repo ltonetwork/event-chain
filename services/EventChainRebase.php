@@ -17,94 +17,71 @@ class EventChainRebase
     protected $node;
 
     /**
-     * Pbject to perform events stitching
-     * @var EventStitch
-     **/
-    protected $stitcher;
-
-    /**
      * EventChainRebase constructor.
      *
      * @param Account $node
      */
-    public function __construct(Account $node, EventStitch $stitcher)
+    public function __construct(Account $node)
     {
         $this->node = $node;
-        $this->stitcher = $stitcher;
     }
 
     /**
-     * Rebase fork onto chain.
+     * Rebase chain with later starting event onto chain with earlier starting event
      *
-     * @param EventChain $chain
-     * @param EventChain $fork
+     * @param EventChain $leadChain
+     * @param EventChain $laterChain
      * @return EventChain
      */
-    public function rebase(EventChain $chain, EventChain $fork): EventChain
+    public function rebase(EventChain $leadChain, EventChain $laterChain): EventChain
     {
+        if ($leadChain->isEmpty() || $laterChain->isEmpty()) {
+            throw BadMethodCallException('Rebasing chains should not be empty');
+        }
+
         $events = [];
-        $pipe = $this->mapBranches($chain, $fork);
+        foreach ($leadChain->events as $event) {
+            $events[] = clone $event;
+        }
 
-        $pipe->apply(function(?Event $forkEvent, ?Event $chainEvent) use ($chain, &$events) {
-            $previous = $this->getPreviousHash($chain, $events);
-            $events[] = ($this->stitcher)($chainEvent, $forkEvent, $previous);
-        })->walk();
+        $mergedChain = (new EventChain())->withEvents($events);
 
-        $chain = (new EventChain())->withEvents($events);
+        foreach ($laterChain->events as $key => $event) {            
+            $mergedChain->events[] = $this->rebaseEvent($event, $mergedChain);
 
-        return $chain;
+            $stitched = $mergedChain->events[$key];
+            $stitched->original = $event;
+        }
+
+        return $mergedChain;
     }
 
     /**
      * Alias of `rebase()`
      *
-     * @param EventChain $chain
-     * @param EventChain $fork
+     * @param EventChain $leadChain
+     * @param EventChain $laterChain
      * @return EventChain
      */
-    final public function __invoke(EventChain $chain, EventChain $fork): EventChain
+    final public function __invoke(EventChain $leadChain, EventChain $laterChain): EventChain
     {
-        return $this->rebase($chain, $fork);
+        return $this->rebase($leadChain, $laterChain);
     }
 
     /**
-     * Represent branches as iterator
+     * Rebase event to new chain
      *
-     * @param EventChain $chain
-     * @param EventChain $fork 
-     * @return Pipeline
+     * @param Event $event
+     * @param EventChain $mergedChain 
+     * @return Event
      */
-    protected function mapBranches(EventChain $chain, EventChain $fork): Pipeline
+    protected function rebaseEvent(Event $event, EventChain $mergedChain): Event
     {
-        $chainEvents = $chain->events instanceof EntitySet ? $chain->events->getArrayCopy() : $chain->events;
-        $forkEvents = $fork->events instanceof EntitySet ? $fork->events->getArrayCopy() : $fork->events;
+        $event = clone $event;
+        $event->timestamp = (new DateTime())->getTimestamp();
+        $event->previous = $mergedChain->getLatestHash();
+        $event->signWith($this->node);
 
-        if (count($chainEvents) > count($forkEvents)) {
-            $forkEvents = array_pad($forkEvents, count($chainEvents), null);
-        } else {
-            $chainEvents = array_pad($chainEvents, count($forkEvents), null);
-        }
-        
-        return Pipeline::with(new CombineIterator($chainEvents, $forkEvents));
-    }
-
-    /**
-     * Get previous event hash for current processing event
-     *
-     * @param EventChain $chain
-     * @param array $events 
-     * @return string|null
-     */
-    protected function getPreviousHash(EventChain $chain, array $events): ?string
-    {
-        if (count($events) === 0) {
-            $first = $chain->getFirstEvent();
-
-            return $first->previous;
-        }
-
-        $last = end($events);
-
-        return $last->hash;
+        return $event;
     }
 }
