@@ -29,6 +29,7 @@ class EventChainRebase
     /**
      * Rebase chain with later starting event onto chain with earlier starting event
      *
+     * @throws BadMethodCallException
      * @param EventChain $leadChain
      * @param EventChain $laterChain
      * @return EventChain
