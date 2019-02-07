@@ -36,7 +36,7 @@ class EventChainRebase
     public function rebase(EventChain $leadChain, EventChain $laterChain): EventChain
     {
         if ($leadChain->isEmpty() || $laterChain->isEmpty()) {
-            throw BadMethodCallException('Rebasing chains should not be empty');
+            throw new BadMethodCallException('Rebasing chains should not be empty');
         }
 
         $events = [];
@@ -47,7 +47,8 @@ class EventChainRebase
         $mergedChain = (new EventChain())->withEvents($events);
 
         foreach ($laterChain->events as $key => $event) {            
-            $mergedChain->events[] = $this->rebaseEvent($event, $mergedChain);
+            $event = $this->rebaseEvent($event, $mergedChain);
+            $mergedChain->events[] = $event;
 
             $stitched = $mergedChain->events[$key];
             $stitched->original = $event;
@@ -80,8 +81,18 @@ class EventChainRebase
         $event = clone $event;
         $event->timestamp = (new DateTime())->getTimestamp();
         $event->previous = $mergedChain->getLatestHash();
-        $event->signWith($this->node);
+        $this->signEvent($event);
 
         return $event;
+    }
+
+    /**
+     * Sign event
+     *
+     * @param Event $event
+     */
+    protected function signEvent(Event $event): void
+    {
+        $event->signWith($this->node);
     }
 }

@@ -3,22 +3,18 @@
 use Improved as i;
 use LTO\Account;
 use Jasny\DB\EntitySet;
-use EventChainRebase\EventStitch;
 
 /**
  * @covers EventChainRebase
  */
 class EventChainRebaseTest extends \Codeception\Test\Unit
 {
+    use Jasny\TestHelper;
+
     /**
      * @var Account
      **/
     protected $node;
-
-    /**
-     * @var EventStitch
-     **/
-    protected $stitcher;
 
     /**
      * @var EventChainRebase
@@ -31,117 +27,66 @@ class EventChainRebaseTest extends \Codeception\Test\Unit
     public function _before()
     {
         $this->node = $this->createMock(Account::class);
-        $this->stitcher = $this->createMock(EventStitch::class);
-        $this->rebaser = new EventChainRebase($this->node, $this->stitcher);
-    }
+        $this->rebaser = $this->createPartialMock(EventChainRebase::class, ['signEvent']);
 
-    /**
-     * Provide data for testing 'rebase' method
-     *
-     * @return array
-     */
-    public function rebaseProvider()
-    {
-        return [
-            ['z'],
-            [null],
-        ];
+        $this->setPrivateProperty($this->rebaser, 'node', $this->node);
     }
 
     /**
      * Test 'rebase' method
-     *
-     * @dataProvider rebaseProvider
      */
-    public function testRebase($firstPrevious)
+    public function testRebase()
     {
-        $chain = $this->createMock(EventChain::class);
-        $fork = $this->createMock(EventChain::class);
+        list($leadEvents, $laterEvents) = $this->getEvents();
 
-        list($chainEvents, $forkEvents, $expectedEvents) = $this->getEvents();
+        $leadChain = (new EventChain())->withEvents($leadEvents);
+        $laterChain = (new EventChain())->withEvents($laterEvents);
 
-        $chainEvents[0]->previous = $firstPrevious;
-        $chain->events = $chainEvents;
-        $fork->events = $forkEvents;
+        $this->rebaser->expects($this->exactly(3))->method('signEvent')->with($this->callback(function($event) {
+            return $event instanceof Event && isset($event->timestamp) && isset($event->previous);
+        }))->will($this->returnCallback(function($event) {
+            $event->hash .= '-signed';
+        }));
 
-        $chain->expects($this->once())->method('getFirstEvent')->willReturn($chainEvents[0]);
-        $this->stitcher->expects($this->exactly(3))->method('stitch')->withConsecutive(
-            [$chainEvents[0], $forkEvents[0], $firstPrevious],
-            [$chainEvents[1], $forkEvents[1], 'g'],
-            [$chainEvents[2], $forkEvents[2], 'h']
-        )->willReturnOnConsecutiveCalls($expectedEvents[0], $expectedEvents[1], $expectedEvents[2]);
-
-        $result = i\function_call($this->rebaser, $chain, $fork);
+        $result = i\function_call($this->rebaser, $leadChain, $laterChain);
+        $events = $result->events;
 
         $this->assertInstanceOf(EventChain::class, $result);
-        $this->assertInstanceOf(EntitySet::class, $result->events);
-        $this->assertEquals($expectedEvents, $result->events->getArrayCopy());
+        $this->assertCount(5, $events);
+
+        $this->assertSame('a', $events[0]->hash);
+        $this->assertSame($events[0]->original, $events[2]);
+        $this->assertFalse(isset($leadChain->events[0]->original));
+
+        $this->assertSame('b', $events[1]->hash);
+        $this->assertSame($events[1]->original, $events[3]);
+        $this->assertFalse(isset($leadChain->events[1]->original));
+
+        $this->assertSame('c-signed', $events[2]->hash);
+        $this->assertSame('b', $events[2]->previous);
+        $this->assertFalse(isset($laterChain->events[0]->previous));
+        $this->assertSame($events[2]->original, $events[4]);
+
+        $this->assertSame('d-signed', $events[3]->hash);
+        $this->assertSame('c-signed', $events[3]->previous);
+        $this->assertFalse(isset($laterChain->events[1]->previous));
+
+        $this->assertSame('e-signed', $events[4]->hash);
+        $this->assertSame('d-signed', $events[4]->previous);
+        $this->assertFalse(isset($laterChain->events[2]->previous));
     }
 
     /**
-     * Test 'rebase' method, if chain is shorter then fork
-     */
-    public function testRebaseChainShorter()
-    {
-        $chain = $this->createMock(EventChain::class);
-        $fork = $this->createMock(EventChain::class);
-
-        list($chainEvents, $forkEvents, $expectedEvents) = $this->getEvents();
-
-        $chain->events = [$chainEvents[0]];
-        $fork->events = $forkEvents;
-
-        $chain->expects($this->once())->method('getFirstEvent')->willReturn($chainEvents[0]);
-        $this->stitcher->expects($this->exactly(3))->method('stitch')->withConsecutive(
-            [$chainEvents[0], $forkEvents[0], 'z'],
-            [null, $forkEvents[1], 'g'],
-            [null, $forkEvents[2], 'h']
-        )->willReturnOnConsecutiveCalls($expectedEvents[0], $expectedEvents[1], $expectedEvents[2]);
-
-        $result = i\function_call($this->rebaser, $chain, $fork);
-
-        $this->assertInstanceOf(EventChain::class, $result);
-        $this->assertInstanceOf(EntitySet::class, $result->events);
-        $this->assertEquals($expectedEvents, $result->events->getArrayCopy());
-    }
-
-    /**
-     * Test 'rebase' method, if fork is shorter then chain
-     */
-    public function testRebaseForkShorter()
-    {
-        $chain = $this->createMock(EventChain::class);
-        $fork = $this->createMock(EventChain::class);
-
-        list($chainEvents, $forkEvents, $expectedEvents) = $this->getEvents();
-
-        $chain->events = $chainEvents;
-        $fork->events = [$forkEvents[0]];
-
-        $chain->expects($this->once())->method('getFirstEvent')->willReturn($chainEvents[0]);
-        $this->stitcher->expects($this->exactly(3))->method('stitch')->withConsecutive(
-            [$chainEvents[0], $forkEvents[0], 'z'],
-            [$chainEvents[1], null, 'g'],
-            [$chainEvents[2], null, 'h']
-        )->willReturnOnConsecutiveCalls($expectedEvents[0], $expectedEvents[1], $expectedEvents[2]);
-
-        $result = i\function_call($this->rebaser, $chain, $fork);
-
-        $this->assertInstanceOf(EventChain::class, $result);
-        $this->assertInstanceOf(EntitySet::class, $result->events);
-        $this->assertEquals($expectedEvents, $result->events->getArrayCopy());
-    }
-
-    /**
-     * Provide data for testing 'rebase' method, in case when chains are empty
+     * Provide data for testing 'rebase' method, if chains are empty
      *
      * @return array
      */
     public function rebaseEmptyProvider()
     {
         return [
-            [EntitySet::forClass(Event::class), EntitySet::forClass(Event::class)],
-            [[], []]
+            [true, false],
+            [false, true],
+            [true, true]
         ];
     }
 
@@ -149,20 +94,18 @@ class EventChainRebaseTest extends \Codeception\Test\Unit
      * Test 'rebase' method, if chains are empty
      *
      * @dataProvider rebaseEmptyProvider
+     * @expectedException BadMethodCallException
+     * @expectedExceptionMessage Rebasing chains should not be empty
      */
-    public function testRebaseEmpty($chainEvents, $forkEvents)
+    public function testRebaseEmpty($isLeadEmpty, $isLaterEmpty)
     {
-        $chain = $this->createMock(EventChain::class);
-        $fork = $this->createMock(EventChain::class);
+        $leadChain = $this->createMock(EventChain::class);
+        $laterChain = $this->createMock(EventChain::class);
 
-        $chain->events = $chainEvents;
-        $fork->events = $forkEvents;
+        $leadChain->expects($this->any())->method('isEmpty')->willReturn($isLeadEmpty);
+        $laterChain->expects($this->any())->method('isEmpty')->willReturn($isLaterEmpty);
 
-        $result = $this->rebaser->rebase($chain, $fork);
-
-        $this->assertInstanceOf(EventChain::class, $result);
-        $this->assertInstanceOf(EntitySet::class, $result->events);
-        $this->assertSame([], $result->events->getArrayCopy());
+        i\function_call($this->rebaser, $leadChain, $laterChain);
     }
 
     /**
@@ -172,37 +115,37 @@ class EventChainRebaseTest extends \Codeception\Test\Unit
      */
     public function getEvents()
     {
-        $chain = [
+        $lead = [
+            $this->createMock(Event::class),
+            $this->createMock(Event::class)
+        ];
+
+        $later = [
             $this->createMock(Event::class),
             $this->createMock(Event::class),
             $this->createMock(Event::class)
         ];
 
-        $fork = [
-            $this->createMock(Event::class),
-            $this->createMock(Event::class),
-            $this->createMock(Event::class)
-        ];
+        $lead[0]->hash = 'a';
+        $lead[1]->hash = 'b';
 
-        $expected = [
-            $this->createMock(Event::class),
-            $this->createMock(Event::class),
-            $this->createMock(Event::class)
-        ];
+        $later[0]->hash = 'c';
+        $later[1]->hash = 'd';
+        $later[2]->hash = 'e';
 
-        $chain[0]->previous = 'z';
-        $chain[0]->hash = 'a';
-        $chain[1]->hash = 'b';
-        $chain[2]->hash = 'c';
+        return [$lead, $later];
+    }
 
-        $fork[0]->hash = 'd';
-        $fork[1]->hash = 'e';
-        $fork[2]->hash = 'f';
+    /**
+     * Test 'signEvent' method
+     */
+    public function testSignEvent()
+    {
+        $rebaser = new EventChainRebase($this->node);
 
-        $expected[0]->hash = 'g';
-        $expected[1]->hash = 'h';
-        $expected[2]->hash = 'i';
+        $event = $this->createMock(Event::class);
+        $event->expects($this->once())->method('signWith')->with($this->node);
 
-        return [$chain, $fork, $expected];
+        $this->callPrivateMethod($rebaser, 'signEvent', [$event]);
     }
 }
