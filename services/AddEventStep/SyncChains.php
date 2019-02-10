@@ -11,6 +11,9 @@ use Jasny\ValidationResult;
  * The new events are probably a partial chain. We step over the events of the chain in order to find the position
  * where the submitted events should go. This doesn't have to be at the end of the chain, as some (but not all) of the
  * new events are already known and processed. Submitting events is idempotent.
+ *
+ * If the full chain is `A-B-C-D-E` and you receive a partial event chain `D-E-F`, then this service will forward `D`,
+ * creating a iterator with the following pairs `D/D - E/E - null/F`.
  */
 class SyncChains
 {

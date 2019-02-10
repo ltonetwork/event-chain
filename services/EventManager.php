@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 
 use AddEventStep as Step;
-use Jasny\DB\EntitySet;
 use Jasny\ValidationResult;
 use LTO\Account;
 
@@ -50,16 +49,14 @@ class EventManager
      */
     protected $chainGateway;
 
+    /**
+     * @var ConflictResolver
+     */
+    protected $conflictResolver;
+
 
     /**
      * Class constructor
-     *
-     * @param ResourceFactory   $resourceFactory
-     * @param ResourceStorage   $resourceStorage
-     * @param DispatcherManager $dispatcher
-     * @param EventFactory      $eventFactory
-     * @param AnchorClient      $anchor
-     * @param EventChainGateway $chainGateway
      */
     public function __construct(
         ResourceFactory $resourceFactory,
@@ -67,15 +64,14 @@ class EventManager
         DispatcherManager $dispatcher,
         EventFactory $eventFactory,
         AnchorClient $anchor,
-        EventChainGateway $chainGateway
+        EventChainGateway $chainGateway,
+        ConflictResolver $conflictResolver
     ) {
-        $this->resourceFactory = $resourceFactory;
-        $this->resourceStorage = $resourceStorage;
-        $this->dispatcher = $dispatcher;
-        $this->eventFactory = $eventFactory;
+        foreach (func_get_args() as $prop => $service) {
+            $this->prop = $service;
+        }
+
         $this->node = $eventFactory->getNodeAccount();
-        $this->anchor = $anchor;
-        $this->chainGateway = $chainGateway;
     }
 
     /**
@@ -160,7 +156,7 @@ class EventManager
         return [
             new Step\ValidateInput($this->chain),
             new Step\SyncChains($this->chain),
-            new Step\SkipKnownEvents(),
+            new Step\DetermineNewEvents($this->chain, $this->conflictResolver),
             new Step\ValidateNewEvent($this->chain),
             new Step\StoreResource($this->chain, $this->resourceFactory, $this->resourceStorage),
             new Step\HandleFailed($this->chain, $this->eventFactory),
