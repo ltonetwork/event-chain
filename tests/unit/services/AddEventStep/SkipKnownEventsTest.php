@@ -14,18 +14,18 @@ use LTO\Account;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * @covers \AddEventStep\SkipKnownEvents
+ * @covers \AddEventStep\DetermineNewEvents
  */
 class SkipKnownEventsTest extends \Codeception\Test\Unit
 {
     /**
-     * @var SkipKnownEvents
+     * @var DetermineNewEvents
      */
     protected $step;
 
     public function setUp()
     {
-        $this->step = new SkipKnownEvents();
+        $this->step = new DetermineNewEvents();
     }
 
     public function test()
