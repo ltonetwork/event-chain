@@ -1,4 +1,6 @@
-<?php
+<?php declare(strict_types=1);
+
+use LTO\Account;
 
 trait TestEventTrait
 {
@@ -8,26 +10,42 @@ trait TestEventTrait
      * @param int $eventsCount
      * @return EventChain
      */
-    public function createEventChain(int $eventsCount, Account $node): EventChain
+    public function createEventChain(int $eventsCount): EventChain
     {
-        $ltoChain = (new \LTO\EventChain())->initFor($node);
-        $chain = (new TypeCast($ltoChain))->to(EventChain::class);
+        $node = App::getContainer()->get('node.account');
+        $chain = $this->createChain($node);
 
         for ($i=0; $i < $eventsCount; $i++) { 
-            $event = new Event();
-
-            $values = [
-                'timestamp' => (new DateTime)->getTimestamp(),
-                'previous' => $chain->getLatestHash()
-            ];
-
-            $event->setValues($values);
-            $event->signWith($node);
-
+            $event = $this->createEvent($chain, $node, ['foo' => 'bar']);
             $chain->events->add($event);
         }
 
         return $chain;
+    }
+
+    /**
+     * Create fork for given chain
+     *
+     * @param EventChain $chain
+     * @param int $startIdx
+     * @param int $countNewEvents
+     * @return EventChain
+     */
+    public function createFork(EventChain $chain, int $startIdx, int $countNewEvents): EventChain
+    {
+        $node = App::getContainer()->get('node.account');
+        $fork = $chain->withEvents([]);
+
+        for ($i=0; $i < $startIdx; $i++) { 
+            $fork->events->add($chain->events[$i]);
+        }
+
+        for ($i=0; $i < $countNewEvents; $i++) { 
+            $event = $this->createEvent($fork, $node, ['foo' => 'zoo']);
+            $fork->events->add($event);
+        }
+
+        return $fork;
     }
 
     /**
@@ -48,5 +66,45 @@ trait TestEventTrait
         }
 
         return $originalChain->withEvents($events);
+    }
+
+    /**
+     * Create valid event chain
+     *
+     * @param LTO\Account $node
+     * @return EventChain
+     */
+    protected function createChain(Account $node)
+    {
+        $ltoChain = new \LTO\EventChain();
+        $ltoChain->initFor($node);
+
+        $chain = (new TypeCast($ltoChain))->to(EventChain::class);
+
+        return $chain;
+    }
+
+    /**
+     * Create valid Event
+     *
+     * @param EventChain $chain 
+     * @param LTO\Account $node
+     * @param array $body 
+     * @return Event
+     */
+    protected function createEvent(EventChain $chain, Account $node, array $body): Event
+    {
+        $event = new Event();
+
+        $values = [
+            'timestamp' => (new DateTime)->getTimestamp(),
+            'previous' => $chain->getLatestHash(),
+            'body' => base58_encode(json_encode($body))
+        ];
+
+        $event->setValues($values);
+        $event->signWith($node);
+
+        return $event;
     }
 }
