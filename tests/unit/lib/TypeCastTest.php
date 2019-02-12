@@ -1,14 +1,18 @@
 <?php
 
+use Jasny\DB\EntitySet;
+
 /**
  * @covers TypeCast
  */
 class TypeCastTest extends \Codeception\Test\Unit
 {
+    use TestEventTrait;
+
     /**
-     * Test 'toClass' method
+     * Test 'toClass' method, when casting to LTO\Event
      */
-    public function testToClass()
+    public function testToLToEvent()
     {
         $event = $this->createMock(Event::class);
         $typeCast = $this->createPartialMock(TypeCast::class, ['getValue']);
@@ -20,7 +24,7 @@ class TypeCastTest extends \Codeception\Test\Unit
             'signkey' => 'zoo'
         ];
 
-        $typeCast->expects($this->exactly(2))->method('getValue')->willReturn($event);
+        $typeCast->expects($this->any())->method('getValue')->willReturn($event);
         $event->expects($this->once())->method('getValues')->willReturn($values);
 
         $result = $typeCast->toClass(LTO\Event::class);
@@ -30,6 +34,28 @@ class TypeCastTest extends \Codeception\Test\Unit
         $this->assertSame('bar', $result->timestamp);
         $this->assertSame('baz', $result->previous);
         $this->assertSame('zoo', $result->signkey);
+    }
+
+    /**
+     * Test 'toClass' method, when casting to EventChain
+     */
+    public function testToEventChain()
+    {
+        $event = $this->createMock(Event::class);
+        $ltoChain = $this->createMock(LTO\EventChain::class);
+        $ltoChain->id = 'foo';
+        $ltoChain->events = new EntitySet([$event]);
+
+        $typeCast = $this->createPartialMock(TypeCast::class, ['getValue']);
+        $typeCast->expects($this->any())->method('getValue')->willReturn($ltoChain);
+
+        $result = $typeCast->toClass(EventChain::class);
+
+        $this->assertInstanceOf(EventChain::class, $result);
+        $this->assertSame('foo', $result->id);
+        $this->assertInstanceOf(EntitySet::class, $result->events);
+        $this->assertCount(1, $result->events);
+        $this->assertSame($event, $result->events[0]);
     }
 
     /**

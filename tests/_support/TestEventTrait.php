@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
 use LTO\Account;
+use Improved\IteratorPipeline\Pipeline;
+use Improved\Iterator\CombineIterator;
 
 trait TestEventTrait
 {
@@ -59,13 +61,29 @@ trait TestEventTrait
     {
         $events = [];
         $totalCount = count($originalChain->events);
-        $startIdx = $totalCount - $eventsCount + 1;
+        $startIdx = $totalCount - $eventsCount;
 
         for ($i = $startIdx; $i < $totalCount; $i++) { 
             $events[] = $originalChain->events[$i];
         }
 
         return $originalChain->withEvents($events);
+    }
+
+    /**
+     * Create pipeline with events pairs
+     *
+     * @param EventChain $keysChain
+     * @param EventChain $valuesChain 
+     * @return Pipeline
+     */
+    public function mapChains(EventChain $keysChain, EventChain $valuesChain): Pipeline
+    {
+        $values = $valuesChain->events;
+        $keys = iterator_to_array($keysChain->events);
+        $keys = array_pad($keys, count($values), null);
+
+        return Pipeline::with(new CombineIterator($keys, $values));
     }
 
     /**
