@@ -3,6 +3,9 @@
 namespace AddEventStep;
 
 use Improved as i;
+use Event;
+use EventChain;
+use ConflictResolver;
 use Improved\IteratorPipeline\Pipeline;
 use Jasny\ValidationResult;
 
@@ -31,7 +34,7 @@ class DetermineNewEvents
      * @param \EventChain       $chain
      * @param \ConflictResolver $conflictResolver
      */
-    public function __construct(\EventChain $chain, \ConflictResolver $conflictResolver)
+    public function __construct(EventChain $chain, ConflictResolver $conflictResolver)
     {
         $this->chain = $chain;
         $this->conflictResolver = $conflictResolver;
@@ -46,7 +49,9 @@ class DetermineNewEvents
      */
     public function __invoke(Pipeline $pipeline, ValidationResult $validation): Pipeline
     {
-        return $pipeline->then([$this, 'iterate']);
+        return $pipeline->then(function(iterable $events) {
+            return $this->iterate($events);
+        });
     }
 
     /**
@@ -60,12 +65,16 @@ class DetermineNewEvents
         $forked = null;
 
         foreach ($events as $known => $new) {
-            type_check($new, \Event::class);
-            type_check($known, [\Event::class, 'null']);
+            if (!isset($new)) {
+                break;
+            }
+
+            i\type_check($new, Event::class);
+            i\type_check($known, [Event::class, 'null']);
 
             if ($known !== null && $forked === null && $known->hash !== $new->hash) {
-                $msg = "fork detected in chain '%s'; conflict on '%s' and '%s'";
-                trigger_error(sprintf($msg, $this->chain->id, $new->hash, $known->hash), \E_USER_NOTICE);
+                // $msg = "fork detected in chain '%s'; conflict on '%s' and '%s'";
+                // trigger_error(sprintf($msg, $this->chain->id, $new->hash, $known->hash), \E_USER_NOTICE);
                 $forked = [];
             }
 
@@ -80,7 +89,7 @@ class DetermineNewEvents
         }
 
         if ($forked !== null) {
-            $rebasedChain = $this->conflictResolver($forked);
+            $rebasedChain = $this->resolveConflict($forked);
 
             foreach ($rebasedChain->events as $rebasedEvent) {
                 yield $rebasedEvent;
@@ -94,11 +103,12 @@ class DetermineNewEvents
      * @param \Event[] $forked
      * @return \EventChain
      */
-    protected function resolveConflict(array $forked)
+    protected function resolveConflict(array $forked): EventChain
     {
         $forkPoint = i\iterable_first($forked)->previous;
 
-        $ourChain = $this->chain->getEventsAfter($forkPoint);
+        $ourEvents = $this->chain->getEventsAfter($forkPoint);
+        $ourChain = $this->chain->withEvents($ourEvents);
         $theirChain = $this->chain->withEvents($forked);
 
         return $this->conflictResolver->handleFork($ourChain, $theirChain);
