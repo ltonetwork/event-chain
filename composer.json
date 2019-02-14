@@ -29,7 +29,8 @@
         "jasny/autowire": "^1.0",
         "improved/function": "dev-master as 1.0.0",
         "improved/type": "dev-master as 1.0.0",
-        "improved/iterable": "dev-master as 1.0.0"
+        "improved/iterable": "dev-master as 1.0.0",
+        "nesbot/carbon": "^2.11"
     },
     "require-dev" : {
         "jasny/php-code-quality" : "^2.0.0",

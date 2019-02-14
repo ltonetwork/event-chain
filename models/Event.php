@@ -3,6 +3,8 @@
 use LTO\Account;
 use Jasny\ValidationResult;
 use Jasny\DB\Entity\Identifiable;
+use function Jasny\object_get_properties;
+use function Jasny\object_set_properties;
 
 /**
  * Event entity
@@ -96,7 +98,7 @@ class Event extends MongoSubDocument implements Identifiable
      */
     public function cast()
     {
-        if ($this->timestamp instanceof MongoDB\BSON\Int64) {
+        if (is_a($this->timestamp, MongoDB\BSON\Int64::class)) {
             $this->timestamp = (string)$this->timestamp;
         }
 
@@ -149,7 +151,16 @@ class Event extends MongoSubDocument implements Identifiable
      */
     public function castToLtoEvent(): \LTO\Event
     {
-        return (new TypeCast($this))->to(\LTO\Event::class);
+        $values = $this->getValues();
+
+        if (isset($this->original)) {
+            $values['original'] = $this->original->castToLtoEvent();
+        }
+
+        $ltoEvent = new LTO\Event();
+        object_set_properties($ltoEvent, $values);
+
+        return $ltoEvent;
     }
 
     /**
@@ -172,14 +183,13 @@ class Event extends MongoSubDocument implements Identifiable
      */
     public function getMessage(): string
     {
-        $message = join("\n", [
-            $this->body,
-            $this->timestamp,
-            $this->previous,
-            $this->signkey
-        ]);
+        $parts = [$this->body, $this->timestamp, $this->previous, $this->signkey];
 
-        return $message;
+        if ($this->original !== null) {
+            $parts[] = $this->original->hash;
+        }
+
+        return join("\n", $parts);
     }
 
     /**

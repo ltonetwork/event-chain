@@ -137,7 +137,7 @@ trait ResourceBase
      * @param Identity $identity
      * @return $this
      */
-    public function setIdentity(Identity $identity): self
+    public function setIdentity(Identity $identity)
     {
         if (property_exists($this, 'identity')) {
             $this->identity = $identity;

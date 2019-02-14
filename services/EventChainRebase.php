@@ -1,10 +1,8 @@
 <?php declare(strict_types=1);
 
 use LTO\Account;
-use Jasny\DB\EntitySet;
-use Improved\Iterator\CombineIterator;
-use Improved\IteratorPipeline\Pipeline;
 use EventChainRebase\EventStitch;
+use Carbon\Carbon;
 
 /**
  * Service to rebase a fork of an event chain upon the leading chain.
@@ -48,11 +46,7 @@ class EventChainRebase
         $mergedChain = (new EventChain())->withEvents($events);
 
         foreach ($laterChain->events as $key => $event) {            
-            $event = $this->rebaseEvent($event, $mergedChain);
-            $mergedChain->events[] = $event;
-
-            $stitched = $mergedChain->events[$key];
-            $stitched->original = $event;
+            $mergedChain->events[] = $this->rebaseEvent($event, $mergedChain);
         }
 
         return $mergedChain;
@@ -79,21 +73,15 @@ class EventChainRebase
      */
     protected function rebaseEvent(Event $event, EventChain $mergedChain): Event
     {
-        $event = clone $event;
-        $event->timestamp = (new DateTime())->getTimestamp();
-        $event->previous = $mergedChain->getLatestHash();
-        $this->signEvent($event);
+        $stitched = new Event();
 
-        return $event;
-    }
+        $stitched->origin = $event->origin;
+        $stitched->body = $event->body;
+        $stitched->timestamp = Carbon::now()->getTimestamp();
+        $stitched->previous = $mergedChain->getLatestHash();
 
-    /**
-     * Sign event
-     *
-     * @param Event $event
-     */
-    protected function signEvent(Event $event): void
-    {
-        $event->signWith($this->node);
+        $stitched->original = $event->original ?? $event;
+
+        return $stitched->signWith($this->node);
     }
 }

@@ -41,7 +41,7 @@ class ResponseResource extends ExternalResource
      * @param Identity $identity
      * @return $this
      */
-    public function setIdentity(Identity $identity): self
+    public function setIdentity(Identity $identity)
     {
         $this->identity = $identity;
         

@@ -20,15 +20,14 @@ class SkipKnownEvents
     /**
      * Invoke the step.
      *
-     * @param Pipeline         $pipeline
-     * @param ValidationResult $validation
+     * @param Pipeline  $pipeline
      * @return Pipeline
      */
-    public function __invoke(Pipeline $pipeline, ValidationResult $validation): Pipeline
+    public function __invoke(Pipeline $pipeline): Pipeline
     {
         $forked = false;
 
-        return $pipeline->filter(function(?Event $new, ?Event $known) use ($validation, &$forked): bool {
+        return $pipeline->filter(function(?Event $new, ?Event $known) use (&$forked): bool {
             $forked = $forked || ($known !== null && $known->hash !== $new->hash);
 
             return ($known === null || $forked) && ($new !== null);
