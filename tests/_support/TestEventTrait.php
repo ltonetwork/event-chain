@@ -7,6 +7,14 @@ use Improved\Iterator\CombineIterator;
 trait TestEventTrait
 {
     /**
+     * @return Account
+     */
+    protected function getNode(): Account
+    {
+        return App::getContainer()->get('node.account');
+    }
+
+    /**
      * Create test event chain
      *
      * @param int $eventsCount
@@ -14,7 +22,8 @@ trait TestEventTrait
      */
     public function createEventChain(int $eventsCount): EventChain
     {
-        $node = App::getContainer()->get('node.account');
+        $node = $this->getNode();
+
         $chain = $this->createChain($node);
 
         for ($i=0; $i < $eventsCount; $i++) { 
@@ -29,8 +38,8 @@ trait TestEventTrait
      * Create fork for given chain
      *
      * @param EventChain $chain
-     * @param int $startIdx
-     * @param int $countNewEvents
+     * @param int        $startIdx
+     * @param int        $countNewEvents
      * @return EventChain
      */
     public function createFork(EventChain $chain, int $startIdx, int $countNewEvents): EventChain
@@ -48,6 +57,24 @@ trait TestEventTrait
         }
 
         return $fork;
+    }
+
+    /**
+     * Clone the chain and add events.
+     *
+     * @param EventChain $chain
+     * @param int $eventsCount
+     * @return EventChain
+     */
+    public function addEvents(EventChain $chain, int $eventsCount): EventChain
+    {
+        $newChain = clone $chain;
+
+        for ($i = 0; $i < $eventsCount; $i++) {
+            $newChain->events[] = $this->createEvent($newChain);
+        }
+
+        return $newChain;
     }
 
     /**
@@ -105,13 +132,15 @@ trait TestEventTrait
     /**
      * Create valid Event
      *
-     * @param EventChain $chain 
+     * @param EventChain  $chain
      * @param LTO\Account $node
-     * @param array $body 
+     * @param array       $body
      * @return Event
      */
-    protected function createEvent(EventChain $chain, Account $node, array $body): Event
+    protected function createEvent(EventChain $chain, ?Account $node = null, array $body = []): Event
     {
+        $node = $node ?? $this->getNode();
+
         $event = new Event();
 
         $values = [

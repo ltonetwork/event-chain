@@ -10,11 +10,6 @@ use LTO\Account;
 class EventManager
 {
     /**
-     * @var EventChain
-     */
-    protected $chain;
-
-    /**
      * @var ResourceFactory
      */
     protected $resourceFactory;
@@ -67,48 +62,55 @@ class EventManager
         EventChainGateway $chainGateway,
         ConflictResolver $conflictResolver
     ) {
-        foreach (func_get_args() as $prop => $service) {
-            $this->prop = $service;
-        }
-
+        $this->resourceFactory = $resourceFactory;
+        $this->resourceStorage = $resourceStorage;
+        $this->dispatcher = $dispatcher;
+        $this->eventFactory = $eventFactory;
         $this->node = $eventFactory->getNodeAccount();
+        $this->anchor = $anchor;
+        $this->chainGateway = $chainGateway;
+        $this->conflictResolver = $conflictResolver;
     }
 
     /**
-     * Create a manager for specified chain.
+     * Add new events to an event chain.
      *
      * @param EventChain $chain
-     * @return static
-     * @throws UnexpectedValueException for a partial chain
+     * @param EventChain $newEvents
+     * @return ValidationResult
      */
-    public function with(EventChain $chain): self
+    public function add(EventChain $chain, EventChain $newEvents): ValidationResult
     {
-        if (isset($this->chain)) {
-            throw new BadMethodCallException("Chain already set");
-        }
-
         if ($chain->isPartial()) {
-            throw new UnexpectedValueException("Event chain doesn't contain the genesis event");
+            throw new UnexpectedValueException("Partial event chain; doesn't contain the genesis event");
         }
 
-        $clone = clone $this;
-        $clone->chain = $chain;
-
-        return $clone;
+        $steps = $this->getSteps($chain);
+        
+        return $this->step($newEvents, ...$steps);
     }
 
-
     /**
-     * Assert that a chain has been set
+     * Get all steps to process event.
      *
-     * @return void
-     * @throw BadMethodCallException if no chain is set.
+     * @param EventChain $chain
+     * @return callable[]
      */
-    protected function assertChain(): void
+    protected function getSteps(EventChain $chain): array
     {
-        if (!isset($this->chain)) {
-            throw new BadMethodCallException("Chain not set; use the `withChain()` method.");
-        }
+        return [
+            new Step\ValidateInput($chain),
+            new Step\SyncChains($chain),
+            new Step\SkipKnownEvents(),
+            new Step\HandleFork($chain, $this->conflictResolver),
+            new Step\ValidateNewEvent($chain),
+            new Step\StoreResource($chain, $this->resourceFactory, $this->resourceStorage),
+            new Step\HandleFailed($chain, $this->eventFactory),
+            new Step\SaveEvent($chain, $this->chainGateway),
+            new Step\Walk($chain), // <-- Nothing will happen without this step
+            new Step\Dispatch($chain, $this->dispatcher, $this->node, $chain->getNodes()),
+            new Step\TriggerResourceServices($chain, $this->resourceFactory, $this->resourceStorage, $this->node)
+        ];
     }
 
     /**
@@ -128,42 +130,5 @@ class EventManager
         }
 
         return $validation;
-    }
-
-    /**
-     * Add new events to an event chain.
-     *
-     * @param EventChain $newEvents
-     * @return ValidationResult
-     */
-    public function add(EventChain $newEvents): ValidationResult
-    {
-        $this->assertChain();
-
-        $steps = $this->getSteps();
-        
-        return $this->step($newEvents, ...$steps);
-    }
-
-    /**
-     * Get all steps to process event
-     *
-     * @codeCoverageIgnore
-     * @return array
-     */
-    protected function getSteps(): array
-    {
-        return [
-            new Step\ValidateInput($this->chain),
-            new Step\SyncChains($this->chain),
-            new Step\DetermineNewEvents($this->chain, $this->conflictResolver),
-            new Step\ValidateNewEvent($this->chain),
-            new Step\StoreResource($this->chain, $this->resourceFactory, $this->resourceStorage),
-            new Step\HandleFailed($this->chain, $this->eventFactory),
-            new Step\SaveEvent($this->chain, $this->chainGateway),
-            new Step\Walk($this->chain), // <-- Nothing will happen without this step
-            new Step\Dispatch($this->chain, $this->dispatcher, $this->node, $this->chain->getNodes()),
-            new Step\TriggerResourceServices($this->chain, $this->resourceFactory, $this->resourceStorage, $this->node)
-        ];
     }
 }

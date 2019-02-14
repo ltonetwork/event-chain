@@ -38,13 +38,7 @@ class EventController extends Jasny\Controller
         $this->eventChains = $eventChainGateway;
         $this->dispatcher = $dispatcher;
         $this->manager = $eventManager;
-    }
 
-    /**
-     * Before each action
-     */
-    public function before(): void
-    {
         $this->byDefaultSerializeTo('json');
     }
 
@@ -90,7 +84,7 @@ class EventController extends Jasny\Controller
             return; // Forbidden
         }
 
-        $handled = $this->manager->with($chain)->add($newChain);
+        $handled = $this->manager->add($chain, $newChain);
 
         if ($handled->failed()) {
             $this->badRequest((string)json_encode($handled->getErrors()));

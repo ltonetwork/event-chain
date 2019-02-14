@@ -3,88 +3,124 @@
 namespace AddEventStep;
 
 use Improved as i;
-use Event;
-use EventChain;
-use EventFactory;
-use AnchorClient;
-use Jasny\DB\EntitySet;
 use Improved\IteratorPipeline\Pipeline;
 use Jasny\ValidationResult;
-use LTO\Account;
-use PHPUnit\Framework\MockObject\MockObject;
+use TestEventTrait;
 
 /**
- * @covers \AddEventStep\DetermineNewEvents
+ * @covers \AddEventStep\SkipKnownEvents
  */
 class SkipKnownEventsTest extends \Codeception\Test\Unit
 {
+    use TestEventTrait;
+
     /**
-     * @var DetermineNewEvents
+     * @var \EventChain
+     */
+    protected $chain;
+
+    /**
+     * @var SkipKnownEvents
      */
     protected $step;
 
     public function setUp()
     {
-        $this->step = new DetermineNewEvents();
+        $this->chain = $this->createEventChain(5);
+        $this->step = new SkipKnownEvents($this->chain);
     }
 
-    public function test()
+    public function testAdded()
     {
-        $keys = [
-            $this->createMock(Event::class),
-            null,
-            $this->createMock(Event::class),
-            $this->createMock(Event::class),
-            $this->createMock(Event::class)
-        ];
+        $newChain = $this->addEvents($this->chain, 2);
 
-        $values = [
-            $this->createMock(Event::class),
-            $this->createMock(Event::class),
-            $this->createMock(Event::class),
-            $this->createMock(Event::class),
-            $this->createMock(Event::class)
-        ];
-
-        $keys[0]->hash = '12345';
-        $keys[2]->hash = 'abcde';
-        $keys[3]->hash = 'foo';
-        $keys[4]->hash = 'baz';
-
-        $values[0]->hash = '12345';
-        $values[1]->hash = 'bar';
-        $values[2]->hash = 'abcde';
-        $values[3]->hash = 'zoo';
-        $values[4]->hash = 'baz';
-
-        $events = $this->getEventsGenerator($keys, $values);
         $validation = $this->createMock(ValidationResult::class);
+        $validation->expects($this->never())->method('addError');
+        $validation->expects($this->never())->method('add');
 
-        $validation->expects($this->once())->method('addError')->withConsecutive(
-            ["fork detected; conflict on '%s' and '%s'", 'zoo', 'foo']
+        $newEvents = $this->mapChains($this->chain, $newChain);
+        $result = i\function_call($this->step, $newEvents, $validation);
+
+        $this->assertInstanceOf(Pipeline::class, $result);
+        $events = i\iterable_to_array($result);
+
+        $expected = Pipeline::with($newChain->events)->slice(5)->values()->toArray();
+
+        $this->assertEquals(
+            Pipeline::with($expected)->column('hash')->toArray(),
+            Pipeline::with($events)->column('hash')->toArray()
         );
-
-        $expected = [$values[1], $values[3], $values[4]];
-       
-        $pipeline = Pipeline::with($events);
-        $ret = i\function_call($this->step, $pipeline, $validation);
-        $this->assertSame($ret, $pipeline);
-
-        $result = $pipeline->values()->toArray();
-        $this->assertEquals($expected, $result);
+        $this->assertSame($expected, $events);
     }
 
-    /**
-     * Create test generator of events
-     *
-     * @param  array $keys 
-     * @param  array $values 
-     * @return Generator
-     */
-    protected function getEventsGenerator(array $keys, array $values): \Generator
+    public function testAddedPartial()
     {
-        for ($i=0; $i < count($keys); $i++) { 
-            yield $keys[$i] => $values[$i];
-        }
+        $newChain = $this->addEvents($this->chain, 2);
+        $partial = $this->createPartialChain($newChain, 3);
+
+        $validation = $this->createMock(ValidationResult::class);
+        $validation->expects($this->never())->method('addError');
+        $validation->expects($this->never())->method('add');
+
+        $newEvents = $this->mapChains($this->createPartialChain($this->chain, 1), $partial);
+        $result = i\function_call($this->step, $newEvents, $validation);
+
+        $this->assertInstanceOf(Pipeline::class, $result);
+        $events = i\iterable_to_array($result);
+
+        $expected = Pipeline::with($newChain->events)->slice(5)->values()->toArray();
+
+        $this->assertEquals(
+            Pipeline::with($expected)->column('hash')->toArray(),
+            Pipeline::with($events)->column('hash')->toArray()
+        );
+        $this->assertSame($expected, $events);
+    }
+
+    public function testWithFork()
+    {
+        $fork = $this->createFork($this->chain, 2, 2);
+
+        $validation = $this->createMock(ValidationResult::class);
+        $validation->expects($this->never())->method('addError');
+        $validation->expects($this->never())->method('add');
+
+        $newEvents = $this->mapChains($this->chain, $fork);
+        $result = i\function_call($this->step, $newEvents, $validation);
+
+        $this->assertInstanceOf(Pipeline::class, $result);
+        $events = i\iterable_to_array($result);
+
+        $expected = Pipeline::with($fork->events)->slice(2)->values()->toArray();
+
+        $this->assertEquals(
+            Pipeline::with($expected)->column('hash')->toArray(),
+            Pipeline::with($events)->column('hash')->toArray()
+        );
+        $this->assertSame($expected, $events);
+    }
+
+    public function testWithForkPartial()
+    {
+        $fork = $this->createFork($this->chain, 2, 2);
+        $partial = $this->createPartialChain($fork, 3);
+
+        $validation = $this->createMock(ValidationResult::class);
+        $validation->expects($this->never())->method('addError');
+        $validation->expects($this->never())->method('add');
+
+        $newEvents = $this->mapChains($this->createPartialChain($this->chain, 4), $partial);
+        $result = i\function_call($this->step, $newEvents, $validation);
+
+        $this->assertInstanceOf(Pipeline::class, $result);
+        $events = i\iterable_to_array($result);
+
+        $expected = Pipeline::with($fork->events)->slice(2)->values()->toArray();
+
+        $this->assertEquals(
+            Pipeline::with($expected)->column('hash')->toArray(),
+            Pipeline::with($events)->column('hash')->toArray()
+        );
+        $this->assertSame($expected, $events);
     }
 }

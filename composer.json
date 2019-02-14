@@ -1,11 +1,11 @@
 {
-    "name": "legalthings/legalevents",
+    "name": "lto/eventchain",
     "description": "Event chain service",
-    "license": "proprietary",
+    "license": "MIT",
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.2",
         "ext-json": "*",
-        "ext-sodium": "2.*",
+        "ext-sodium": ">=2.0",
         "ext-intl": "*",
         "ext-mongodb": "*",
         "jasny/config" : "^2.0",
@@ -27,9 +27,9 @@
         "jasny/container": "^1.0",
         "jasny/application-env": "^1.0",
         "jasny/autowire": "^1.0",
-        "improved/function": "dev-master",
-        "improved/type": "dev-master",
-        "improved/iterable": "dev-master"
+        "improved/function": "dev-master as 1.0.0",
+        "improved/type": "dev-master as 1.0.0",
+        "improved/iterable": "dev-master as 1.0.0"
     },
     "require-dev" : {
         "jasny/php-code-quality" : "^2.0.0",

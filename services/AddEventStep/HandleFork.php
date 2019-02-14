@@ -3,20 +3,14 @@
 namespace AddEventStep;
 
 use Improved as i;
-use Event;
-use EventChain;
-use ConflictResolver;
 use Improved\IteratorPipeline\Pipeline;
 use Jasny\ValidationResult;
 
 /**
- * Some (but not all) of the new events may already known and processed. Submitting events is idempotent. We skip
- * through these events.
- *
  * If a fork is detected it's resolved using the `ConflictResolver` service. From to forked event, the new rebased
  * events are yielded.
  */
-class DetermineNewEvents
+class HandleFork
 {
     /**
      * @var \EventChain
@@ -34,7 +28,7 @@ class DetermineNewEvents
      * @param \EventChain       $chain
      * @param \ConflictResolver $conflictResolver
      */
-    public function __construct(EventChain $chain, ConflictResolver $conflictResolver)
+    public function __construct(\EventChain $chain, \ConflictResolver $conflictResolver)
     {
         $this->chain = $chain;
         $this->conflictResolver = $conflictResolver;
@@ -55,41 +49,37 @@ class DetermineNewEvents
     }
 
     /**
-     * Iterate through all events.
+     * Iterate through the events OR rebased events in case of a fork.
      *
-     * @param iterable $events
+     * {@internal We only need to look at the first event to see if there is a fork. However we don't want to just get
+     *   that event and return the rebased events as alt iterable. This would mess up the iteration over all the steps.
+     *   Instead we always return the same Generator, which will determine what to yield when invoked for the first
+     *   time.}}
+     *
+     * @param iterable|\Event[] $events
      * @return \Generator
      */
     protected function iterate(iterable $events): \Generator
     {
-        $forked = null;
+        $forked = false;
+        $forkedEvents = [];
 
         foreach ($events as $known => $new) {
-            if (!isset($new)) {
-                break;
-            }
+            i\type_check($known, [\Event::class, 'null']);
+            i\type_check($new, \Event::class);
 
-            i\type_check($new, Event::class);
-            i\type_check($known, [Event::class, 'null']);
+            $forked = $forked || ($known !== null && $known->hash !== $new->hash);
 
-            if ($known !== null && $forked === null && $known->hash !== $new->hash) {
-                // $msg = "fork detected in chain '%s'; conflict on '%s' and '%s'";
-                // trigger_error(sprintf($msg, $this->chain->id, $new->hash, $known->hash), \E_USER_NOTICE);
-                $forked = [];
-            }
-
-            if ($forked !== null) {
-                $forked[] = $new;
+            if ($forked) {
+                $forkedEvents[] = $new;
                 continue;
             }
 
-            if ($known === null) {
-                yield $new;
-            }
+            yield $new;
         }
 
-        if ($forked !== null) {
-            $rebasedChain = $this->resolveConflict($forked);
+        if ($forked) {
+            $rebasedChain = $this->resolveConflict($forkedEvents);
 
             foreach ($rebasedChain->events as $rebasedEvent) {
                 yield $rebasedEvent;
@@ -103,12 +93,11 @@ class DetermineNewEvents
      * @param \Event[] $forked
      * @return \EventChain
      */
-    protected function resolveConflict(array $forked): EventChain
+    protected function resolveConflict(array $forked): \EventChain
     {
         $forkPoint = i\iterable_first($forked)->previous;
 
-        $ourEvents = $this->chain->getEventsAfter($forkPoint);
-        $ourChain = $this->chain->withEvents($ourEvents);
+        $ourChain = $this->chain->getPartialAfter($forkPoint);
         $theirChain = $this->chain->withEvents($forked);
 
         return $this->conflictResolver->handleFork($ourChain, $theirChain);

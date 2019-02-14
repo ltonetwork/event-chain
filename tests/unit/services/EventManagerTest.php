@@ -2,7 +2,7 @@
 
 use Jasny\ValidationResult;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
-use LTO\Account;
+use AddEventStep as Step;
 
 /**
  * @covers \EventManager
@@ -24,7 +24,8 @@ class EventManagerTest extends \Codeception\Test\Unit
             DispatcherManager::class => $this->createMock(DispatcherManager::class),
             EventFactory::class => $this->createMock(EventFactory::class),
             AnchorClient::class => $this->createMock(AnchorClient::class),
-            EventChainGateway::class => $this->createMock(EventChainGateway::class)
+            EventChainGateway::class => $this->createMock(EventChainGateway::class),
+            ConflictResolver::class => $this->createMock(ConflictResolver::class),
         ];
     }
 
@@ -48,97 +49,106 @@ class EventManagerTest extends \Codeception\Test\Unit
     }
 
     /**
-     * Test 'with' method
+     * Create stubs for the steps.
+     *
+     * @param string|null $firstError
+     * @param string|null $secondError
+     * @param EventChain  $chain
+     * @return callable[]
      */
-    public function testWith()
+    protected function stubSteps(?string $firstError, ?string $secondError, EventChain $newChain): array
     {
-        $chain = $this->createMock(EventChain::class);
-        $manager = $this->createEventManager();
+        return [
+            function(EventChain $events, ValidationResult $validation) use ($firstError, $newChain): EventChain {
+                if ($firstError !== null) {
+                    $validation->addError($firstError);
+                }
 
-        $result = $manager->with($chain);
+                $this->assertSame($newChain, $events);
 
-        $this->assertInstanceOf(EventManager::class, $result);
-        $this->assertAttributeEquals($chain, 'chain', $result);
+                return $newChain;
+            },
+            function(EventChain $events, ValidationResult $validation) use ($secondError, $newChain): EventChain {
+                if ($secondError !== null) {
+                    $validation->addError($secondError);
+                }
+
+                $this->assertSame($newChain, $events);
+
+                return $newChain;
+            },
+        ];
     }
-    
+
+
+    public function addProvider()
+    {
+        return [
+            ['First error', 'secondError'],
+            []
+        ];
+    }
+
     /**
-     * Test 'with' method, if chain is already set
-     * 
-     * @expectedException BadMethodCallException
-     * @expectedExceptionMessage Chain already set
+     * Test 'add' method
+     * @dataProvider addProvider
      */
-    public function testWithChainExistsException()
+    public function testAdd(string ...$errors)
     {
         $chain = $this->createMock(EventChain::class);
         $newChain = $this->createMock(EventChain::class);
 
-        $manager = $this->createEventManager();
-        $this->setPrivateProperty($manager, 'chain', $chain);
+        $manager = $this->createEventManager(['getSteps']);
 
-        $manager->with($newChain);
+        $manager->expects($this->once())->method('getSteps')
+            ->willReturn($this->stubSteps($errors[0] ?? null, $errors[1] ?? null, $newChain));
+
+        $result = $manager->add($chain, $newChain);
+
+        $this->assertInstanceOf(ValidationResult::class, $result);
+        $this->assertSame($errors, $result->getErrors());
     }
-    
+
     /**
-     * Test 'with' method, if supplied chain is partial
-     * 
+     * Test 'add' method, if supplied chain is partial
+     *
      * @expectedException UnexpectedValueException
-     * @expectedExceptionMessage Event chain doesn't contain the genesis event
+     * @expectedExceptionMessage Partial event chain; doesn't contain the genesis event
      */
     public function testWithPartialChainException()
     {
         $chain = $this->createMock(EventChain::class);
         $chain->method('isPartial')->willReturn(true);
 
-        $constructorArgs = array_values($this->createMockDependencies());
-        
-        (new EventManager(...$constructorArgs))->with($chain);
-    }
-
-    /**
-     * Test 'add' method
-     */
-    public function testAdd()
-    {
-        $chain = $this->createMock(EventChain::class);
         $newChain = $this->createMock(EventChain::class);
 
-        $manager = $this->createEventManager(['getSteps']);
-        $this->setPrivateProperty($manager, 'chain', $chain);
+        $constructorArgs = array_values($this->createMockDependencies());
 
-        $steps = [
-            function(EventChain $events, ValidationResult $validation) use ($newChain): EventChain {
-                $validation->addError('Called first');
-                $this->assertSame($newChain, $events);
-                
-                return $newChain;
-            },
-            function(EventChain $events, ValidationResult $validation) use ($newChain): EventChain {
-                $validation->addError('Called second');
-                $this->assertSame($newChain, $events);
-
-                return $newChain;
-            },
-        ];
-
-        $manager->expects($this->once())->method('getSteps')->willReturn($steps);
-
-        $result = $manager->add($newChain);
-
-        $this->assertInstanceOf(ValidationResult::class, $result);
-        $this->assertSame(['Called first', 'Called second'], $result->getErrors());
+        $manager = new EventManager(...$constructorArgs);
+        $manager->add($chain, $newChain);
     }
 
-    /**
-     * Test 'add' method, if no chain is set
-     *
-     * @expectedException BadMethodCallException
-     * @expectedExceptionMessage Chain not set; use the `withChain()` method.
-     */
-    public function testAddNoChainException()
+    public function testGetSteps()
     {
         $chain = $this->createMock(EventChain::class);
-        $manager = $this->createEventManager();
+        $dependencies = $this->createMockDependencies();
 
-        $manager->add($chain);
+        $eventManager = new EventManager(...array_values($dependencies));
+
+        $steps = $this->callPrivateMethod($eventManager, 'getSteps', [$chain]);
+
+        $this->assertInternalType('array', $steps);
+        
+        $this->assertInstanceOf(Step\ValidateInput::class, $steps[0]);
+        $this->assertInstanceOf(Step\SyncChains::class, $steps[1]);
+        $this->assertInstanceOf(Step\SkipKnownEvents::class, $steps[2]);
+        $this->assertInstanceOf(Step\HandleFork::class, $steps[3]);
+        $this->assertInstanceOf(Step\ValidateNewEvent::class, $steps[4]);
+        $this->assertInstanceOf(Step\StoreResource::class, $steps[5]);
+        $this->assertInstanceOf(Step\HandleFailed::class, $steps[6]);
+        $this->assertInstanceOf(Step\SaveEvent::class, $steps[7]);
+        $this->assertInstanceOf(Step\Walk::class, $steps[8]);
+        $this->assertInstanceOf(Step\Dispatch::class, $steps[9]);
+        $this->assertInstanceOf(Step\TriggerResourceServices::class, $steps[10]);
     }
 }

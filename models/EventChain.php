@@ -418,4 +418,12 @@ class EventChain extends MongoDocument
             }
         }
     }
+
+    /**
+     * Called when entity is cloned
+     */
+    public function __clone()
+    {
+        $this->events = clone $this->events;
+    }
 }

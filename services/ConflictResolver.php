@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 
 use Improved\IteratorPipeline\Pipeline;
-use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Resolve a conflict when a fork is detected.

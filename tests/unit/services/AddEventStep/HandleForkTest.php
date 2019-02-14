@@ -2,33 +2,27 @@
 
 namespace AddEventStep;
 
+use function array_slice;
 use Improved as i;
-use App;
-use Event;
-use EventChain;
-use EventFactory;
-use AnchorClient;
 use TestEventTrait;
-use ConflictResolver;
-use Jasny\DB\EntitySet;
 use Jasny\ValidationResult;
 use Improved\IteratorPipeline\Pipeline;
 
 /**
- * @covers \AddEventStep\DetermineNewEvents
+ * @covers \AddEventStep\HandleFork
  */
-class DetermineNewEventsTest extends \Codeception\Test\Unit
+class HandleForkTest extends \Codeception\Test\Unit
 {
     use TestEventTrait;
 
     /**
-     * @var DetermineNewEvents
+     * @var HandleFork
      */
     protected $step;
 
     public function setUp()
     {        
-        $this->conflictResolver = $this->createMock(ConflictResolver::class);
+        $this->conflictResolver = $this->createMock(\ConflictResolver::class);
     }
 
     /**
@@ -40,9 +34,9 @@ class DetermineNewEventsTest extends \Codeception\Test\Unit
         $fork = $this->createFork($chain, 2, 3);
         $merged = $this->createEventChain(6);
 
-        $step = new DetermineNewEvents($chain, $this->conflictResolver);
+        $step = new HandleFork($chain, $this->conflictResolver);
 
-        $chainCallback = function(EventChain $ourChain) use ($chain) {
+        $chainCallback = function(\EventChain $ourChain) use ($chain) {
             $ourEvents = $ourChain->events;
 
             $this->assertSame($chain->id, $ourChain->id);
@@ -55,7 +49,7 @@ class DetermineNewEventsTest extends \Codeception\Test\Unit
             return true;
         };
 
-        $forkCallback = function(EventChain $theirChain) use ($fork) {
+        $forkCallback = function(\EventChain $theirChain) use ($fork) {
             $theirEvents = $theirChain->events;
 
             $this->assertSame($fork->id, $theirChain->id);
@@ -75,13 +69,36 @@ class DetermineNewEventsTest extends \Codeception\Test\Unit
         $validation = $this->createMock(ValidationResult::class);
 
         $result = i\function_call($step, $pipeline, $validation);
-        $events = $result->toArray();
-
         $this->assertInstanceOf(Pipeline::class, $result);
-        $this->assertCount(6, $events);
 
-        for ($i=0; $i < count($events); $i++) { 
-            $this->assertSame($merged->events[$i], $events[$i]);
-        }
+        $events = $result->toArray();
+        $this->assertCount(8, $events);
+
+        $expected = array_merge(
+            array_slice($chain->events->getArrayCopy(), 0, 2),
+            $merged->events->getArrayCopy()
+        );
+
+        $this->assertSame($expected, $events);
+    }
+
+    public function testNoFork()
+    {
+        $chain = $this->createEventChain(5);
+        $newChain = $this->addEvents($chain, 3);
+
+        $step = new HandleFork($chain, $this->conflictResolver);
+        $this->conflictResolver->expects($this->never())->method('handleFork');
+
+        $pipeline = $this->mapChains($chain, $newChain);
+        $validation = $this->createMock(ValidationResult::class);
+
+        $result = i\function_call($step, $pipeline, $validation);
+        $this->assertInstanceOf(Pipeline::class, $result);
+
+        $events = $result->toArray();
+        $this->assertCount(8, $events);
+
+        $this->assertSame($newChain->events->getArrayCopy(), $events);
     }
 }
