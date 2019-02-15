@@ -81,7 +81,7 @@ class Event extends MongoSubDocument implements Identifiable
      * @var Receipt|null
      * @immutable
      */
-    public $receipt; 
+    public $receipt;
 
     /**
      * Original event if event is stitched
@@ -126,7 +126,7 @@ class Event extends MongoSubDocument implements Identifiable
 
     /**
      * Sign this event
-     * 
+     *
      * @param Account $account
      * @return $this
      */
@@ -325,4 +325,3 @@ class Event extends MongoSubDocument implements Identifiable
         return parent::fromData($data);
     }
 }
-

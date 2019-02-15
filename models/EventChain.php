@@ -135,7 +135,7 @@ class EventChain extends MongoDocument
     public function getNodesForSystem(string $signKey): array
     {
         return Pipeline::with($this->identities)
-            ->filter(function(Identity $identity) use ($signKey) {
+            ->filter(function (Identity $identity) use ($signKey) {
                 return isset($identity->signkeys['system']) && $identity->signkeys['system'] === $signKey;
             })
             ->column('node')
@@ -152,7 +152,7 @@ class EventChain extends MongoDocument
     public function getNodesForUser(string $signKey): array
     {
         return Pipeline::with($this->identities)
-            ->filter(function(Identity $identity) use ($signKey) {
+            ->filter(function (Identity $identity) use ($signKey) {
                 return isset($identity->signkeys['user']) && $identity->signkeys['user'] === $signKey;
             })
             ->column('node')
@@ -184,7 +184,7 @@ class EventChain extends MongoDocument
     public function hasSystemKeyForIdentity(string $userSignKey, string $nodeSignKey): bool
     {
         return Pipeline::with($this->identities)
-            ->hasAny(function(Identity $identity) use ($userSignKey, $nodeSignKey) {
+            ->hasAny(function (Identity $identity) use ($userSignKey, $nodeSignKey) {
                 return
                     isset($identity->signkeys['user']) && $identity->signkeys['user'] == $userSignKey &&
                     isset($identity->signkeys['system']) && $identity->signkeys['system'] == $nodeSignKey;

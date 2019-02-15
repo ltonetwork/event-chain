@@ -21,7 +21,7 @@ class TypeCast extends Jasny\TypeCast
             return $this->toEventChain();
         }
 
-        return parent::toClass($class);        
+        return parent::toClass($class);
     }
 
     /**

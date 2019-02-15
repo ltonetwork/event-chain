@@ -4,13 +4,13 @@ use Psr\Container\ContainerInterface;
 use Jasny\Container\AutowireContainerInterface;
 
 return [
-    EventChainGateway::class => function() {
+    EventChainGateway::class => function () {
         return new EventChainGateway();
     },
-    EventChainRebase::class => function(AutowireContainerInterface $container) {
+    EventChainRebase::class => function (AutowireContainerInterface $container) {
         return $container->autowire(EventChainRebase::class);
     },
-    ConflictResolver::class => function(AutowireContainerInterface $container) {
+    ConflictResolver::class => function (AutowireContainerInterface $container) {
         return $container->autowire(ConflictResolver::class);
     },
 

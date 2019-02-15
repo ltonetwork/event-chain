@@ -45,7 +45,7 @@ class HandleFailed
      */
     public function __invoke(Pipeline $pipeline, ValidationResult $validation): Pipeline
     {
-        return $pipeline->then(function(iterable $events) use ($validation): \Generator {
+        return $pipeline->then(function (iterable $events) use ($validation): \Generator {
             $failed = [];
 
             foreach ($events as $event) {

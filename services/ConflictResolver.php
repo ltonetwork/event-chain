@@ -111,7 +111,9 @@ class ConflictResolver
     protected function notAnchoredException(array $events)
     {
         $hashes = Pipeline::with($events)
-            ->map(function (Event $event) { return $event->hash; })
+            ->map(function (Event $event) {
+                return $event->hash;
+            })
             ->concat("', '");
 
         return new UnresolvableConflictException(

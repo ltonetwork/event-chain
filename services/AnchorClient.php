@@ -83,13 +83,13 @@ class AnchorClient
     public function fetchMultiple(iterable $hashes, string $encoding = 'base58'): Pipeline
     {
         return Pipeline::with($hashes)
-            ->mapKeys(function(string $hash) use ($encoding) {
+            ->mapKeys(function (string $hash) use ($encoding) {
                 return "{$this->config->url}/hash/$hash/encoding/$encoding";
             })
-            ->map(function(string $hash, string $url) {
+            ->map(function (string $hash, string $url) {
                 return $this->httpClient->requestAsync('GET', $url, ['http_errors' => true]);
             })
-            ->then(function(iterable $iterable) {
+            ->then(function (iterable $iterable) {
                 // Keys may not be scalar, so we need to separate to get promises array.
                 ['keys' => $keys, 'promises' => $promises] = i\iterable_separate($iterable);
 
@@ -98,10 +98,10 @@ class AnchorClient
 
                 return new CombineIterator($keys, $responses);
             })
-            ->filter(function(Response $response) {
+            ->filter(function (Response $response) {
                 return $response->getStatusCode() !== 404;
             })
-            ->apply(function(Response $response, string $url) {
+            ->apply(function (Response $response, string $url) {
                 if ($response->getStatusCode() >= 400) {
                     $request = new Request('GET', $url);
                     throw RequestException::create($request, $response);

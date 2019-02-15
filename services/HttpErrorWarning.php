@@ -36,7 +36,7 @@ class HttpErrorWarning
      * @parma string   $url
      * @return void
      */
-    function __invoke(Response $response, string $url): void
+    public function __invoke(Response $response, string $url): void
     {
         if ($response->getStatusCode() >= 400 && !in_array($response->getStatusCode(), $url, true)) {
             $this->onError($response, $url);

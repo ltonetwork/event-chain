@@ -53,7 +53,7 @@ class AnchorEvent
      */
     public function __invoke(Pipeline $pipeline, ValidationResult $validation): Pipeline
     {
-        return $pipeline->apply(function(Event $event) use ($validation) {
+        return $pipeline->apply(function (Event $event) use ($validation) {
             if ($validation->failed() || !$this->chain->isEventSignedByAccount($event, $this->node)) {
                 return;
             }

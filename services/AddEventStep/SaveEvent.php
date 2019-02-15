@@ -42,7 +42,7 @@ class SaveEvent
      */
     public function __invoke(Pipeline $pipeline): Pipeline
     {
-        return $pipeline->apply(function(Event $event) {
+        return $pipeline->apply(function (Event $event) {
             $this->chain->events->add($event);
             $this->chainGateway->save($this->chain);
         });

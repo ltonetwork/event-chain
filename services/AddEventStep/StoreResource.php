@@ -56,7 +56,7 @@ class StoreResource
      */
     public function __invoke(Pipeline $pipeline, ValidationResult $validation): Pipeline
     {
-        return $pipeline->apply(function(\Event $event) use ($validation): void {
+        return $pipeline->apply(function (\Event $event) use ($validation): void {
             if ($validation->failed()) {
                 return;
             }

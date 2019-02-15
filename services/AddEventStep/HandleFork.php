@@ -43,7 +43,7 @@ class HandleFork
      */
     public function __invoke(Pipeline $pipeline, ValidationResult $validation): Pipeline
     {
-        return $pipeline->then(function(iterable $events) {
+        return $pipeline->then(function (iterable $events) {
             return $this->iterate($events);
         });
     }

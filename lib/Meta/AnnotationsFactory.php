@@ -12,7 +12,8 @@ use InvalidArgumentException;
  * Factory to create Meta from annotations
  */
 class AnnotationsFactory extends \Jasny\Meta\Factory\Annotations
-{    
+{
+
     /**
      * Clean/Normalize var annotation gotten through reflection
      *

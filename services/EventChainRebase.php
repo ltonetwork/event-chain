@@ -45,7 +45,7 @@ class EventChainRebase
 
         $mergedChain = (new EventChain())->withEvents($events);
 
-        foreach ($laterChain->events as $key => $event) {            
+        foreach ($laterChain->events as $key => $event) {
             $mergedChain->events[] = $this->rebaseEvent($event, $mergedChain);
         }
 
@@ -68,7 +68,7 @@ class EventChainRebase
      * Rebase event to new chain
      *
      * @param Event $event
-     * @param EventChain $mergedChain 
+     * @param EventChain $mergedChain
      * @return Event
      */
     protected function rebaseEvent(Event $event, EventChain $mergedChain): Event

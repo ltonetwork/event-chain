@@ -73,13 +73,13 @@ class ResourceStorage
         ];
 
         $promises = Pipeline::with($resources)
-            ->filter(function(ResourceInterface $resource) {
+            ->filter(function (ResourceInterface $resource) {
                 return $resource instanceof ExternalResource && $this->mapping->hasDoneUrl($resource->getId());
             })
-            ->map(function(ExternalResource $resource) {
+            ->map(function (ExternalResource $resource) {
                 return $this->mapping->getDoneUrl($resource->getId());
             })
-            ->map(function(string $url) use ($data) {
+            ->map(function (string $url) use ($data) {
                 return $this->httpClient->requestAsync('POST', $url, ['json' => $data, 'http_errors' => false])
                     ->then(i\function_partial($this->errorWarning, __, $url));
             })
@@ -97,13 +97,13 @@ class ResourceStorage
     public function deleteProjected(iterable $resources): void
     {
         $promises = Pipeline::with($resources)
-            ->filter(function(ResourceInterface $resource) {
+            ->filter(function (ResourceInterface $resource) {
                 return $resource instanceof ExternalResource && $this->mapping->hasDoneUrl($resource->getId());
             })
-            ->map(function(ExternalResource $resource) {
+            ->map(function (ExternalResource $resource) {
                 return $this->mapping->getDoneUrl($resource->getId());
             })
-            ->map(function(string $url) {
+            ->map(function (string $url) {
                 return $this->httpClient->requestAsync('DELETE', $url, ['http_errors' => false])
                     ->then(i\function_partial($this->errorWarning, __, $url));
             })
