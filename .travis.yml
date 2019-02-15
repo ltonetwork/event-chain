@@ -50,3 +50,7 @@ before_script:
 script:
 # Run tests
 - test "$RUN_TESTS" == "false" || php bin/codecept run --coverage --coverage-xml
+
+after_success:
+# Bump version (for master branch)
+- test "$TRAVIS_BRANCH" != 'master' -o "$TRAVIS_PULL_REQUEST" != "false" || test -n "$(git tag --contains)" || bin/bump-version
