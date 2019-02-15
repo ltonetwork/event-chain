@@ -19,7 +19,7 @@ Alternatively; clone from GitHub for development
 
 ```
 git clone git@github.com:legalthings/event-chain.git
-cd legalevents-poc
+cd event-chain
 composer install
 bin/codecept build
 ```
