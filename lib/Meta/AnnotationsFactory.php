@@ -21,7 +21,7 @@ class AnnotationsFactory extends \Jasny\Meta\Factory\Annotations
      * @param string|null                         $var
      * @return string
      */
-    protected function normalizeVar(Reflector $refl, ?string $var)
+    protected function normalizeVar(Reflector $refl, $var)
     {
         i\type_check(
             $refl,

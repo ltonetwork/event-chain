@@ -7,5 +7,9 @@ $I->sendGET('/');
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
 
-$I->seeResponseContainsJson(['name' => 'legalthings/legalevents']);
-$I->seeResponseContainsJson(['env' => 'tests']);
+$I->seeResponseContainsJson([
+    'name' => 'lto/eventchain',
+    'description' => 'LTO Network - Event chain service',
+    'env' => 'tests',
+    'signkey' => App::getContainer()->get('node.account')->getPublicSignKey(),
+]);

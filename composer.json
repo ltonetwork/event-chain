@@ -1,6 +1,6 @@
 {
     "name": "lto/eventchain",
-    "description": "Event chain service",
+    "description": "LTO Network - Event chain service",
     "license": "MIT",
     "require": {
         "php": ">=7.2",

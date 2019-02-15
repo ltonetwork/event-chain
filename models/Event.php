@@ -78,7 +78,7 @@ class Event extends MongoSubDocument implements Identifiable
     /**
      * Receipt for anchoring on public blockchain
      *
-     * @var Receipt
+     * @var Receipt|null
      * @immutable
      */
     public $receipt; 
@@ -86,7 +86,7 @@ class Event extends MongoSubDocument implements Identifiable
     /**
      * Original event if event is stitched
      *
-     * @var Event
+     * @var Event|null
      * @immutable
      */
     public $original;
@@ -153,8 +153,9 @@ class Event extends MongoSubDocument implements Identifiable
     {
         $values = $this->getValues();
 
-        if (isset($this->original)) {
+        if ($this->original !== null) {
             $values['original'] = $this->original->castToLtoEvent();
+            unset($values['original']->body);
         }
 
         $ltoEvent = new LTO\Event();
@@ -183,11 +184,15 @@ class Event extends MongoSubDocument implements Identifiable
      */
     public function getMessage(): string
     {
-        $parts = [$this->body, $this->timestamp, $this->previous, $this->signkey];
-
-        if ($this->original !== null) {
-            $parts[] = $this->original->hash;
-        }
+        $parts = array_merge(
+            [
+                $this->body,
+                $this->timestamp,
+                $this->previous,
+                $this->signkey
+            ],
+            $this->original !== null ? [$this->original->hash] : []
+        );
 
         return join("\n", $parts);
     }

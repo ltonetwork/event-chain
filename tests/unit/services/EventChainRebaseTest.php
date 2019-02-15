@@ -161,17 +161,4 @@ class EventChainRebaseTest extends \Codeception\Test\Unit
 
         i\function_call($this->rebaser, $leadChain, $laterChain);
     }
-
-    /**
-     * Test 'signEvent' method
-     */
-    public function testSignEvent()
-    {
-        $rebaser = new EventChainRebase($this->node);
-
-        $event = $this->createMock(Event::class);
-        $event->expects($this->once())->method('signWith')->with($this->node);
-
-        $this->callPrivateMethod($rebaser, 'signEvent', [$event]);
-    }
 }
