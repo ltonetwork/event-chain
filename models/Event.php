@@ -184,15 +184,13 @@ class Event extends MongoSubDocument implements Identifiable
      */
     public function getMessage(): string
     {
-        $parts = array_merge(
-            [
-                $this->body,
-                $this->timestamp,
-                $this->previous,
-                $this->signkey
-            ],
-            $this->original !== null ? [$this->original->hash] : []
-        );
+        $baseParts = [
+            $this->body,
+            $this->timestamp,
+            $this->previous,
+            $this->signkey
+        ];
+        $parts = array_merge($baseParts, $this->original !== null ? [$this->original->hash] : []);
 
         return join("\n", $parts);
     }

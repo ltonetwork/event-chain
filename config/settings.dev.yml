@@ -11,17 +11,26 @@ db:
 rollbar: false
 
 email:
-  From: info@legalthings.io
-  FromName: LegalThings
+  From: info@example.com
+  FromName: Example
   Mailer: mail
 
-endpoints:
-  "lt:/scenarios/*":      "http://legalflow/scenarios/"
-  "lt:/processes/*":      "http://legalflow/responses/"
-  "lt:/processes/*/done": "http://legalflow/processes/$2/done"
+hooks:
+  - schema: "https://specs.livecontracts.io/v1.0.0/scenario/schema.json#"
+    url: "http://localhost:4001/scenarios/"
+
+  - schema: "https://specs.livecontracts.io/v1.0.0/response/schema.json#"
+    url: "http://localhost:4001/processes/-/response"
+
+  - schema: "https://specs.livecontracts.io/v1.0.0/response/schema.json#"
+    url: "http://localhost:4001/processes/-/invoke"
+    grouped: process.id
+
+  - schema: "https://specs.livecontracts.io/v1.0.0/identity/schema.json#"
+    url: "http://localhost:4001/identities/"
 
 queuer:
-  url: http://event-queuer
+  url: http://localhost:3000
 
 anchor:
-  url: http://anchor
+  url: http://localhost:3001

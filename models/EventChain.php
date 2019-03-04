@@ -4,17 +4,17 @@ use Improved\IteratorPipeline\Pipeline;
 use Jasny\DB\EntitySet;
 use Jasny\DB\Entity\Identifiable;
 use Jasny\ValidationResult;
-use kornrunner\Keccak;
 use LTO\Account;
+use LTO\EventChain as LTOEventChain;
 use function Jasny\str_before;
+use function LTO\sha256;
+use function sodium_crypto_generichash as blake2b;
 
 /**
  * EventChain entity
  */
 class EventChain extends MongoDocument
 {
-    const ADDRESS_VERSION = 0x40;
-    
     /**
      * Unique identifier
      * @var string
@@ -265,14 +265,14 @@ class EventChain extends MongoDocument
         $firstEvent = $this->getFirstEvent();
         
         $signkey = base58_decode($firstEvent->signkey);
-        $signkeyHashed = substr(Keccak::hash(sodium_crypto_generichash($signkey, '', 32), 256), 0, 40);
+        $signkeyHashed = sha256(blake2b($signkey));
         
-        $vars = unpack('Cversion/H40nonce/H40keyhash/H8checksum', $decodedId);
+        $vars = unpack('Ctype/a20nonce/a20keyhash/a4checksum', $decodedId);
         
         return
-            $vars['version'] === static::ADDRESS_VERSION &&
-            $vars['keyhash'] === substr($signkeyHashed, 0, 40) &&
-            $vars['checksum'] === substr(bin2hex($decodedId), -8);
+            $vars['type'] === LTOEventChain::CHAIN_ID &&
+            $vars['keyhash'] === substr($signkeyHashed, 0, 20) &&
+            $vars['checksum'] === substr($decodedId, -4);
     }
     
     /**

@@ -10,7 +10,7 @@ use LTO\Account;
  * Some services want to know if all new events of a chain have been processed. This is especially true for the
  * workflow engine, which now checks the state so it can perform a system action if required.
  */
-class TriggerResourceServices
+class StoreGroupedResources
 {
     /**
      * @var \EventChain
@@ -78,6 +78,7 @@ class TriggerResourceServices
     protected function signalResources(\EventChain $partial): void
     {
         $resources = i\iterable_map($partial->events, [$this->resourceFactory, 'extractFrom']);
-        $this->resourceStorage->done($resources, $this->chain);
+
+        $this->resourceStorage->storeGrouped($resources, $this->chain);
     }
 }

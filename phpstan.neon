@@ -10,7 +10,6 @@ parameters:
     checkAlwaysTrueInstanceof: false
     checkAlwaysTrueStrictComparison: false
     ignoreErrors:
-        - "/Function base58_\\w+ invoked with 1 parameter, 0 required/"
         - "/Call to function is_\\w++\\(\\) with .+? will always evaluate to false/"
         - "/Casting to .+? something that's already .+?/"
         - "/should return Event but returns Jasny\\\\DB\\\\Entity/"

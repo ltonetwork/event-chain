@@ -8,8 +8,6 @@ use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Class to store an external resource.
- *
- * @todo sign requests
  */
 class ResourceStorage
 {
@@ -65,7 +63,7 @@ class ResourceStorage
      * @param iterable<ResourceInterface> $resources
      * @param EventChain         $chain
      */
-    public function done(iterable $resources, EventChain $chain): void
+    public function storeGrouped(iterable $resources, EventChain $chain): void
     {
         $data = [
             'id' => $chain->getId(),

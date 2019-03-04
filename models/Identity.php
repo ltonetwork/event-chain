@@ -16,12 +16,6 @@ class Identity extends MongoSubDocument implements ResourceInterface, Identifiab
      * @pattern [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
      */
     public $id;
-    
-    /**
-     * Person / organization info
-     * @var \stdClass
-     */
-    public $info;
 
     /**
      * Live contracts node the identity is using

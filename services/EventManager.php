@@ -109,7 +109,7 @@ class EventManager
             new Step\SaveEvent($chain, $this->chainGateway),
             new Step\Walk($chain), // <-- Nothing will happen without this step
             new Step\Dispatch($chain, $this->dispatcher, $this->node, $chain->getNodes()),
-            new Step\TriggerResourceServices($chain, $this->resourceFactory, $this->resourceStorage, $this->node)
+            new Step\StoreGroupedResources($chain, $this->resourceFactory, $this->resourceStorage, $this->node)
         ];
     }
 
