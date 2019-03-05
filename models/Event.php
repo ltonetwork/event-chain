@@ -78,7 +78,7 @@ class Event extends MongoSubDocument implements Identifiable
     /**
      * Receipt for anchoring on public blockchain
      *
-     * @var Receipt|null
+     * @var null
      * @immutable
      */
     public $receipt;

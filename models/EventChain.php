@@ -405,11 +405,6 @@ class EventChain extends MongoDocument
             return;
         }
 
-        if ($resource instanceof Comment) {
-            $this->comments->add($resource);
-            return;
-        }
-        
         if ($resource instanceof Identifiable) {
             $id = str_before($resource->getId(), '?'); // No (version) arguments
 

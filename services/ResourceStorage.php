@@ -4,7 +4,7 @@ use Improved as i;
 use const Improved\FUNCTION_ARGUMENT_PLACEHOLDER as __;
 use Improved\IteratorPipeline\Pipeline;
 use GuzzleHttp\ClientInterface as HttpClient;
-use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Promise;
 
 /**
  * Class to store an external resource.
@@ -12,10 +12,10 @@ use GuzzleHttp\Exception\GuzzleException;
 class ResourceStorage
 {
     /**
-     * @var ResourceMapping
+     * @var array
      */
-    protected $mapping;
-    
+    protected $endpoints;
+
     /**
      * @var HttpClient
      */
@@ -26,17 +26,17 @@ class ResourceStorage
      */
     protected $errorWarning;
 
-    
+
     /**
      * Class constructor
      *
-     * @param ResourceMapping  $mapping     URI to URL mapping
+     * @param array            $endpoints
      * @param HttpClient       $httpClient
      * @param HttpErrorWarning $errorWarning
      */
-    public function __construct(ResourceMapping $mapping, HttpClient $httpClient, HttpErrorWarning $errorWarning)
+    public function __construct(array $endpoints, HttpClient $httpClient, HttpErrorWarning $errorWarning)
     {
-        $this->mapping = $mapping;
+        $this->endpoints = $endpoints;
         $this->httpClient = $httpClient;
         $this->errorWarning = $errorWarning;
     }
@@ -49,50 +49,71 @@ class ResourceStorage
      */
     public function store(ResourceInterface $resource): void
     {
-        if (!$resource instanceof ExternalResource) {
-            return;
-        }
-        
-        $url = $this->mapping->getUrl($resource->getId());
-        $this->httpClient->request('POST', $url, ['json' => $resource, 'http_errors' => true]);
+        $promises = Pipeline::with($this->endpoints)
+            ->filter(static function($endpoint) use ($resource) {
+                return $endpoint->schema === null || $resource->getSchema() === $endpoint->schema;
+            })
+            ->filter(static function($endpoint) {
+                return !isset($endpoint->grouped);
+            })
+            ->map(function($endpoint) use ($resource) {
+                $options = ['json' => $resource, 'http_errors' => true];
+
+                return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
+            })
+            ->toArray();
+
+        Promise\unwrap($promises);
     }
 
     /**
      * Message resources that the event chain has been processed.
      *
-     * @param iterable<ResourceInterface> $resources
-     * @param EventChain         $chain
+     * @param ResourceInterface[] $resources
+     * @param string              $grouped
+     * @param EventChain          $chain
      */
-    public function storeGrouped(iterable $resources, EventChain $chain): void
+    public function storeGrouped(array $resources, string $grouped, EventChain $chain): void
     {
-        $data = [
-            'id' => $chain->getId(),
-            'lastHash' => $chain->getLatestHash()
-        ];
+        $promises = [];
 
-        $promises = Pipeline::with($resources)
-            ->filter(function (ResourceInterface $resource) {
-                return $resource instanceof ExternalResource && $this->mapping->hasDoneUrl($resource->getId());
-            })
-            ->map(function (ExternalResource $resource) {
-                return $this->mapping->getDoneUrl($resource->getId());
-            })
-            ->map(function (string $url) use ($data) {
-                return $this->httpClient->requestAsync('POST', $url, ['json' => $data, 'http_errors' => false])
-                    ->then(i\function_partial($this->errorWarning, __, $url));
-            })
-            ->toArray();
+        foreach ($this->endpoints as $endpoint) {
+            if (!isset($endpoint->grouped)) {
+                continue;
+            }
 
-        GuzzleHttp\Promise\unwrap($promises);
+            $endpointPromises = Pipeline::with($resources)
+                ->filter(static function(ResourceInterface $resource) use ($endpoint) {
+                    return $endpoint->schema === null || $resource->getSchema() === $endpoint->schema;
+                })
+                ->group(static function(ResourceInterface $resource) use ($endpoint) {
+                    $field = $endpoint->grouped;
+                    $value = $resource->{$field} ?? null;
+
+                    return is_scalar($value) ? $value : $value->id ?? null;
+                })
+                ->cleanup()
+                ->keys()
+                ->map(function($value) use ($endpoint) {
+                    $field = $endpoint->grouped;
+                    $options = ['json' => [$field => $value], 'http_errors' => true];
+
+                    return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
+                });
+
+            $promises = array_merge($promises, $endpointPromises);
+        }
+
+        Promise\unwrap($promises);
     }
 
     /**
-     * Delete all projected resources
+     * Delete all resources.
      *
      * @param iterable $resources
      * @return void
      */
-    public function deleteProjected(iterable $resources): void
+    public function deleteResources(iterable $resources): void
     {
         $promises = Pipeline::with($resources)
             ->filter(function (ResourceInterface $resource) {
@@ -107,6 +128,6 @@ class ResourceStorage
             })
             ->toArray();
 
-        GuzzleHttp\Promise\unwrap($promises);
+        Promise\unwrap($promises);
     }
 }

@@ -1,32 +1,28 @@
-log: browser
 debug: true
 cache: false
-display_errors: false
 
 db:
   default:
     client: mongodb://localhost:27017
     database: legalevent
 
-rollbar: false
-
 email:
   From: info@example.com
   FromName: Example
   Mailer: mail
 
-hooks:
-  - schema: "https://specs.livecontracts.io/v1.0.0/scenario/schema.json#"
+endpoints:
+  - schema: "https://specs.livecontracts.io/v0.2.0/scenario/schema.json#"
     url: "http://localhost:4001/scenarios/"
 
-  - schema: "https://specs.livecontracts.io/v1.0.0/response/schema.json#"
+  - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
     url: "http://localhost:4001/processes/-/response"
 
-  - schema: "https://specs.livecontracts.io/v1.0.0/response/schema.json#"
+  - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
     url: "http://localhost:4001/processes/-/invoke"
-    grouped: process.id
+    grouped: process
 
-  - schema: "https://specs.livecontracts.io/v1.0.0/identity/schema.json#"
+  - schema: "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
     url: "http://localhost:4001/identities/"
 
 queuer:
