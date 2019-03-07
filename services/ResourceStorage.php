@@ -69,11 +69,9 @@ class ResourceStorage
     /**
      * Message resources that the event chain has been processed.
      *
-     * @param ResourceInterface[] $resources
-     * @param string              $grouped
-     * @param EventChain          $chain
+     * @param iterable $resources
      */
-    public function storeGrouped(array $resources, string $grouped, EventChain $chain): void
+    public function storeGrouped(iterable $resources): void
     {
         $promises = [];
 
@@ -99,7 +97,8 @@ class ResourceStorage
                     $options = ['json' => [$field => $value], 'http_errors' => true];
 
                     return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
-                });
+                })
+                ->toArray();
 
             $promises = array_merge($promises, $endpointPromises);
         }
@@ -115,6 +114,9 @@ class ResourceStorage
      */
     public function deleteResources(iterable $resources): void
     {
+        //temp
+        throw new Exception('deleteResources method is disabled');
+
         $promises = Pipeline::with($resources)
             ->filter(function (ResourceInterface $resource) {
                 return $resource instanceof ExternalResource && $this->mapping->hasDoneUrl($resource->getId());
