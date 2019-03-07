@@ -5,16 +5,6 @@
  */
 class ResourceStorageTest extends \Codeception\Test\Unit
 {
-    use Jasny\TestHelper;
-    
-    public function storeProvider()
-    {
-        return [
-            ["lt:/foos/123?v=4ZL83zt5", 'http://foos.example.com/things/'],
-            ["lt:/bars/123?v=4ZL83zt5", 'http://example.com/bars/']
-        ];
-    }
-
     /**
      * Test 'store' method
      */
@@ -46,6 +36,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         $expectedJson = [
             '$schema' => 'http://example.com/foo/schema.json#',
             'foo' => 'foo_value',
+            'original_key' => 'foo_event_public_signkey',
             'bar' => ['id' => 'bar_id'],
             'baz' => ['id' => 'baz_id'],
             'id' => 'foo_external_id',
@@ -56,11 +47,12 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         $urls = ['http://www.foo.com', 'http://www.zoo-foo.com'];
         for ($i=0; $i < count($urls); $i++) { 
             $request = $httpRequestContainer[$i]['request'];
-            $headers = array_only($request->getHeaders(), ['Content-Type']);
+            $headers = $request->getHeaders();
 
             $this->assertEquals('POST', $request->getMethod());
             $this->assertEquals($urls[$i], (string)$request->getUri());
-            $this->assertEquals(['Content-Type' => ['application/json']], $headers);
+            $this->assertEquals(['application/json'], $headers['Content-Type']);
+            $this->assertEquals(['foo_event_public_signkey'], $headers['X-Original-Key-Id']);
             $this->assertJsonStringEqualsJsonString(json_encode($expectedJson), (string)$request->getBody());            
         }
     }
@@ -180,6 +172,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
             public $schema = 'http://example.com/foo/schema.json#';
             public $id = 'foo_external_id';
             public $foo = 'foo_value';
+            public $original_key = 'foo_event_public_signkey';
             public $bar = ['id' => 'bar_id'];
             public $baz = ['id' => 'baz_id'];
             protected $zoo = 'zoo_value';

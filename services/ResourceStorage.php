@@ -57,7 +57,11 @@ class ResourceStorage
                 return !isset($endpoint->grouped);
             })
             ->map(function($endpoint) use ($resource) {
-                $options = ['json' => $resource, 'http_errors' => true];
+                $options = [
+                    'json' => $resource, 
+                    'http_errors' => true,
+                    'headers' => ['X-Original-Key-Id' => $resource->original_key]
+                ];
 
                 return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
             })
