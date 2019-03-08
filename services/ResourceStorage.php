@@ -46,8 +46,9 @@ class ResourceStorage
      * Store a resource
      *
      * @param ResourceInterface $resource
+     * @param EventChain|null $chain 
      */
-    public function store(ResourceInterface $resource): void
+    public function store(ResourceInterface $resource, ?EventChain $chain = null): void
     {
         $promises = Pipeline::with($this->endpoints)
             ->filter(static function($endpoint) use ($resource) {
@@ -56,7 +57,9 @@ class ResourceStorage
             ->filter(static function($endpoint) {
                 return !isset($endpoint->grouped);
             })
-            ->map(function($endpoint) use ($resource) {
+            ->map(function($endpoint) use ($resource, $chain) {
+                $resource = $this->injectEventChain($resource, $endpoint, $chain);
+
                 $options = [
                     'json' => $resource, 
                     'http_errors' => true,
@@ -74,8 +77,9 @@ class ResourceStorage
      * Message resources that the event chain has been processed.
      *
      * @param iterable $resources
+     * @param EventChain|null $chain
      */
-    public function storeGrouped(iterable $resources): void
+    public function storeGrouped(iterable $resources, ?EventChain $chain = null): void
     {
         $promises = [];
 
@@ -96,9 +100,12 @@ class ResourceStorage
                 })
                 ->cleanup()
                 ->keys()
-                ->map(function($value) use ($endpoint) {
+                ->map(function($value) use ($endpoint, $chain) {
                     $field = $endpoint->grouped;
-                    $options = ['json' => [$field => $value], 'http_errors' => true];
+                    $data = (object)[$field => $value];
+                    $data = $this->injectEventChain($data, $endpoint, $chain);
+
+                    $options = ['json' => $data, 'http_errors' => true];
 
                     return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
                 })
@@ -135,5 +142,32 @@ class ResourceStorage
             ->toArray();
 
         Promise\unwrap($promises);
+    }
+
+    /**
+     * Inject event chain into query data
+     *
+     * @param object $resource
+     * @param object $endpoint 
+     * @param EventChain|null $chain 
+     * @return ResourceInterface
+     */
+    protected function injectEventChain(object $data, object $endpoint, ?EventChain $chain)
+    {
+        if (!isset($chain) || !isset($endpoint->inject_chain) || !$endpoint->inject_chain) {
+            return $data;
+        }
+
+        $data = clone $data;
+
+        if ($endpoint->inject_chain === 'empty') {
+            $latestHash = $chain->getLatestHash();
+            $chain = $chain->withoutEvents();
+            $chain->latest_hash = $latestHash;
+        }
+
+        $data->chain = $chain;
+
+        return $data;
     }
 }

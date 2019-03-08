@@ -5,6 +5,8 @@
  */
 class ResourceStorageTest extends \Codeception\Test\Unit
 {
+    use TestEventTrait;
+
     /**
      * Test 'store' method
      */
@@ -58,6 +60,99 @@ class ResourceStorageTest extends \Codeception\Test\Unit
     }
 
     /**
+     * Test 'store' method with event chain
+     */
+    public function testStoreEventChain()
+    {
+        $endpoints = [
+            (object)['url' => 'http://www.foo.com', 'schema' => 'http://example.com/foo/schema.json#', 'inject_chain' => false],
+            (object)['url' => 'http://www.zoo-foo.com', 'schema' => 'http://example.com/foo/schema.json#', 'inject_chain' => 'full'],
+            (object)['url' => 'http://www.zoo-foo.com', 'schema' => 'http://example.com/foo/schema.json#', 'inject_chain' => 'empty']
+        ];
+
+        $httpRequestContainer = [];
+        $httpClient = $this->getHttpClientMock($httpRequestContainer, [
+            new GuzzleHttp\Psr7\Response(200),
+            new GuzzleHttp\Psr7\Response(200),
+            new GuzzleHttp\Psr7\Response(200)
+        ]);        
+
+        $httpError = $this->createMock(HttpErrorWarning::class);
+        $httpError->expects($this->never())->method('__invoke');
+
+        $chain = $this->getEventChain();
+        $resource = $this->getProcessResource();
+
+        $storage = new ResourceStorage($endpoints, $httpClient, $httpError);        
+        $storage->store($resource, $chain);
+
+        $this->assertCount(3, $httpRequestContainer);
+
+        $expected = [
+            [
+                'url' => 'http://www.foo.com',
+                'data' => [
+                    '$schema' => 'http://example.com/foo/schema.json#',
+                    'id' => 'foo_process_id',
+                    'scenario' => 'foo_scenario_id',
+                    'original_key' => 'foo_event_public_signkey',
+                    'identity' => null,
+                    'timestamp' => null
+                ]
+            ],
+            [
+                'url' => 'http://www.zoo-foo.com',
+                'data' => [
+                    '$schema' => 'http://example.com/foo/schema.json#',
+                    'id' => 'foo_process_id',
+                    'scenario' => 'foo_scenario_id',
+                    'original_key' => 'foo_event_public_signkey',
+                    'identity' => null,
+                    'timestamp' => null,
+                    'chain' => [
+                        'id' => $chain->id,
+                        'events' => json_decode(json_encode($chain->events)),
+                        'identities' => json_decode(json_encode($chain->identities)),
+                        'comments' => [],
+                        'resources' => ['foo', 'bar']
+                    ]
+                ]
+            ],
+            [
+                'url' => 'http://www.zoo-foo.com',
+                'data' => [
+                    '$schema' => 'http://example.com/foo/schema.json#',
+                    'id' => 'foo_process_id',
+                    'scenario' => 'foo_scenario_id',
+                    'original_key' => 'foo_event_public_signkey',
+                    'identity' => null,
+                    'timestamp' => null,
+                    'chain' => [
+                        'id' => $chain->id,
+                        'events' => [],
+                        'identities' => [],
+                        'comments' => [],
+                        'resources' => [],
+                        'latest_hash' => $chain->getLatestHash()
+                    ]
+                ]
+            ],
+        ];
+
+        for ($i=2; $i < 3; $i++) { 
+            $data = $expected[$i];
+            $request = $httpRequestContainer[$i]['request'];
+            $headers = $request->getHeaders();
+
+            $this->assertEquals('POST', $request->getMethod());
+            $this->assertEquals($data['url'], (string)$request->getUri());
+            $this->assertEquals(['application/json'], $headers['Content-Type']);
+            $this->assertEquals(['foo_event_public_signkey'], $headers['X-Original-Key-Id']);
+            $this->assertJsonStringEqualsJsonString(json_encode($data['data']), (string)$request->getBody());            
+        }   
+    }
+
+    /**
      * Test 'storeGrouped' method
      */
     public function testStoreGrouped()
@@ -94,6 +189,76 @@ class ResourceStorageTest extends \Codeception\Test\Unit
             ['url' => 'http://baz-foo.com', 'data' => ['baz' => 'baz_id']],
             ['url' => 'http://id.com', 'data' => ['id' => 'res1_id']],
             ['url' => 'http://id.com', 'data' => ['id' => 'res2_id']],
+        ];
+
+        for ($i=0; $i < count($expected); $i++) { 
+            $data = $expected[$i];
+            $request = $httpRequestContainer[$i]['request'];
+            $headers = array_only($request->getHeaders(), ['Content-Type']);
+
+            $this->assertEquals('POST', $request->getMethod());
+            $this->assertEquals($data['url'], (string)$request->getUri());
+            $this->assertEquals(['Content-Type' => ['application/json']], $headers);
+            $this->assertJsonStringEqualsJsonString(json_encode($data['data']), (string)$request->getBody());
+        }
+    }
+
+    /**
+     * Test 'storeGrouped' method with event chain
+     */
+    public function testStoreGroupedEventChain()
+    {
+        $chain = $this->getEventChain();
+        $endpoints = $this->getEndpointsEventChain();
+        $resources = [$this->getProcessResource()];
+
+        $httpRequestContainer = [];
+        $httpClient = $this->getHttpClientMock($httpRequestContainer, [
+            new GuzzleHttp\Psr7\Response(200),
+            new GuzzleHttp\Psr7\Response(200),
+            new GuzzleHttp\Psr7\Response(200)
+        ]);        
+
+        $httpError = $this->createMock(HttpErrorWarning::class);
+        $httpError->expects($this->never())->method('__invoke');
+
+        $storage = new ResourceStorage($endpoints, $httpClient, $httpError);        
+        $storage->storeGrouped($resources, $chain);
+
+        $this->assertCount(3, $httpRequestContainer);
+
+        $expected = [
+            [
+                'url' => 'http://simple-foo.com', 
+                'data' => ['scenario' => 'foo_scenario_id']
+            ],
+            [
+                'url' => 'http://simple-foo.com', 
+                'data' => [
+                    'scenario' => 'foo_scenario_id',
+                    'chain' => [
+                        'id' => $chain->id,
+                        'events' => json_decode(json_encode($chain->events)),
+                        'identities' => json_decode(json_encode($chain->identities)),
+                        'comments' => [],
+                        'resources' => ['foo', 'bar']
+                    ]
+                ]
+            ],
+            [
+                'url' => 'http://simple-foo.com', 
+                'data' => [
+                    'scenario' => 'foo_scenario_id',
+                    'chain' => [
+                        'id' => $chain->id,
+                        'events' => [],
+                        'identities' => [],
+                        'comments' => [],
+                        'resources' => [],
+                        'latest_hash' => $chain->getLatestHash()
+                    ]
+                ]
+            ],
         ];
 
         for ($i=0; $i < count($expected); $i++) { 
@@ -162,6 +327,35 @@ class ResourceStorageTest extends \Codeception\Test\Unit
     }
 
     /**
+     * Get endpoints for testing grouped storing, for also storing event chain
+     *
+     * @return array
+     */
+    protected function getEndpointsEventChain()
+    {
+        return [
+            (object)[
+                'url' => 'http://simple-foo.com', 
+                'schema' => 'http://example.com/foo/schema.json#', 
+                'grouped' => 'scenario',
+                'inject_chain' => false
+            ],
+            (object)[
+                'url' => 'http://simple-foo.com', 
+                'schema' => 'http://example.com/foo/schema.json#', 
+                'grouped' => 'scenario',
+                'inject_chain' => 'full'
+            ],
+            (object)[
+                'url' => 'http://simple-foo.com', 
+                'schema' => 'http://example.com/foo/schema.json#', 
+                'grouped' => 'scenario',
+                'inject_chain' => 'empty'
+            ],
+        ];
+    }
+
+    /**
      * Get test resource
      *
      * @return ExternalResource
@@ -175,6 +369,28 @@ class ResourceStorageTest extends \Codeception\Test\Unit
             public $original_key = 'foo_event_public_signkey';
             public $bar = ['id' => 'bar_id'];
             public $baz = ['id' => 'baz_id'];
+            protected $zoo = 'zoo_value';
+            private $boom = 'boom_value';
+
+            /**
+             * @censored
+             */
+            public $cenzored_foo = 'skip_this';
+        };
+    }
+
+    /**
+     * Get test resource for process creation
+     *
+     * @return ExternalResource
+     */
+    protected function getProcessResource()
+    {
+        return new class() extends ExternalResource {
+            public $schema = 'http://example.com/foo/schema.json#';
+            public $id = 'foo_process_id';
+            public $scenario = 'foo_scenario_id';
+            public $original_key = 'foo_event_public_signkey';
             protected $zoo = 'zoo_value';
             private $boom = 'boom_value';
 
@@ -225,6 +441,27 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         $resource4->bar->id = 'res4_bar_id';        
 
         return [$resource1, $resource2, $resource3, $resource4];
+    }
+
+    /**
+     * Get test event chain
+     *
+     * @return EventChain
+     */
+    protected function getEventChain()
+    {
+        $chain = $this->createEventChain(3);
+
+        $chain->identities = [
+            (new Identity())->setValues(['id' => 'foo']),
+            (new Identity())->setValues(['id' => 'bar']),
+        ];
+        $chain->resources = [
+            'foo',
+            'bar'
+        ];
+
+        return $chain;
     }
 
     /**
