@@ -113,7 +113,6 @@ class ResourceStorageTest extends \Codeception\Test\Unit
                         'id' => $chain->id,
                         'events' => json_decode(json_encode($chain->events)),
                         'identities' => json_decode(json_encode($chain->identities)),
-                        'comments' => [],
                         'resources' => ['foo', 'bar']
                     ]
                 ]
@@ -131,7 +130,6 @@ class ResourceStorageTest extends \Codeception\Test\Unit
                         'id' => $chain->id,
                         'events' => [],
                         'identities' => [],
-                        'comments' => [],
                         'resources' => [],
                         'latest_hash' => $chain->getLatestHash()
                     ]
@@ -240,7 +238,6 @@ class ResourceStorageTest extends \Codeception\Test\Unit
                         'id' => $chain->id,
                         'events' => json_decode(json_encode($chain->events)),
                         'identities' => json_decode(json_encode($chain->identities)),
-                        'comments' => [],
                         'resources' => ['foo', 'bar']
                     ]
                 ]
@@ -253,7 +250,6 @@ class ResourceStorageTest extends \Codeception\Test\Unit
                         'id' => $chain->id,
                         'events' => [],
                         'identities' => [],
-                        'comments' => [],
                         'resources' => [],
                         'latest_hash' => $chain->getLatestHash()
                     ]

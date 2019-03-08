@@ -34,13 +34,6 @@ class EventChain extends MongoDocument
      * @snapshot
      */
     public $identities;
-
-    /**
-     * Projected comments
-     * @var \Jasny\DB\EntitySet|Comment[]
-     * @snapshot
-     */
-    public $comments;
     
     /**
      * Resources that are part of this chain
@@ -56,7 +49,6 @@ class EventChain extends MongoDocument
     {
         $this->events = $this->events ?? EntitySet::forClass(Event::class);
         $this->identities = $this->identities ?? IdentitySet::forClass(Identity::class);
-        $this->comments = $this->comments ?? EntitySet::forClass(Comment::class);
 
         parent::__construct();
     }
