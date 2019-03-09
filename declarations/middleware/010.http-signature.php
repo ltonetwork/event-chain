@@ -7,6 +7,7 @@ use Jasny\HttpSignature\HttpSignature;
 use Jasny\HttpSignature\ServerMiddleware as HttpSignatureMiddleware;
 use Psr\Container\ContainerInterface;
 use LTO\Account\ServerMiddleware as AccountMiddleware;
+use LTO\AccountFactory;
 
 return [
     static function (RouterInterface $router, ContainerInterface $container) {
