@@ -29,7 +29,7 @@ return function (ContainerInterface $container) {
             : (isset($_SERVER['HTTP_X_DISPLAY_ERRORS']) ? $_SERVER['HTTP_X_DISPLAY_ERRORS'] : null);
 
         if (isset($display_errors)) {
-            ini_set('display_errors', $display_errors);
+            ini_set('display_errors', $display_errors ? '1' : '0');
         }
     } else {
         ini_set('display_error', false);
