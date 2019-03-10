@@ -68,6 +68,41 @@ class TestEventTraitTest extends \Codeception\Test\Unit
     }
 
     /**
+     * Test 'createEventChain' method, if setting events' bodies
+     */
+    public function testCreateEventChainBodies()
+    {
+        $bodies = [
+            ['boo1' => 'Test body 1'],
+            ['boo2' => 'Test body 2'],
+            ['boo3' => 'Test body 3']
+        ];
+
+        $chain = $this->createEventChain(3, $bodies);
+
+        $this->assertCount(3, $chain->events);
+        $this->assertEquals((object)['boo1' => 'Test body 1'], json_decode(base58_decode($chain->events[0]->body)));
+        $this->assertEquals((object)['boo2' => 'Test body 2'], json_decode(base58_decode($chain->events[1]->body)));
+        $this->assertEquals((object)['boo3' => 'Test body 3'], json_decode(base58_decode($chain->events[2]->body)));
+    }
+
+    /**
+     * Test 'createEventChain' method, if setting events' bodies rises exception
+     *
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage No body for test event [2]
+     */
+    public function testCreateEventChainBodiesException()
+    {
+        $bodies = [
+            ['boo1' => 'Test body 1'],
+            ['boo2' => 'Test body 2']
+        ];
+
+        $this->createEventChain(3, $bodies);
+    }
+
+    /**
      * Test 'createFork' method
      */
     public function testCreateFork()

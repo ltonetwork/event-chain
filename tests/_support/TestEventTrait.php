@@ -18,16 +18,18 @@ trait TestEventTrait
      * Create test event chain
      *
      * @param int $eventsCount
+     * @param array|null $bodies 
      * @return EventChain
      */
-    public function createEventChain(int $eventsCount): EventChain
+    public function createEventChain(int $eventsCount, ?array $bodies = null): EventChain
     {
         $node = $this->getNode();
-
         $chain = $this->createChain($node);
 
         for ($i=0; $i < $eventsCount; $i++) { 
-            $event = $this->createEvent($chain, $node, ['foo' => 'bar']);
+            $body = $this->createEventBody($i, $bodies);
+            $event = $this->createEvent($chain, $node, $body);
+
             $chain->events->add($event);
         }
 
@@ -153,5 +155,27 @@ trait TestEventTrait
         $event->signWith($node);
 
         return $event;
+    }
+
+    /**
+     * Create body for event
+     *
+     * @param int $idx 
+     * @param array $bodies
+     * @return array
+     */
+    protected function createEventBody(int $idx, ?array $bodies): array
+    {
+        $body = ['foo' => 'bar'];
+
+        if (isset($bodies)) {
+            if (!isset($bodies[$idx])) {
+                throw new InvalidArgumentException("No body for test event [$idx]");
+            }
+
+            $body = $bodies[$idx];
+        }
+
+        return $body;
     }
 }
