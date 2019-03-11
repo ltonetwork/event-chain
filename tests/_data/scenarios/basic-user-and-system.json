@@ -1,0 +1,92 @@
+{
+    "$schema": "https://specs.livecontracts.io/v0.2.0/scenario/schema.json#",
+    "id": "2557288f-108e-4398-8d2d-7914ffd93150",
+    "title": "Basic system and user",
+    "actors": {
+        "user": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "key": "user",
+            "title": "User"
+        },
+        "system": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "key": "system",
+            "title": "System"
+        }
+    },
+    "actions": {
+        "step1": {
+            "$schema": "https://specs.livecontracts.io/v1.0.0/action/http/schema.json#",
+            "title": "Step1",
+            "actor": "system",
+            "url": "https://www.example.com",
+            "responses": {
+                "ok": { },
+                "error": { }
+            }
+        },
+        "step2": {
+            "$schema": "https://specs.livecontracts.io/v1.0.0/action/nop/schema.json#",
+            "title": "Step2",
+            "trigger_response": "ok",
+            "data": "second response",
+            "actors": ["system", "user"],
+            "responses": {
+                "ok": { },
+                "error": { }
+            }
+        },
+        "step3": {
+            "$schema": "https://specs.livecontracts.io/v1.0.0/action/schema.json#",
+            "title": "Step3",
+            "actor": "user",
+            "responses": {
+                "ok": { },
+                "cancel": { }
+            }
+        }
+    },
+    "states": {
+        ":initial": {
+            "action": "step1",
+            "display": "always",
+            "transitions": [
+                {
+                    "action": "step1",
+                    "response": "ok",
+                    "transition": "second"
+                },
+                {
+                    "action": "step1",
+                    "response": "error",
+                    "transition": ":failed"
+                }
+            ]
+        },
+        "second": {
+            "action": "step2",
+            "display": "always",
+            "transitions": [
+                {
+                    "action": "step2",
+                    "response": "ok",
+                    "transition": "third"
+                },
+                {
+                    "action": "step2",
+                    "response": "error",
+                    "transition": ":failed"
+                }
+            ]
+        },
+        "third": {
+            "action": "step3",
+            "display": "always",
+            "transition": ":success"
+        }
+    },
+    "assets": { },
+    "definitions": { },
+    "allow_actions": [ ],
+    "meta": { }
+}

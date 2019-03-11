@@ -63,7 +63,10 @@ class ResourceStorage
                 $options = [
                     'json' => $resource, 
                     'http_errors' => true,
-                    'headers' => ['X-Original-Key-Id' => $resource->original_key]
+                    'headers' => [
+                        'X-Original-Key-Id' => $resource->original_key,
+                        'Digest' => 'SHA-256=' . base64_encode(hash('sha256', json_encode($resource), true))
+                    ]
                 ];
 
                 return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
