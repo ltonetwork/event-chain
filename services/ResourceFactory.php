@@ -13,6 +13,7 @@ class ResourceFactory
         'https://specs.livecontracts.io/v0.2.0/identity/schema.json#' => Identity::class,
         'https://specs.livecontracts.io/v0.2.0/scenario/schema.json#' => ExternalResource::class,
         'https://specs.livecontracts.io/v0.2.0/response/schema.json#' => ExternalResource::class,
+        'https://specs.livecontracts.io/v0.2.0/process/schema.json#' => ExternalResource::class,
     ];
 
     /**

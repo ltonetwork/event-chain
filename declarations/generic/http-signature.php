@@ -31,6 +31,6 @@ return [
         $node = $container->get(Account::class);
         $service = $container->get(HttpSignature::class);
 
-        return new HttpSignatureMiddleware($service, $node->getPublicSignKey());
+        return new ClientMiddleware($service, $node->getPublicSignKey());
     }
 ];

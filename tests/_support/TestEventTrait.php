@@ -146,6 +146,7 @@ trait TestEventTrait
         $event = new Event();
 
         $values = [
+            'origin' => 'http://localhost',
             'timestamp' => (new DateTime)->getTimestamp(),
             'previous' => $chain->getLatestHash(),
             'body' => base58_encode(json_encode($body))
