@@ -93,7 +93,7 @@ $bodies = [
 
 $tester = new AllWorkflowTester();
 
-$chain = $tester->createEventChain(1, $bodies);
+$chain = $tester->createEventChain(3, $bodies);
 $data = $tester->castChainToData($chain);
 $response = $tester->sendPost('http://localhost:4000/event-chains', $data);
 $formated = $tester->formatResponse($response);
