@@ -5,6 +5,8 @@ use const Improved\FUNCTION_ARGUMENT_PLACEHOLDER as __;
 use Improved\IteratorPipeline\Pipeline;
 use GuzzleHttp\ClientInterface as HttpClient;
 use GuzzleHttp\Promise;
+use GuzzleHttp\Psr7\Request as GuzzleRequest;
+use LTO\Account;
 
 /**
  * Class to store an external resource.
@@ -26,6 +28,10 @@ class ResourceStorage
      */
     protected $errorWarning;
 
+    /**
+     * @var Account
+     **/
+    protected $node;
 
     /**
      * Class constructor
@@ -33,14 +39,20 @@ class ResourceStorage
      * @param array            $endpoints
      * @param HttpClient       $httpClient
      * @param HttpErrorWarning $errorWarning
+     * @param Account          $node
      */
-    public function __construct(array $endpoints, HttpClient $httpClient, HttpErrorWarning $errorWarning)
+    public function __construct(
+        array $endpoints, 
+        HttpClient $httpClient, 
+        HttpErrorWarning $errorWarning, 
+        Account $node
+    )
     {
         $this->endpoints = $endpoints;
         $this->httpClient = $httpClient;
         $this->errorWarning = $errorWarning;
+        $this->node = $node;
     }
-
 
     /**
      * Store a resource
@@ -59,21 +71,37 @@ class ResourceStorage
             })
             ->map(function($endpoint) use ($resource, $chain) {
                 $resource = $this->injectEventChain($resource, $endpoint, $chain);
+                $request = $this->createRequest($resource, $endpoint);         
+                $options = ['http_errors' => true, 'signature_key_id' => base58_encode($this->node->sign->publickey)];
 
-                $options = [
-                    'json' => $resource, 
-                    'http_errors' => true,
-                    'headers' => [
-                        'X-Original-Key-Id' => $resource->original_key,
-                        'Digest' => 'SHA-256=' . base64_encode(hash('sha256', json_encode($resource), true))
-                    ]
-                ];
-
-                return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
+                return $this->httpClient->sendAsync($request, $options);
             })
             ->toArray();
 
-        Promise\unwrap($promises);
+        $results = Promise\unwrap($promises);
+    }
+
+    /**
+     * Create signed request
+     *
+     * @param ResourceInterface $resource
+     * @param stdClass $$endpoint 
+     * @return GuzzleHttp\Psr7\Request
+     */
+    protected function createRequest(ResourceInterface $resource, stdClass $endpoint): GuzzleRequest
+    {
+        $body = json_encode($resource);
+
+        $headers = [
+            'X-Original-Key-Id' => $resource->original_key,
+            'Digest' => 'SHA-256=' . base64_encode(hash('sha256', $body, true)),
+            'Content-Type' => 'application/json',
+            'date' => date(DATE_RFC1123)
+        ];
+
+        $request = new GuzzleRequest('POST', $endpoint->url, $headers, $body);   
+
+        return $request;
     }
 
     /**

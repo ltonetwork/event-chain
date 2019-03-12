@@ -13,10 +13,11 @@ return [
         return new ResourceMapping($endpoints);
     },
     ResourceStorage::class => function (AutowireContainerInterface $container) {
+        $endpoints = (array)$container->get('config.endpoints');
         $httpClient = $container->get(GuzzleHttp\ClientInterface::class);
         $httpErrorWarning = $container->get(HttpErrorWarning::class);
-        $endpoints = (array)$container->get('config.endpoints');
+        $node = $container->get('node.account');
 
-        return new ResourceStorage($endpoints, $httpClient, $httpErrorWarning);
+        return new ResourceStorage($endpoints, $httpClient, $httpErrorWarning, $node);
     }
 ];

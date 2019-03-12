@@ -87,7 +87,7 @@ $bodies = [
     [
         '$schema' => 'https://specs.livecontracts.io/v0.2.0/process/schema.json#',
         'id' => 'j2134901218ja908323434',
-        'scenario' => '0c1d7eac-18ec-496a-8713-8e6e5f098686'
+        'scenario' => '2557288f-108e-4398-8d2d-7914ffd93150'
     ]
 ];
 
