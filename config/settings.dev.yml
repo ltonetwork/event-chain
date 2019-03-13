@@ -25,7 +25,7 @@ endpoints:
   - schema: "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
     url: "http://localhost:4001/identities/"
 
-  - schema: "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
+  - schema: "https://specs.livecontracts.io/v0.2.0/process/schema.json#"
     url: "http://localhost:4001/processes"
     inject_chain: full
 

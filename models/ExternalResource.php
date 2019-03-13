@@ -9,9 +9,7 @@ use function Jasny\str_before;
  */
 class ExternalResource implements ResourceInterface, Identifiable, Dynamic
 {
-    use ResourceBase {
-        fromEvent as private fromEventBase;
-    }
+    use ResourceBase;
 
     /**
      * JSON Schema
@@ -29,8 +27,7 @@ class ExternalResource implements ResourceInterface, Identifiable, Dynamic
      * The identity that created the (version of the) resource
      * @var Identity
      */
-    public $identity;
-    
+    public $identity;    
     
     /**
      * Get the identifier
@@ -50,35 +47,5 @@ class ExternalResource implements ResourceInterface, Identifiable, Dynamic
     public static function getIdProperty(): string
     {
         return 'id';
-    }
-    
-    /**
-     * Set version by hashing the body
-     *
-     * @param string $body  Base58 JSON encoded body
-     * @return $this
-     */
-    public function setVersionFrom(string $body): self
-    {
-        $hash = hash('sha256', $body, true);
-        $version = substr(base58_encode($hash), 0, 8);
-        
-        $this->id = str_before($this->id, '?') . '?v=' . $version;
-        
-        return $this;
-    }
-
-    /**
-     * Extract a resource from an event
-     *
-     * @param Event $event
-     * @return static
-     */
-    public static function fromEvent(Event $event): self
-    {
-        $resource = self::fromEventBase($event);
-        $resource->setVersionFrom($event->body);
-        
-        return $resource;
     }
 }

@@ -11,7 +11,10 @@
         "system": {
             "$schema": "http://json-schema.org/draft-07/schema#",
             "key": "system",
-            "title": "System"
+            "title": "System",
+            "signkeys": [
+                "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
+            ]
         }
     },
     "actions": {
