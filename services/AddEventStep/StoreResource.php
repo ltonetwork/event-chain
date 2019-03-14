@@ -10,8 +10,8 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 
 /**
- * Extract and store the resource from the event. A resource might be a workflow action, a comment, an identity or
- * some asset. These assets may be stored at an external service. Comments and identities are embedded in the event
+ * Extract and store the resource from the event. A resource might be a workflow action, an identity or
+ * some asset. These assets may be stored at an external service. Identities are embedded in the event
  * chain.
  *
  * Some resource services, specifically the workflow engine can reject the new resource. In this case we can't

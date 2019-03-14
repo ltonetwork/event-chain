@@ -13,10 +13,12 @@ use Jasny\DB\Mongo\Document\MetaImplementation;
  */
 class MongoSubDocument extends BasicEntity implements ChangeAware, Meta, Validation, FieldMapping
 {
-    use MetaImplementation,
+    use EntityImplementation,
+        MetaImplementation,
         ChangeAware\Implementation
     {
         MetaImplementation::cast as private metaCast;
+        EntityImplementation::fromData insteadof MetaImplementation;
     }
 
     /**

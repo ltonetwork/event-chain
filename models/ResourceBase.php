@@ -8,7 +8,8 @@ use Meta\AnnotationsImplementation;
  */
 trait ResourceBase
 {
-    use Entity\Implementation,
+    use EntityImplementation,
+        Entity\Implementation,
         Entity\Redactable\Implementation,
         Entity\Meta\Implementation,
         Entity\Validation\MetaImplementation,
@@ -19,6 +20,7 @@ trait ResourceBase
         Entity\Implementation::getValues as private getUnredactedValues;
         Entity\Implementation::jsonSerializeFilter insteadof Entity\Meta\Implementation;
         Meta\AnnotationsImplementation::meta insteadof Entity\Meta\Implementation;
+        EntityImplementation::fromData insteadof Entity\Implementation;
     }
     
     /**
@@ -33,7 +35,12 @@ trait ResourceBase
      * @var DateTime
      */
     public $timestamp;
-    
+
+    /**
+     * Public signkey of resource's event
+     * @var string
+     */
+    public $original_key;    
     
     /**
      * Cast properties.
@@ -159,7 +166,8 @@ trait ResourceBase
         
         $resource = new static();
         $resource->setValues([
-            'timestamp' => $event->timestamp
+            'timestamp' => $event->timestamp,
+            'original_key' => $event->signkey
         ] + $data);
         
         return $resource;

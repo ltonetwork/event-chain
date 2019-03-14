@@ -9,7 +9,11 @@ return [
         $config = $container->get('config')->queuer;
         $httpClient = $container->get(ClientInterface::class);
 
-        return new Dispatcher($config, $httpClient);
+        $dispatcher = $config === false ?
+            new NoDispatcher() :
+            new Dispatcher($config, $httpClient);                        
+
+        return $dispatcher;
     },
     DispatcherManager::class => function (ContainerInterface $container) {
         $dispatcher = $container->get(Dispatcher::class);
