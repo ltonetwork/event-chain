@@ -8,6 +8,7 @@ bower_components
 /tmp
 /tests/_output
 /tests/*/*Tester.php
+!/tests/workflow-integration/AllWorkflowTester.php
 /tests/_support/_generated
 /bin
 /c3.php

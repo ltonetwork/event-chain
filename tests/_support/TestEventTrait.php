@@ -66,14 +66,17 @@ trait TestEventTrait
      *
      * @param EventChain $chain
      * @param int $eventsCount
+     * @param array|null $bodies 
      * @return EventChain
      */
-    public function addEvents(EventChain $chain, int $eventsCount): EventChain
+    public function addEvents(EventChain $chain, int $eventsCount, ?array $bodies = null): EventChain
     {
+        $node = $this->getNode();
         $newChain = clone $chain;
 
         for ($i = 0; $i < $eventsCount; $i++) {
-            $newChain->events[] = $this->createEvent($newChain);
+            $body = $this->createEventBody($i, $bodies);
+            $newChain->events[] = $this->createEvent($newChain, $node, $body);
         }
 
         return $newChain;
@@ -146,7 +149,7 @@ trait TestEventTrait
         $event = new Event();
 
         $values = [
-            'origin' => 'http://localhost',
+            'origin' => 'localhost',
             'timestamp' => (new DateTime)->getTimestamp(),
             'previous' => $chain->getLatestHash(),
             'body' => base58_encode(json_encode($body))

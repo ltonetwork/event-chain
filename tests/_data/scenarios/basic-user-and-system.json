@@ -12,9 +12,7 @@
             "$schema": "http://json-schema.org/draft-07/schema#",
             "key": "system",
             "title": "System",
-            "signkeys": [
-                "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
-            ]
+            "identity": "0c1d7eac-18ec-496a-8713-8e6e5f098686"
         }
     },
     "actions": {
@@ -42,7 +40,7 @@
         "step3": {
             "$schema": "https://specs.livecontracts.io/v1.0.0/action/schema.json#",
             "title": "Step3",
-            "actor": "user",
+            "actor": "system",
             "responses": {
                 "ok": { },
                 "cancel": { }
@@ -85,7 +83,18 @@
         "third": {
             "action": "step3",
             "display": "always",
-            "transition": ":success"
+            "transitions": [
+                {
+                    "action": "step3",
+                    "response": "ok",
+                    "transition": ":success"
+                },
+                {
+                    "action": "step3",
+                    "response": "error",
+                    "transition": ":failed"
+                }
+            ]
         }
     },
     "assets": { },
