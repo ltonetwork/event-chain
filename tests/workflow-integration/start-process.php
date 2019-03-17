@@ -13,10 +13,7 @@ $bodies = [
     [
         '$schema' => 'https://specs.livecontracts.io/v0.2.0/identity/schema.json#',
         'id' => '0c1d7eac-18ec-496a-8713-8e6e5f098686',
-        'name' => 'John Doe',
-        'email' => 'john.doe@example.com',
         'node' => 'localhost',
-        'privileges' => null,
         'signkeys' => [
             'user' => 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y', 
             'system' => 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y'
