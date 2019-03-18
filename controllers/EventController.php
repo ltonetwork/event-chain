@@ -125,6 +125,10 @@ class EventController extends Jasny\Controller
      */
     protected function assertSignedByUs(EventChain $newChain, EventChain $chain, ?string $node = null): bool
     {
+        if (!$this->dispatcher->isEnabled()) {
+            return true;
+        }
+
         $lastEvent = $newChain->getLastEvent();
         $signedByUs = $chain->getNodes() === [] || $chain->isEventSignedByIdentityNode($lastEvent, $node);
 

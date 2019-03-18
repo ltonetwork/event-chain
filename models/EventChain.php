@@ -145,7 +145,7 @@ class EventChain extends MongoDocument
     {
         return Pipeline::with($this->identities)
             ->filter(function (Identity $identity) use ($signKey) {
-                return isset($identity->signkeys['user']) && $identity->signkeys['user'] === $signKey;
+                return isset($identity->signkeys['default']) && $identity->signkeys['default'] === $signKey;
             })
             ->column('node')
             ->unique()

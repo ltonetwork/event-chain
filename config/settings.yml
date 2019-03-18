@@ -6,7 +6,7 @@ log: true
 db:
   default:
     client: mongodb://localhost:27017
-    database: legalevents
+    database: lto_eventchain
 
 email:
   from: info@legalthings.io
@@ -14,5 +14,4 @@ email:
 
 environment_variables:
   MONGO_DB: db.default.client
-  MONGO_DB_PREFIX: db.default.prefix
   ANCHOR_URL: anchor.url

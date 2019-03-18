@@ -1070,16 +1070,16 @@
         },
         {
             "name": "jasny/http-message",
-            "version": "v1.3.5",
+            "version": "v1.3.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jasny/http-message.git",
-                "reference": "bb4a76e48569f2ce22b6e7bbcd63aaf86afe0f05"
+                "reference": "3f6519d5560d10463ff5ea9f289e3680063140aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasny/http-message/zipball/bb4a76e48569f2ce22b6e7bbcd63aaf86afe0f05",
-                "reference": "bb4a76e48569f2ce22b6e7bbcd63aaf86afe0f05",
+                "url": "https://api.github.com/repos/jasny/http-message/zipball/3f6519d5560d10463ff5ea9f289e3680063140aa",
+                "reference": "3f6519d5560d10463ff5ea9f289e3680063140aa",
                 "shasum": ""
             },
             "require": {
@@ -1091,7 +1091,7 @@
                 "psr/http-message-implementation": "~1.0.0"
             },
             "require-dev": {
-                "jasny/php-code-quality": "^2.1",
+                "jasny/php-code-quality": "2.1.*",
                 "mikey179/vfsstream": "^1.6"
             },
             "type": "library",
@@ -1117,7 +1117,7 @@
                 "mvc",
                 "psr-7"
             ],
-            "time": "2017-05-17T01:28:27+00:00"
+            "time": "2019-03-17T05:18:51+00:00"
         },
         {
             "name": "jasny/http-signature",

@@ -15,7 +15,6 @@ class Event extends MongoSubDocument implements Identifiable
      * The node that sent the event
      *
      * @var string|null
-     * @required
      */
     public $origin;
 

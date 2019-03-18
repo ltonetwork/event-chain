@@ -9,11 +9,6 @@ email:
   keep: true
   Mailer: mock
 
-endpoints:
-  "lt:/scenarios/*":      "http://legalflow/scenarios/"
-  "lt:/processes/*":      "http://legalflow/responses/"
-  "lt:/processes/*/done": "http://legalflow/processes/$2/done"
-
 queuer:
   url: http://event-queuer
 

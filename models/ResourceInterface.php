@@ -24,16 +24,7 @@ interface ResourceInterface extends Entity, Redactable, Meta, Validation
      * @return $this
      */
     public function applyPrivilege(Privilege $privilege);
- 
-    /**
-     * Set the identity that created this (version of the) resource.
-     *
-     * @param Identity $identity
-     * @return $this
-     */
-    public function setIdentity(Identity $identity);
-    
-    
+
     /**
      * Extract an identity from an event
      *

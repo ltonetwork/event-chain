@@ -138,21 +138,6 @@ trait ResourceBase
         
         return $this;
     }
-    
-    /**
-     * Set the identity that created this (version of the) resource
-     *
-     * @param Identity $identity
-     * @return $this
-     */
-    public function setIdentity(Identity $identity)
-    {
-        if (property_exists($this, 'identity')) {
-            $this->identity = $identity;
-        }
-        
-        return $this;
-    }
 
     /**
      * Extract a resource from an event
@@ -182,6 +167,8 @@ trait ResourceBase
     {
         $object->{'$schema'} = $object->schema;
         unset($object->schema);
+
+        unset($object->original_key);
         
         return $object;
     }

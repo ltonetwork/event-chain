@@ -86,7 +86,7 @@ class ResourceStorage
             })
             ->toArray();
 
-        $results = Promise\unwrap($promises);
+        Promise\unwrap($promises);
     }
 
     /**

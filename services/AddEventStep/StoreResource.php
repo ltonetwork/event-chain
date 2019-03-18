@@ -122,7 +122,6 @@ class StoreResource
         }
 
         $resource->applyPrivilege($this->consolidatedPrivilege($resource, $privileges));
-        $resource->setIdentity($identities[0]);
 
         return ValidationResult::success();
     }

@@ -10,7 +10,7 @@ use Jasny\HttpSignature\ClientMiddleware as HttpSignatureMiddleware;
 
 return [
     HandlerStack::class => function(ContainerInterface $container) {
-        $stack = new HandlerStack();
+        $stack = HandlerStack::create();
         $stack->setHandler(new CurlHandler());
 
         $digestMiddleware = $container->get(HttpDigestMiddleware::class);

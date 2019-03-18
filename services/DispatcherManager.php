@@ -79,4 +79,14 @@ class DispatcherManager
     {
         return $this->dispatcher->getNode();
     }
+
+    /**
+     * Check if dispatching is enabled.
+     *
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return !($this->dispatcher instanceof NoDispatcher);
+    }
 }
