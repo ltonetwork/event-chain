@@ -1,5 +1,8 @@
 <?php
 
+use LTO\Account;
+use Jasny\HttpDigest\HttpDigest;
+
 /**
  * @covers ResourceStorage
  */
@@ -19,6 +22,8 @@ class ResourceStorageTest extends \Codeception\Test\Unit
             (object)['url' => 'http://www.zoo-foo.com', 'schema' => 'http://example.com/foo/schema.json#', 'grouped' => null]
         ];
 
+        $resource = $this->getResource();
+
         $httpRequestContainer = [];
         $httpClient = $this->getHttpClientMock($httpRequestContainer, [
             new GuzzleHttp\Psr7\Response(200),
@@ -28,9 +33,14 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         $httpError = $this->createMock(HttpErrorWarning::class);
         $httpError->expects($this->never())->method('__invoke');
 
-        $resource = $this->getResource();
+        $node = $this->createMock(Account::class);
+        $node->sign = (object)['publickey' => 'foo_node_sign_publickey'];
 
-        $storage = new ResourceStorage($endpoints, $httpClient, $httpError);        
+        $digest = $this->createMock(HttpDigest::class);
+        $digest->expects($this->any())->method('create')->with(json_encode($resource))
+            ->willReturn('some_calculated_digest');
+
+        $storage = new ResourceStorage($endpoints, $httpClient, $httpError, $node, $digest);        
         $storage->store($resource);
 
         $this->assertCount(2, $httpRequestContainer);
@@ -48,14 +58,21 @@ class ResourceStorageTest extends \Codeception\Test\Unit
 
         $urls = ['http://www.foo.com', 'http://www.zoo-foo.com'];
         for ($i=0; $i < count($urls); $i++) { 
+            $options = $httpRequestContainer[$i]['options'];
             $request = $httpRequestContainer[$i]['request'];
             $headers = $request->getHeaders();
+            $json = json_encode($expectedJson);
+
+            $this->assertTrue($options['http_errors']);
+            $this->assertSame(base58_encode('foo_node_sign_publickey'), $options['signature_key_id']);
 
             $this->assertEquals('POST', $request->getMethod());
             $this->assertEquals($urls[$i], (string)$request->getUri());
             $this->assertEquals(['application/json'], $headers['Content-Type']);
             $this->assertEquals(['foo_event_public_signkey'], $headers['X-Original-Key-Id']);
-            $this->assertJsonStringEqualsJsonString(json_encode($expectedJson), (string)$request->getBody());            
+            $this->assertEquals(['some_calculated_digest'], $headers['Digest']);
+            $this->assertTrue(!empty($headers['date'][0]));
+            $this->assertJsonStringEqualsJsonString($json, (string)$request->getBody());            
         }
     }
 
@@ -70,6 +87,9 @@ class ResourceStorageTest extends \Codeception\Test\Unit
             (object)['url' => 'http://www.zoo-foo.com', 'schema' => 'http://example.com/foo/schema.json#', 'inject_chain' => 'empty']
         ];
 
+        $chain = $this->getEventChain();
+        $resource = $this->getProcessResource();
+
         $httpRequestContainer = [];
         $httpClient = $this->getHttpClientMock($httpRequestContainer, [
             new GuzzleHttp\Psr7\Response(200),
@@ -79,11 +99,14 @@ class ResourceStorageTest extends \Codeception\Test\Unit
 
         $httpError = $this->createMock(HttpErrorWarning::class);
         $httpError->expects($this->never())->method('__invoke');
+        
+        $node = $this->createMock(Account::class);
+        $node->sign = (object)['publickey' => 'foo_node_sign_publickey'];
 
-        $chain = $this->getEventChain();
-        $resource = $this->getProcessResource();
+        $digest = $this->createMock(HttpDigest::class);
+        // TODO mock and assert digest
 
-        $storage = new ResourceStorage($endpoints, $httpClient, $httpError);        
+        $storage = new ResourceStorage($endpoints, $httpClient, $httpError, $node, $digest);        
         $storage->store($resource, $chain);
 
         $this->assertCount(3, $httpRequestContainer);
@@ -139,13 +162,18 @@ class ResourceStorageTest extends \Codeception\Test\Unit
 
         for ($i=2; $i < 3; $i++) { 
             $data = $expected[$i];
+            $options = $httpRequestContainer[$i]['options'];
             $request = $httpRequestContainer[$i]['request'];
             $headers = $request->getHeaders();
+
+            $this->assertTrue($options['http_errors']);
+            $this->assertSame(base58_encode('foo_node_sign_publickey'), $options['signature_key_id']);
 
             $this->assertEquals('POST', $request->getMethod());
             $this->assertEquals($data['url'], (string)$request->getUri());
             $this->assertEquals(['application/json'], $headers['Content-Type']);
             $this->assertEquals(['foo_event_public_signkey'], $headers['X-Original-Key-Id']);
+            $this->assertTrue(!empty($headers['date'][0]));
             $this->assertJsonStringEqualsJsonString(json_encode($data['data']), (string)$request->getBody());            
         }   
     }
@@ -173,7 +201,13 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         $httpError = $this->createMock(HttpErrorWarning::class);
         $httpError->expects($this->never())->method('__invoke');
 
-        $storage = new ResourceStorage($endpoints, $httpClient, $httpError);        
+        $node = $this->createMock(Account::class);
+        $node->sign = (object)['publickey' => 'foo_node_sign_publickey'];
+
+        $digest = $this->createMock(HttpDigest::class);
+        // TODO mock and assert digest
+
+        $storage = new ResourceStorage($endpoints, $httpClient, $httpError, $node, $digest);        
         $storage->storeGrouped($resources);
 
         $this->assertCount(8, $httpRequestContainer);
@@ -220,7 +254,13 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         $httpError = $this->createMock(HttpErrorWarning::class);
         $httpError->expects($this->never())->method('__invoke');
 
-        $storage = new ResourceStorage($endpoints, $httpClient, $httpError);        
+        $node = $this->createMock(Account::class);
+        $node->sign = (object)['publickey' => 'foo_node_sign_publickey'];
+
+        $digest = $this->createMock(HttpDigest::class);
+        // TODO mock and assert digest
+
+        $storage = new ResourceStorage($endpoints, $httpClient, $httpError, $node, $digest);        
         $storage->storeGrouped($resources, $chain);
 
         $this->assertCount(3, $httpRequestContainer);

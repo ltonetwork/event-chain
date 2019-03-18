@@ -6,6 +6,8 @@ use Improved\IteratorPipeline\Pipeline;
 use GuzzleHttp\ClientInterface as HttpClient;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
+use GuzzleHttp\Promise\Promise as GuzzlePromise;
+use Jasny\HttpDigest\HttpDigest;
 use LTO\Account;
 
 /**
@@ -34,24 +36,32 @@ class ResourceStorage
     protected $node;
 
     /**
+     * @var Digest
+     **/
+    protected $digest;
+
+    /**
      * Class constructor
      *
      * @param array            $endpoints
      * @param HttpClient       $httpClient
      * @param HttpErrorWarning $errorWarning
      * @param Account          $node
+     * @param HttpDigest       $digest
      */
     public function __construct(
         array $endpoints, 
         HttpClient $httpClient, 
         HttpErrorWarning $errorWarning, 
-        Account $node
+        Account $node, 
+        HttpDigest $digest
     )
     {
         $this->endpoints = $endpoints;
         $this->httpClient = $httpClient;
         $this->errorWarning = $errorWarning;
         $this->node = $node;
+        $this->digest = $digest;
     }
 
     /**
@@ -71,10 +81,8 @@ class ResourceStorage
             })
             ->map(function($endpoint) use ($resource, $chain) {
                 $resource = $this->injectEventChain($resource, $endpoint, $chain);
-                $request = $this->createRequest($resource, $endpoint);         
-                $options = ['http_errors' => true, 'signature_key_id' => base58_encode($this->node->sign->publickey)];
 
-                return $this->httpClient->sendAsync($request, $options);
+                return $this->sendRequest($resource, $endpoint);
             })
             ->toArray();
 
@@ -82,26 +90,27 @@ class ResourceStorage
     }
 
     /**
-     * Create signed request
+     * Send request
      *
      * @param ResourceInterface $resource
-     * @param stdClass $$endpoint 
-     * @return GuzzleHttp\Psr7\Request
+     * @param stdClass          $endpoint 
+     * @return GuzzleHttp\Promise\PromiseInterface
      */
-    protected function createRequest(ResourceInterface $resource, stdClass $endpoint): GuzzleRequest
+    protected function sendRequest(ResourceInterface $resource, stdClass $endpoint): GuzzlePromise
     {
-        $body = json_encode($resource);
-
-        $headers = [
-            'X-Original-Key-Id' => $resource->original_key,
-            'Digest' => 'SHA-256=' . base64_encode(hash('sha256', $body, true)),
-            'Content-Type' => 'application/json',
-            'date' => date(DATE_RFC1123)
+        $options = [
+            'json' => $resource,
+            'http_errors' => true, 
+            'signature_key_id' => base58_encode($this->node->sign->publickey),
+            'headers' => [
+                'X-Original-Key-Id' => $resource->original_key,
+                'Digest' => $this->digest->create(json_encode($resource)),
+                'Content-Type' => 'application/json',
+                'date' => date(DATE_RFC1123)
+            ]
         ];
 
-        $request = new GuzzleRequest('POST', $endpoint->url, $headers, $body);   
-
-        return $request;
+        return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
     }
 
     /**
