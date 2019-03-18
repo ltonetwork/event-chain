@@ -24,18 +24,6 @@ class EventTest extends \Codeception\Test\Unit
         $this->assertEquals("3s8rY83hdyfn2pLQu3yH6DXtK9QGsjPw7TXKPRfTLCQeVR4gGkR7LDig5ABFEKFVyavr8zprpzqBFKhUEvfNaXGV",
                 $base58->encode($secretkey));
     }
-    
-    public function testAddReceipt()
-    {
-        $receipt = $this->createMock(Receipt::class);
-
-        $event = Event::create();
-        
-        $ret = $event->addReceipt($receipt);
-        
-        $this->assertSame($ret, $event);
-        $this->assertSame($receipt, $event->receipt);
-    }
 
     public function testGetMessage()
     {
@@ -142,11 +130,7 @@ class EventTest extends \Codeception\Test\Unit
     }
     
     public function testValidate()
-    {
-        $receipt = $this->createMock(Receipt::class);
-        $receipt->expects($this->once())->method('validate')->willReturn(\Jasny\ValidationResult::success());
-        $receipt->targetHash = "H3gbBd2sUczYCEqPK6LUPvVLqKqHdRNFEaaqAQe83mRQ";
-        
+    {        
         $event = $this->createPartialMock(Event::class, ['verifySignature']);
         $event->expects($this->once())->method('verifySignature')->willReturn(true);
         
@@ -157,7 +141,6 @@ class EventTest extends \Codeception\Test\Unit
             "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
             "hash" => "H3gbBd2sUczYCEqPK6LUPvVLqKqHdRNFEaaqAQe83mRQ",
             "signature" => "_stub_",
-            "receipt" => $receipt,
             "origin" => "node1"
         ]);
  
@@ -167,12 +150,7 @@ class EventTest extends \Codeception\Test\Unit
     }
     
     public function testValidateFailed()
-    {
-        $receipt = $this->createMock(Receipt::class);
-        $receipt->expects($this->once())->method('validate')
-                ->willReturn(\Jasny\ValidationResult::error('some error'));
-        $receipt->targetHash = "ArxW6PhABV2JUd7VeqfWGjVJ4hyXEhCztKRP1gJKLchH";
-        
+    {        
         $event = $this->createPartialMock(Event::class, ['verifySignature']);
         $event->expects($this->once())->method('verifySignature')->willReturn(false);
         
@@ -183,10 +161,8 @@ class EventTest extends \Codeception\Test\Unit
             "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
             "hash" => "EdqM52SpXCn5c1uozuvuH5o9Tcr41kYeCWz4Ymu6ngbt",
             "signature" => "",
-            "receipt" => $receipt,
             "origin" => "node1"
         ]);
-
         
         $identity = $this->createMock(Identity::class);
         $identity->id = "73092191-6936-4d44-a942-02be14664ebb";
@@ -199,9 +175,7 @@ class EventTest extends \Codeception\Test\Unit
         $this->assertEquals([
             'body is not base58 encoded json',
             'invalid signature',
-            'invalid hash',
-            "invalid receipt; some error",
-            "invalid receipt; hash doesn't match"
+            'invalid hash'
         ], $validation->getErrors());
     }
     

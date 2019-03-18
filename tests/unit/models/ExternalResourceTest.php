@@ -5,7 +5,7 @@
  */
 class ExternalResourceTest extends \Codeception\Test\Unit
 {
-    function testGetId()
+    public function testGetId()
     {
         $resource = new ExternalResource();
         $resource->id = 'lt:/foos/123';
@@ -13,33 +13,9 @@ class ExternalResourceTest extends \Codeception\Test\Unit
         $this->assertEquals('lt:/foos/123', $resource->getId());
     }
     
-    function testGetIdProperty()
+    public function testGetIdProperty()
     {
         $this->assertEquals('id', ExternalResource::getIdProperty());
-    }
-    
-    
-    public function setVersionFromProvider()
-    {
-        return [
-            ['lt:/foos/123'],
-            ['lt:/foos/123?v=GKot5hBs']
-        ];
-    }
-    
-    /**
-     * @dataProvider setVersionFromProvider
-     * 
-     * @param string $id
-     */
-    public function testSetVersionFrom($id)
-    {
-        $resource = new ExternalResource();
-        $resource->id = $id;
-        
-        $resource->setVersionFrom("77qGgmn5kjj84aS3JRo6bP8mdDr2BSF35dNi5yH3DTZb5Ja2zVa2wo2");
-        
-        $this->assertAttributeEquals('lt:/foos/123?v=4ZL83zt5', 'id', $resource);
     }
     
     public function testFromEvent()

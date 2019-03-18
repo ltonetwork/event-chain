@@ -80,11 +80,24 @@ class TriggerResourceServicesTest extends \Codeception\Test\Unit
         $this->chain->expects($this->any())->method('isEventSignedByAccount')->with($lastEvent, $this->node)->willReturn($isEventSigned);
 
         if ($done) {
-            $this->resourceStorage->expects($this->once())->method('done')->with($this->callback(function($resources) {
-                return $resources instanceof \Generator;
-            }), $this->chain);            
+            $resource = $this->createMock(\ExternalResource::class);
+            $this->resourceFactory->expects($this->once())->method('extractFrom')
+                ->with($partialEvents[0])->willReturn($resource);
+
+            $this->resourceStorage->expects($this->once())->method('storeGrouped')
+                ->with($this->callback(function($arg) use ($resource) {
+                    $isGenerator = $arg instanceof \Generator;
+
+                    $array = [];
+                    foreach ($arg as $key => $value) {
+                        $array[$key] = $value;
+                    }
+
+                    return $isGenerator && count($array) === 1 && $array[0] === $resource;
+                }), $this->chain);            
         } else {            
-            $this->resourceStorage->expects($this->never())->method('done');
+            $this->resourceFactory->expects($this->never())->method('extractFrom');
+            $this->resourceStorage->expects($this->never())->method('storeGrouped');
         }
        
         $result = i\function_call($this->step, $partial, $validation);

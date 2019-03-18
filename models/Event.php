@@ -165,19 +165,6 @@ class Event extends MongoSubDocument implements Identifiable
     }
 
     /**
-     * Add a receipt to the event
-     *
-     * @param Receipt $receipt
-     * @return $this
-     */
-    public function addReceipt(Receipt $receipt): self
-    {
-        $this->receipt = $receipt;
-
-        return $this;
-    }
-
-    /**
      * Get the message used for hash and signature
      *
      * @return string
