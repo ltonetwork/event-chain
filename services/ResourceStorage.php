@@ -6,7 +6,7 @@ use Improved\IteratorPipeline\Pipeline;
 use GuzzleHttp\ClientInterface as HttpClient;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
-use GuzzleHttp\Promise\Promise as GuzzlePromise;
+use GuzzleHttp\Promise\PromiseInterface as GuzzlePromise;
 use Jasny\HttpDigest\HttpDigest;
 use LTO\Account;
 
