@@ -5,7 +5,6 @@ use const Improved\FUNCTION_ARGUMENT_PLACEHOLDER as __;
 use Improved\IteratorPipeline\Pipeline;
 use GuzzleHttp\ClientInterface as HttpClient;
 use GuzzleHttp\Promise;
-use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Promise\PromiseInterface as GuzzlePromise;
 use Jasny\HttpDigest\HttpDigest;
 use LTO\Account;
@@ -36,32 +35,24 @@ class ResourceStorage
     protected $node;
 
     /**
-     * @var Digest
-     **/
-    protected $digest;
-
-    /**
      * Class constructor
      *
      * @param array            $endpoints
      * @param HttpClient       $httpClient
      * @param HttpErrorWarning $errorWarning
      * @param Account          $node
-     * @param HttpDigest       $digest
      */
     public function __construct(
         array $endpoints, 
         HttpClient $httpClient, 
         HttpErrorWarning $errorWarning, 
-        Account $node, 
-        HttpDigest $digest
+        Account $node
     )
     {
         $this->endpoints = $endpoints;
         $this->httpClient = $httpClient;
         $this->errorWarning = $errorWarning;
         $this->node = $node;
-        $this->digest = $digest;
     }
 
     /**
@@ -104,57 +95,12 @@ class ResourceStorage
             'signature_key_id' => base58_encode($this->node->sign->publickey),
             'headers' => [
                 'X-Original-Key-Id' => $resource->original_key,
-                'Digest' => $this->digest->create(json_encode($resource)),
                 'Content-Type' => 'application/json',
                 'date' => date(DATE_RFC1123)
             ]
         ];
 
         return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
-    }
-
-    /**
-     * Message resources that the event chain has been processed.
-     *
-     * @param iterable $resources
-     * @param EventChain|null $chain
-     */
-    public function storeGrouped(iterable $resources, ?EventChain $chain = null): void
-    {
-        $promises = [];
-
-        foreach ($this->endpoints as $endpoint) {
-            if (!isset($endpoint->grouped)) {
-                continue;
-            }
-
-            $endpointPromises = Pipeline::with($resources)
-                ->filter(static function(ResourceInterface $resource) use ($endpoint) {
-                    return $endpoint->schema === null || $resource->getSchema() === $endpoint->schema;
-                })
-                ->group(static function(ResourceInterface $resource) use ($endpoint) {
-                    $field = $endpoint->grouped;
-                    $value = $resource->{$field} ?? null;
-
-                    return is_scalar($value) ? $value : $value->id ?? null;
-                })
-                ->cleanup()
-                ->keys()
-                ->map(function($value) use ($endpoint, $chain) {
-                    $field = $endpoint->grouped;
-                    $data = (object)[$field => $value];
-                    $data = $this->injectEventChain($data, $endpoint, $chain);
-
-                    $options = ['json' => $data, 'http_errors' => true];
-
-                    return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
-                })
-                ->toArray();
-
-            $promises = array_merge($promises, $endpointPromises);
-        }
-
-        Promise\unwrap($promises);
     }
 
     /**
@@ -192,7 +138,7 @@ class ResourceStorage
      * @param EventChain|null $chain 
      * @return ResourceInterface
      */
-    protected function injectEventChain(object $data, object $endpoint, ?EventChain $chain)
+    protected function injectEventChain(object $data, object $endpoint, ?EventChain $chain): ResourceInterface
     {
         if (!isset($chain) || !isset($endpoint->inject_chain) || !$endpoint->inject_chain) {
             return $data;
