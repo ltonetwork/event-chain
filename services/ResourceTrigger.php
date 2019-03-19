@@ -1,5 +1,10 @@
 <?php declare(strict_types=1);
 
+use LTO\Account;
+use GuzzleHttp\ClientInterface as HttpClient;
+use Improved\IteratorPipeline\Pipeline;
+use GuzzleHttp\Promise;
+
 /**
  * Class to trigger on an external resource change.
  * In contrary to storing resources, triggers are executed when all events are processed.
@@ -102,9 +107,9 @@ class ResourceTrigger
      * @param object $resource
      * @param object $endpoint
      * @param EventChain|null $chain
-     * @return ResourceInterface
+     * @return stdClass
      */
-    protected function injectEventChain(object $data, object $endpoint, ?EventChain $chain): ResourceInterface
+    protected function injectEventChain(object $data, object $endpoint, ?EventChain $chain): stdClass
     {
         if (!isset($chain) || !isset($endpoint->inject_chain) || !$endpoint->inject_chain) {
             return $data;
