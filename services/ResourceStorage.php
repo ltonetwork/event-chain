@@ -73,7 +73,7 @@ class ResourceStorage
             ->map(function($endpoint) use ($resource, $chain) {
                 $resource = $this->injectEventChain($resource, $endpoint, $chain);
 
-                return $this->sendRequest($resource, $endpoint);
+                return $this->sendStoreRequest($resource, $endpoint);
             })
             ->toArray();
 
@@ -87,7 +87,7 @@ class ResourceStorage
      * @param stdClass          $endpoint 
      * @return GuzzleHttp\Promise\PromiseInterface
      */
-    protected function sendRequest(ResourceInterface $resource, stdClass $endpoint): GuzzlePromise
+    protected function sendStoreRequest(ResourceInterface $resource, stdClass $endpoint): GuzzlePromise
     {
         $options = [
             'json' => $resource,

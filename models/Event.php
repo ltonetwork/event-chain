@@ -154,7 +154,6 @@ class Event extends MongoSubDocument implements Identifiable
 
         if ($this->original !== null) {
             $values['original'] = $this->original->castToLtoEvent();
-            unset($values['original']->body);
         }
 
         $ltoEvent = new LTO\Event();

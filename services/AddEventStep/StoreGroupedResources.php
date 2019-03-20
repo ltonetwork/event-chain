@@ -23,9 +23,9 @@ class StoreGroupedResources
     protected $resourceFactory;
 
     /**
-     * @var \ResourceStorage
+     * @var \ResourceTrigger
      */
-    protected $resourceStorage;
+    protected $resourceTrigger;
 
     /**
      * @var Account
@@ -38,14 +38,14 @@ class StoreGroupedResources
      *
      * @param \EventChain      $chain
      * @param \ResourceFactory $factory
-     * @param \ResourceStorage $storage
+     * @param \ResourceTrigger $resourceTrigger
      * @param Account          $node
      */
-    public function __construct(\EventChain $chain, \ResourceFactory $factory, \ResourceStorage $storage, Account $node)
+    public function __construct(\EventChain $chain, \ResourceFactory $factory, \ResourceTrigger $resourceTrigger, Account $node)
     {
         $this->chain = $chain;
         $this->resourceFactory = $factory;
-        $this->resourceStorage = $storage;
+        $this->resourceTrigger = $resourceTrigger;
         $this->node = $node;
     }
 
@@ -79,6 +79,6 @@ class StoreGroupedResources
     {
         $resources = i\iterable_map($partial->events, [$this->resourceFactory, 'extractFrom']);
 
-        $this->resourceStorage->storeGrouped($resources, $this->chain);
+        $this->resourceTrigger->trigger($resources, $this->chain);
     }
 }

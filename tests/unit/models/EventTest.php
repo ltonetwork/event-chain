@@ -206,7 +206,6 @@ class EventTest extends \Codeception\Test\Unit
         $validation = $event->validate();
         
         $this->assertEquals([
-            'origin is required',
             'body is required',
             'timestamp is required',
             'previous is required',

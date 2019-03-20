@@ -22,23 +22,15 @@ class ConflictResolver
     protected $rebaser;
 
     /**
-     * @var ResourceStorage
-     */
-    protected $resourceStorage;
-
-
-    /**
      * Class constructor.
      *
      * @param AnchorClient     $anchor
      * @parma EventChainRebase $rebaser
-     * @param ResourceStorage  $resourceStorage
      */
-    public function __construct(AnchorClient $anchor, EventChainRebase $rebaser, ResourceStorage $resourceStorage)
+    public function __construct(AnchorClient $anchor, EventChainRebase $rebaser)
     {
         $this->anchor = $anchor;
         $this->rebaser = $rebaser;
-        $this->resourceStorage = $resourceStorage;
     }
 
     /**
@@ -64,8 +56,6 @@ class ConflictResolver
         }
 
         $mergedChain = $this->rebaser->rebase($theirChain, $ourChain);
-
-        $this->resourceStorage->deleteProjected($mergedChain->resources);
 
         return $mergedChain;
     }

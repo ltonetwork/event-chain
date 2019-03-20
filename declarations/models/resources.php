@@ -13,7 +13,7 @@ return [
 
         return $container->autowire(ResourceStorage::class, $endpoints);
     },
-    ResourceStorage::class => function (AutowireContainerInterface $container) {
+    ResourceTrigger::class => function (AutowireContainerInterface $container) {
         $triggers = (array)$container->get('config.triggers');
 
         return $container->autowire(ResourceTrigger::class, $triggers);

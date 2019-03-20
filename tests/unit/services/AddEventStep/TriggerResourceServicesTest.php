@@ -8,7 +8,7 @@ use EventChain;
 use EventFactory;
 use AnchorClient;
 use ResourceFactory;
-use ResourceStorage;
+use ResourceTrigger;
 use Jasny\DB\EntitySet;
 use Improved\IteratorPipeline\Pipeline;
 use Jasny\ValidationResult;
@@ -31,9 +31,9 @@ class TriggerResourceServicesTest extends \Codeception\Test\Unit
     protected $chain;
 
     /**
-     * @var ResourceStorage
+     * @var ResourceTrigger
      */
-    protected $resourceStorage;
+    protected $resourceTrigger;
 
     /**
      * @var Account
@@ -44,10 +44,10 @@ class TriggerResourceServicesTest extends \Codeception\Test\Unit
     {
         $this->chain = $this->createMock(EventChain::class);
         $this->resourceFactory = $this->createMock(ResourceFactory::class);
-        $this->resourceStorage = $this->createMock(ResourceStorage::class);
+        $this->resourceTrigger = $this->createMock(ResourceTrigger::class);
         $this->node = $this->createMock(Account::class);
 
-        $this->step = new StoreGroupedResources($this->chain, $this->resourceFactory, $this->resourceStorage, $this->node);
+        $this->step = new StoreGroupedResources($this->chain, $this->resourceFactory, $this->resourceTrigger, $this->node);
     }
 
     public function provider()
@@ -84,7 +84,7 @@ class TriggerResourceServicesTest extends \Codeception\Test\Unit
             $this->resourceFactory->expects($this->once())->method('extractFrom')
                 ->with($partialEvents[0])->willReturn($resource);
 
-            $this->resourceStorage->expects($this->once())->method('storeGrouped')
+            $this->resourceTrigger->expects($this->once())->method('trigger')
                 ->with($this->callback(function($arg) use ($resource) {
                     $isGenerator = $arg instanceof \Generator;
 
@@ -97,7 +97,7 @@ class TriggerResourceServicesTest extends \Codeception\Test\Unit
                 }), $this->chain);            
         } else {            
             $this->resourceFactory->expects($this->never())->method('extractFrom');
-            $this->resourceStorage->expects($this->never())->method('storeGrouped');
+            $this->resourceTrigger->expects($this->never())->method('trigger');
         }
        
         $result = i\function_call($this->step, $partial, $validation);

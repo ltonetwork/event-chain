@@ -21,18 +21,12 @@ class ConflictResolverTest extends \Codeception\Test\Unit
      */
     protected $rebaser;
 
-    /**
-     * @var ResourceStorage|MockObject
-     */
-    protected $resourceStorage;
-
     public function _before()
     {
         $this->anchor = $this->createMock(AnchorClient::class);
         $this->rebaser = $this->createMock(EventChainRebase::class);
-        $this->resourceStorage = $this->createMock(ResourceStorage::class);
 
-        $this->resolver = new ConflictResolver($this->anchor, $this->rebaser, $this->resourceStorage);
+        $this->resolver = new ConflictResolver($this->anchor, $this->rebaser);
     }
 
 
@@ -107,9 +101,6 @@ class ConflictResolverTest extends \Codeception\Test\Unit
             ->with($theirChain, $ourChain)
             ->willReturn($mergedChain);
 
-        $this->resourceStorage->expects($this->once())->method('deleteProjected')
-            ->with($mergedChain->resources);
-
         $ret = $this->resolver->handleFork($ourChain, $theirChain);
 
         $this->assertSame($ret, $mergedChain);
@@ -142,7 +133,6 @@ class ConflictResolverTest extends \Codeception\Test\Unit
             ->willReturn($anchorResult);
 
         $this->rebaser->expects($this->never())->method('rebase');
-        $this->resourceStorage->expects($this->never())->method('deleteProjected');
 
         $ret = $this->resolver->handleFork($ourChain, $theirChain);
 

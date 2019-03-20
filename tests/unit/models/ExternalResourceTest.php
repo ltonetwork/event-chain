@@ -27,22 +27,7 @@ class ExternalResourceTest extends \Codeception\Test\Unit
         
         $resource = ExternalResource::fromEvent($event);
         
-        $this->assertAttributeEquals('lt:/foos/123?v=4ZL83zt5', 'id', $resource);
+        $this->assertAttributeEquals('lt:/foos/123', 'id', $resource);
         $this->assertAttributeEquals('red', 'color', $resource);
-    }
-    
-    /**
-     * @covers ResourceBase::setIdentity
-     */
-    public function testSetIdentity()
-    {
-        $identity = $this->createMock(Identity::class);
-        
-        $resource = new ExternalResource();
-        
-        $ret = $resource->setIdentity($identity);
-        
-        $this->assertSame($ret, $resource);
-        $this->assertAttributeSame($identity, 'identity', $resource);
     }
 }

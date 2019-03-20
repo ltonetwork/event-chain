@@ -20,6 +20,11 @@ class EventManager
     protected $resourceStorage;
     
     /**
+     * @var ResourceTrigger
+     */
+    protected $resourceTrigger;
+    
+    /**
      * @var DispatcherManager
      */
     protected $dispatcher;
@@ -56,6 +61,7 @@ class EventManager
     public function __construct(
         ResourceFactory $resourceFactory,
         ResourceStorage $resourceStorage,
+        ResourceTrigger $resourceTrigger,
         DispatcherManager $dispatcher,
         EventFactory $eventFactory,
         AnchorClient $anchor,
@@ -64,6 +70,7 @@ class EventManager
     ) {
         $this->resourceFactory = $resourceFactory;
         $this->resourceStorage = $resourceStorage;
+        $this->resourceTrigger = $resourceTrigger;
         $this->dispatcher = $dispatcher;
         $this->eventFactory = $eventFactory;
         $this->node = $eventFactory->getNodeAccount();
@@ -109,7 +116,7 @@ class EventManager
             new Step\SaveEvent($chain, $this->chainGateway),
             new Step\Walk($chain), // <-- Nothing will happen without this step
             new Step\Dispatch($chain, $this->dispatcher, $this->node, $chain->getNodes()),
-            new Step\StoreGroupedResources($chain, $this->resourceFactory, $this->resourceStorage, $this->node)
+            new Step\StoreGroupedResources($chain, $this->resourceFactory, $this->resourceTrigger, $this->node)
         ];
     }
 

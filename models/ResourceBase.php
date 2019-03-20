@@ -127,12 +127,12 @@ trait ResourceBase
     public function applyPrivilege(Privilege $privilege)
     {
         if (isset($privilege->only)) {
-            $only = array_merge(['schema', 'id', 'event', 'timestamp', 'identity'], $privilege->only);
+            $only = array_merge(['schema', 'id', 'timestamp', 'original_key'], $privilege->only);
             $this->withOnly(...$only);
         }
         
         if (isset($privilege->not)) {
-            $not = array_diff($privilege->not, ['schema', 'id', 'event', 'timestamp', 'identity']);
+            $not = array_diff($privilege->not, ['schema', 'id', 'timestamp', 'original_key']);
             $this->without(...$not);
         }
         

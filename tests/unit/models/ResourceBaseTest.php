@@ -57,15 +57,6 @@ class ResourceBaseTest extends \Codeception\Test\Unit
         $this->assertAttributeEquals('red', 'color', $this->resource);
     }
     
-    public function testSetIdentity()
-    {
-        $identity = $this->createMock(Identity::class);
-        $ret = $this->resource->setIdentity($identity);
-        
-        $this->assertSame($this->resource, $ret);
-        // Doesn't actually do anything
-    }
-    
     public function applyPrivilegeProvider()
     {
         return [
@@ -84,14 +75,11 @@ class ResourceBaseTest extends \Codeception\Test\Unit
      */
     public function testApplyPrivilege($only, $not)
     {
-        $identity = $this->createMock(Identity::class);
         $timestamp = new DateTime('2018-03-01T00:00:00+00:00');
         
         $values = [
             '$schema' => 'http://example.com/schema.json#',
             'id' => '123456',
-            'identity' => $identity,
-            'event' => "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj",
             'timestamp' => $timestamp,
             'foo' => 'bar',
             'color' => 'red',
@@ -111,11 +99,10 @@ class ResourceBaseTest extends \Codeception\Test\Unit
         $expected = [
             'schema' => 'http://example.com/schema.json#',
             'id' => '123456',
-            'identity' => $identity,
-            'event' => "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj",
             'timestamp' => $timestamp,
             'foo' => 'bar',
-            'number' => 10
+            'number' => 10,
+            'original_key' => null
         ];
         
         $this->assertEquals($expected, $this->resource->getValues());

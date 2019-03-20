@@ -21,6 +21,7 @@ class EventManagerTest extends \Codeception\Test\Unit
         return [
             ResourceFactory::class => $this->createMock(ResourceFactory::class),
             ResourceStorage::class => $this->createMock(ResourceStorage::class),
+            ResourceTrigger::class => $this->createMock(ResourceTrigger::class),
             DispatcherManager::class => $this->createMock(DispatcherManager::class),
             EventFactory::class => $this->createMock(EventFactory::class),
             AnchorClient::class => $this->createMock(AnchorClient::class),

@@ -7,7 +7,6 @@ use Event;
 use EventChain;
 use EventFactory;
 use AnchorClient;
-use ResourceStorage;
 use Jasny\DB\EntitySet;
 use Improved\IteratorPipeline\Pipeline;
 use Jasny\ValidationResult;

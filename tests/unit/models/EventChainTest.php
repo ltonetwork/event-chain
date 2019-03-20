@@ -186,11 +186,11 @@ class EventChainTest extends \Codeception\Test\Unit
     public function testValidateId()
     {
         $event = $this->createMock(Event::class);
-        $event->previous = "FYAWXTgi4oWLWmNtEuNQnAaeMjM9oT7iavzrGKmMoVAw";
+        $event->previous = "DzyXf5T8kVXeYoH2sRhqbBLAYMsqV2iiz2sYQjViY6Py";
         $event->signkey = "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y";
         
         $chain = EventChain::create()->setValues([
-            'id' => '2bGCW3XbfLmSRhotYzcUgqiomiiFLSXKDU43jLMNaf29UXTkpkn2PfvyZkF8yx',
+            'id' => '2b5BRFSdLr8FCE2SPgMKergAAZ2Uy2785sxhsCxgGMcsyH92YKovJvEG4voXLg',
             'events' => [ $event ]
         ]);
         
@@ -229,17 +229,17 @@ class EventChainTest extends \Codeception\Test\Unit
     public function testValidateIntegrity()
     {
         $event1 = $this->createMock(Event::class);
-        $event1->previous = "3NTzfLcXq1D5BRzhj9EyVbmAcLsz1pa6ZjdxRySbYze1";
-        $event1->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
-        $event1->hash = "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj";
+        $event1->previous = "8nrgSyPw6tCvqvVj8raVoBstPuGS2fsMr1KxHfGvnXSP";
+        $event1->signkey = "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y";
+        $event1->hash = "7vBps1mev7CjAC6zC5AiaETZunm8f18WDtoPCcqeDrJz";
         
         $event2 = $this->createMock(Event::class);
-        $event2->previous = "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj";
-        $event2->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
-        $event2->hash = "J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS";
+        $event2->previous = "7vBps1mev7CjAC6zC5AiaETZunm8f18WDtoPCcqeDrJz";
+        $event2->signkey = "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y";
+        $event2->hash = "DcLL5Ek4Tcpx7YNQC4nWCdtZLjukKHpso9PaPdR688xY";
         
         $chain = EventChain::create()->setValues([
-            'id' =>  '2ar3wSjTm1fA33qgckZ5Kxn1x89gKKGi6TJsZjRoqb7sjUE8GZXjLaYCbCa2GX',
+            'id' =>  '2bXoH4bbtzeBr2m2Hvd36sz7K6hJkuaArj4UpmwzUqozsfGD2exGdRjLuWNRUA',
             'events' => [ $event1, $event2 ]
         ]);
         
@@ -251,24 +251,24 @@ class EventChainTest extends \Codeception\Test\Unit
     public function testValidateIntegrityFailed()
     {
         $event1 = $this->createMock(Event::class);
-        $event1->previous = "3NTzfLcXq1D5BRzhj9EyVbmAcLsz1pa6ZjdxRySbYze1";
-        $event1->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
-        $event1->hash = "3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj";
+        $event1->previous = "8nrgSyPw6tCvqvVj8raVoBstPuGS2fsMr1KxHfGvnXSP";
+        $event1->signkey = "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y";
+        $event1->hash = "7vBps1mev7CjAC6zC5AiaETZunm8f18WDtoPCcqeDrJz";
         
         $event3 = $this->createMock(Event::class);
         $event3->previous = "J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS";
-        $event3->signkey = "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ";
-        $event3->hash = "3HZd1nBeva2fLUUEygGakdCQr84dcUz6J3wGTUsHdnhq";
+        $event3->signkey = "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y";
+        $event3->hash = "DcLL5Ek4Tcpx7YNQC4nWCdtZLjukKHpso9PaPdR688xY";
         
         $chain = EventChain::create()->setValues([
-            'id' =>  '2ar3wSjTm1fA33qgckZ5Kxn1x89gKKGi6TJsZjRoqb7sjUE8GZXjLaYCbCa2GX',
+            'id' =>  '2bXoH4bbtzeBr2m2Hvd36sz7K6hJkuaArj4UpmwzUqozsfGD2exGdRjLuWNRUA',
             'events' => [ $event1, $event3 ]
         ]);
         
         $validation = $chain->validate();
         
         $this->assertEquals([
-            "broken chain; previous of '3HZd1nBeva2fLUUEygGakdCQr84dcUz6J3wGTUsHdnhq' is 'J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS', expected '3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj'"
+            "broken chain; previous of 'DcLL5Ek4Tcpx7YNQC4nWCdtZLjukKHpso9PaPdR688xY' is 'J26EAStUDXdRUMhm1UcYXUKtJWTkcZsFpxHRzhkStzbS', expected '7vBps1mev7CjAC6zC5AiaETZunm8f18WDtoPCcqeDrJz'"
         ], $validation->getErrors());
     }
     
@@ -525,14 +525,14 @@ class EventChainTest extends \Codeception\Test\Unit
             [
                 "id" => "1",
                 "signkeys" => [
-                    "user" => "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ"
+                    "default" => "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ"
                 ],
                 'node' => 'node1'
             ],
             [
                 "id" => "2",
                 "signkeys" => [
-                    "user" => "4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG"
+                    "default" => "4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG"
                 ],
                 'node' => 'node2'
             ]

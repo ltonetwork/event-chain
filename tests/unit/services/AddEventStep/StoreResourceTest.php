@@ -342,7 +342,6 @@ class StoreResourceTest extends \Codeception\Test\Unit
         $identitiesFiltered->expects($this->once())->method('getPrivileges')->with($resource)->willReturn($privileges);
         $step->expects($this->once())->method('consolidatedPrivilege')->with($resource, $privileges)->willReturn($consolidatedPrivilege);
         $resource->expects($this->once())->method('applyPrivilege')->with($consolidatedPrivilege);
-        $resource->expects($this->once())->method('setIdentity')->with($identity1);
 
         $result = $step->applyPrivilegeToResource($resource, $event);
 
