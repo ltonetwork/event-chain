@@ -408,7 +408,7 @@ class EventChainTest extends \Codeception\Test\Unit
     public function testRegisterResource()
     {
         $resource = $this->createMock(ExternalResource::class);
-        $resource->expects($this->once())->method('getId')->willReturn('lt:/foos/123?v=22');
+        $resource->expects($this->once())->method('getId')->willReturn('lt:/foos/123');
         
         $chain = EventChain::create();
         $chain->identities = $this->createMock(IdentitySet::class);
@@ -422,7 +422,7 @@ class EventChainTest extends \Codeception\Test\Unit
     public function testRegisterResourceExisting()
     {
         $resource = $this->createMock(ExternalResource::class);
-        $resource->expects($this->once())->method('getId')->willReturn('lt:/foos/123?v=22');
+        $resource->expects($this->once())->method('getId')->willReturn('lt:/foos/123');
         
         $chain = EventChain::create();
         $chain->identities = $this->createMock(IdentitySet::class);

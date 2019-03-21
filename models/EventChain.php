@@ -397,12 +397,9 @@ class EventChain extends MongoDocument
             return;
         }
 
-        if ($resource instanceof Identifiable) {
-            $id = str_before($resource->getId(), '?'); // No (version) arguments
-
-            if (!in_array($id, $this->resources, true)) {
-                $this->resources[] = $id;
-            }
+        $id = $resource->getId();
+        if ($resource instanceof Identifiable && !in_array($id, $this->resources, true)) {
+            $this->resources[] = $id;
         }
     }
 
