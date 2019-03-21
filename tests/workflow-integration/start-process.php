@@ -15,7 +15,7 @@ $bodies = [
         'id' => '0c1d7eac-18ec-496a-8713-8e6e5f098686',
         'node' => 'localhost',
         'signkeys' => [
-            'user' => 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y', 
+            'default' => 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y', 
             'system' => 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y'
         ],
         'encryptkey' => 'BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6'

@@ -453,14 +453,14 @@ class EventChainTest extends \Codeception\Test\Unit
             [
                 "id" => "1",
                 "signkeys" => [
-                    "user" => "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ",
+                    "default" => "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ",
                     "system" => "7TecQdLbPuxt3mWukbZ1g1dTZeA6rxgjMxfS9MRURaEP"
                 ]
             ],
             [
                 "id" => "2",
                 "signkeys" => [
-                    "user" => "4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG",
+                    "default" => "4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG",
                     "system" => "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
                 ]
             ]
@@ -482,14 +482,14 @@ class EventChainTest extends \Codeception\Test\Unit
             [
                 "id" => "1",
                 "signkeys" => [
-                    "user" => "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ",
+                    "default" => "8MeRTc26xZqPmQ3Q29RJBwtgtXDPwR7P9QNArymjPLVQ",
                     "system" => "7TecQdLbPuxt3mWukbZ1g1dTZeA6rxgjMxfS9MRURaEP"
                 ]
             ],
             [
                 "id" => "2",
                 "signkeys" => [
-                    "user" => "4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG",
+                    "default" => "4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG",
                     "system" => "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
                 ]
             ]

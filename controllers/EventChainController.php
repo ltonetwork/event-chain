@@ -54,7 +54,7 @@ class EventChainController extends Jasny\Controller
     public function listAction(): void
     {
         $eventChains = $this->eventChains->fetchAll([
-            'identities.signkeys.user' => $this->account->getPublicSignKey()
+            'identities.signkeys.default' => $this->account->getPublicSignKey()
         ]);
 
         $this->output($eventChains, 'json');
@@ -73,7 +73,7 @@ class EventChainController extends Jasny\Controller
         ]);
         
         if (!isset($eventChain)) {
-            $this->notFound("Event not found");
+            $this->notFound("Event chain not found");
             return;
         }
 
@@ -89,7 +89,7 @@ class EventChainController extends Jasny\Controller
     {
         $eventChain = $this->eventChains->fetch([
             'id' => $id,
-            'identities.signkeys.user' => $this->account->getPublicSignKey()
+            'identities.signkeys.default' => $this->account->getPublicSignKey()
         ]);
 
         if (isset($eventChain)) {

@@ -15,6 +15,16 @@ trait TestEventTrait
     }
 
     /**
+     * Get chain data to send in request
+     * @param  EventChain $chain
+     * @return array
+     */
+    public function castChainToData(EventChain $chain): array
+    {
+        return json_decode(json_encode($chain), true);
+    }
+
+    /**
      * Create test event chain
      *
      * @param int $eventsCount

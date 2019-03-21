@@ -22,16 +22,6 @@ class AllWorkflowTester
     }
 
     /**
-     * Get chain data to send in request
-     * @param  EventChain $chain
-     * @return stdClass
-     */
-    public function castChainToData(EventChain $chain): stdClass
-    {
-        return json_decode(json_encode($chain));
-    }
-
-    /**
      * Send post request
      * @param  string $url
      * @param  array $data

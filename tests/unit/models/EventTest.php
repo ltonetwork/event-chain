@@ -166,7 +166,7 @@ class EventTest extends \Codeception\Test\Unit
         
         $identity = $this->createMock(Identity::class);
         $identity->id = "73092191-6936-4d44-a942-02be14664ebb";
-        $identity->signkeys['user'] = "Cd5ZmfWYjuKVLVZA7YszxiGWdpVewQWTWurYDpWejohP";
+        $identity->signkeys['default'] = "Cd5ZmfWYjuKVLVZA7YszxiGWdpVewQWTWurYDpWejohP";
         
         $previous = "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn";
         

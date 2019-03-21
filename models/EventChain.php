@@ -178,7 +178,7 @@ class EventChain extends MongoDocument
         return Pipeline::with($this->identities)
             ->hasAny(function (Identity $identity) use ($userSignKey, $nodeSignKey) {
                 return
-                    isset($identity->signkeys['user']) && $identity->signkeys['user'] == $userSignKey &&
+                    isset($identity->signkeys['default']) && $identity->signkeys['default'] == $userSignKey &&
                     isset($identity->signkeys['system']) && $identity->signkeys['system'] == $nodeSignKey;
             });
     }

@@ -5,18 +5,48 @@ use MongoDB\Model\BSONArray;
 use MongoDB\Model\BSONDocument;
 use MongoDB\Model\ObjectId as MongoId;
 use MongoDB\BSON\UTCDateTime;
+use Jasny\HttpDigest\HttpDigest;
 
 // here you can define custom actions
 // all public methods declared in helper class will be available in $I
 
 class Api extends \Codeception\Module
 {
+    use \TestEventTrait;
+
     /**
      * @return \Codeception\Module
      */
     public function getJasnyModule()
     {
         return $this->getModule('\Jasny\Codeception\Module');
+    }
+
+    /**
+     * Calculate 'digest' header
+     *
+     * @param array $data
+     * @return string
+     */
+    public function calculateDigest($data)
+    {
+        $service = new HttpDigest('SHA-256');
+
+        return $service->create(''); //json_encode($data)
+    }
+
+    /**
+     * Get timestamp string from event data
+     *
+     * @param array $eventData
+     * @return string
+     */
+    public function getTimeFromEvent(array $eventData)
+    {
+        $dateTime = \DateTime::createFromFormat('U', (string)$eventData['timestamp']);
+        $time = $dateTime->format(\DATE_ISO8601);
+
+        return $time;
     }
     
     /**

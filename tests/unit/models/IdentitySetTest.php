@@ -70,9 +70,9 @@ class IdentitySetTest extends \Codeception\Test\Unit
      */
     public function testFilterOnSignkey(array $expected, $signkey)
     {
-        $this->identities[0]->signkeys = ['user' => 'aaa', 'system' => '111'];
-        $this->identities[1]->signkeys = ['user' => 'bbb', 'system' => '222'];
-        $this->identities[2]->signkeys = ['user' => 'ccc', 'system' => '111'];
+        $this->identities[0]->signkeys = ['default' => 'aaa', 'system' => '111'];
+        $this->identities[1]->signkeys = ['default' => 'bbb', 'system' => '222'];
+        $this->identities[2]->signkeys = ['default' => 'ccc', 'system' => '111'];
         
         $filteredSet = $this->identitySet->filterOnSignkey($signkey);
         

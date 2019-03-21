@@ -17,7 +17,7 @@ db.getCollection("event_chains").insert([
             {
                 "id": "d7e3935a-8d0e-4b14-b910-19df0bf5bbe8",
                 "signkeys": {
-                    "user": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
+                    "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
                 },
                 "name": "John Doe",
                 "email": "john.doe@example.com",
@@ -75,7 +75,7 @@ db.getCollection("event_chains").insert([
                 },
                 "node" : "amqps://localhost",
                 "signkeys" : {
-                    "user" : "57FWtEbXoMKXj71FT84hcvCxN5z1CztbZ8UYJ2J49Gcn",
+                    "default" : "57FWtEbXoMKXj71FT84hcvCxN5z1CztbZ8UYJ2J49Gcn",
                     "system" : "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
                 },
                 "encryptkey" : "9fSos8krst114LtaYGHQPjC3h1CQEHUQWEkYdbykrhHv",
@@ -90,7 +90,7 @@ db.getCollection("event_chains").insert([
                 },
                 "node" : null,
                 "signkeys" : {
-                    "user" : "HG6ofjJxq1VygCB3fYrkfycyxqWnQr4rD9HLz7uUHMk4",
+                    "default" : "HG6ofjJxq1VygCB3fYrkfycyxqWnQr4rD9HLz7uUHMk4",
                     "system" : "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
                 },
                 "encryptkey" : null,
@@ -146,7 +146,7 @@ db.getCollection("event_chains").insert([
                 "\\u0024schema": "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
                 "id": "4fd69b8e-6bd3-4d88-81dd-a6ed9308a14e",
                 "signkeys": {
-                    "user": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
+                    "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
                 },
                 "name": "John Doe",
                 "email": "john.doe@example.com",
@@ -158,7 +158,7 @@ db.getCollection("event_chains").insert([
                 "\\u0024schema": "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
                 "id": "4fd69b8e-6bd3-4d88-81dd-a6ed9308a14e",
                 "signkeys": {
-                    "user": "BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp"
+                    "default": "BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp"
                 },
                 "name": "Jane Woo",
                 "email": "jane.woo@example.com",

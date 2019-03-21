@@ -13,7 +13,7 @@ $bodies = [
         'id' => '0c1d7eac-18ec-496a-8713-8e6e5f098686',
         'node' => 'localhost',
         'signkeys' => [
-            'user' => '57FWtEbXoMKXj71FT84hcvCxN5z1CztbZ8UYJ2J49Gcn', 
+            'default' => '57FWtEbXoMKXj71FT84hcvCxN5z1CztbZ8UYJ2J49Gcn', 
             'system' => 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y'
         ]
     ]

@@ -14,3 +14,27 @@ queuer:
 
 anchor:
   url: http://anchor
+
+endpoints:
+  - schema: "https://specs.livecontracts.io/v0.2.0/scenario/schema.json#"
+    url: "http://legalflow/scenarios/"
+
+  - schema: "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
+    url: "http://legalflow/identities/"
+
+  - schema: "https://specs.livecontracts.io/v0.2.0/process/schema.json#"
+    url: "http://legalflow/processes/"
+    inject_chain: full
+
+  - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
+    url: "http://legalflow/processes/-/response"
+    
+triggers:
+  - url: "http://localhost:4001/processes/-/invoke"
+    resources:
+      - schema: "https://specs.livecontracts.io/v0.2.0/process/schema.json#"
+        group:
+          process: id
+      - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
+        group:
+          process: process
