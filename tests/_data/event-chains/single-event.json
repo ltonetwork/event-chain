@@ -1,0 +1,29 @@
+{
+    "id": "CuG8MCUgM4GRteAcPT4fntnv27UdoZQwEhavozosxri62",
+    "events": [
+        {
+            "body": "2D5Gw6o78SjNqL2L3FPainPnNyeuHUwbck7v75u3KmWsUGbgGQuHya2Zu9sWbqJ8STuVrkWN1WwTVGE8hKuC6zXMJ2j2JJntQv3G8EYUZpHUeFYFMLFZ7ihhQJcDZ4QFyZoDyt77AqRdHqg6o7Kf9jUptXbD3ZFA98wbBRGvyJfiRiNsjko2AH7yyLf6icxqtm5mt3MsiBmWdmthRDyhpmkxASNGzDxspCbtJKhRTqnkTuxqMzsockSKFg1MXbQ58aqjsJV2cGRMuoEzo5TRE4X2VVzeXRKyqXjXQrHRXiYmPs5hDNq4QA5kxEWrm5rb9jV3zgEYfczQ6CmHL6yx23mgvchFRQaj9qQuwgW8iEnC8NQinkaE2wuxFZcoGdFjN7spp3c2QP1M8jdGtZhkTh6YRrBexbbK2Rgg2DHBDVLGfbeo4nitkyJ8vvgMQUAKWrZtST5nyx4pt",
+            "timestamp": 1522935208,
+            "previous": "CA7f4HWuQgU1yN2WAgDW4fxAFZeSupYV5jVDu1MV6mex",
+            "signkey": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",
+            "signature": "3KhCExNjvLQHBe6PVZmDmyNBouX33UfdGUXL4ejyWn2ZpgomPhaM4vgj7zxMRq6SkqiPjCFHog1nq9trnU2G5XV9",
+            "hash": "J8pQ8k52riGXPt8HeataGbSLdzLTESrGBZZKtAWrspHb",
+            "origin": null,
+            "receipt": null,
+            "original": null
+        }
+    ],
+    "identities": [
+        {
+            "$schema" : "https://specs.livecontracts.io/v0.2.0/identity/schema.json#",
+            "id": "d7e3935a-8d0e-4b14-b910-19df0bf5bbe8",
+            "signkeys": {
+                "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
+            },
+            "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
+            "node": null,
+            "timestamp": null
+        }
+    ],
+    "resources": []
+}

@@ -6,6 +6,7 @@ use MongoDB\Model\BSONDocument;
 use MongoDB\Model\ObjectId as MongoId;
 use MongoDB\BSON\UTCDateTime;
 use Jasny\HttpDigest\HttpDigest;
+use PHPUnit\Framework\Assert;
 
 // here you can define custom actions
 // all public methods declared in helper class will be available in $I
@@ -222,5 +223,38 @@ class Api extends \Codeception\Module
         $actual = $this->castMongoDocument($actualDocument);
         
         \PHPUnit\Framework\Assert::assertEquals($expected, $actual, $message);
+    }
+
+    /**
+     * Check if the response JSON matches an event chain from the data directory.
+     *
+     * @param string $name  Event chain filename (without ext)
+     */
+    public function seeResponseIsEventChain($name)
+    {
+        $path = getcwd() . '/tests/_data/event-chains/' . $name . '.json';
+
+        if (!file_exists($path)) {
+            throw new \BadMethodCallException("Unable to locate event chain JSON: '$path' doesn't exist.");
+        }
+
+        $this->assertResponseJsonEqualsFile($path);
+    }
+
+    /**
+     * Assert response equals the contents of a JSON file.
+     *
+     * @param string $path
+     */
+    protected function assertResponseJsonEqualsFile(string $path): void
+    {
+        $json = $this->getModule('REST')->grabResponse();
+
+        Assert::assertJson($json);
+
+        $expected = json_decode(file_get_contents($path));
+        $actual = json_decode($json);
+
+        Assert::assertEquals($expected, $actual);
     }
 }

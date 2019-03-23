@@ -19,15 +19,10 @@ db.getCollection("event_chains").insert([
                 "signkeys": {
                     "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
                 },
-                "name": "John Doe",
-                "email": "john.doe@example.com",
-                "info": null,
-                "privileges": null,
                 "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
-                "\\u0024schema" : "https://specs.livecontracts.io/v0.1.0/identity/schema.json#"
+                "\\u0024schema" : "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
             }
         ],
-        "comments": [],
         "resources": []
     },
     {
@@ -70,36 +65,27 @@ db.getCollection("event_chains").insert([
         "identities" : [
             {
                 "id" : "9378305f-cde8-41d7-b408-67aaee400f69",
-                "info" : {
-                    "name" : "ILT"
-                },
                 "node" : "amqps://localhost",
                 "signkeys" : {
                     "default" : "57FWtEbXoMKXj71FT84hcvCxN5z1CztbZ8UYJ2J49Gcn",
                     "system" : "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
                 },
                 "encryptkey" : "9fSos8krst114LtaYGHQPjC3h1CQEHUQWEkYdbykrhHv",
-                "privileges" : null,
-                "\\u0024schema" : "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
+                "\\u0024schema" : "https://specs.livecontracts.io/v0.2.0/identity/schema.json#",
                 "timestamp" : Date(1529320663938000)
             },
             {
                 "id" : "f53db508-9352-4280-822f-43b0e428cff6",
-                "info" : {
-                    "name" : "Vergunninghouder 1 "
-                },
                 "node" : null,
                 "signkeys" : {
                     "default" : "HG6ofjJxq1VygCB3fYrkfycyxqWnQr4rD9HLz7uUHMk4",
                     "system" : "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
                 },
                 "encryptkey" : null,
-                "privileges" : null,
-                "\\u0024schema" : "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
+                "\\u0024schema" : "https://specs.livecontracts.io/v0.2.0/identity/schema.json#",
                 "timestamp" : ISODate("2018-06-18T11:17:55.000Z")
             }
         ],
-        "comments" : [],
         "resources" : [
             "lt:/scenarios/edfbe857-9e0b-4db5-afe9-6bdf5dd1deb0",
             "lt:/processes/2ytBT1p8CTASHoB6iNmFmDvL9fFqk4KR8wVKoRaNyzy8btJYCaHcqbyrJaC5uJ"
@@ -148,10 +134,6 @@ db.getCollection("event_chains").insert([
                 "signkeys": {
                     "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
                 },
-                "name": "John Doe",
-                "email": "john.doe@example.com",
-                "info": null,
-                "privileges": null,
                 "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6"
             },
             {
@@ -160,22 +142,7 @@ db.getCollection("event_chains").insert([
                 "signkeys": {
                     "default": "BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp"
                 },
-                "name": "Jane Woo",
-                "email": "jane.woo@example.com",
-                "info": null,
-                "privileges": null,
                 "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6"
-            }
-        ],
-        "comments": [
-            {
-                "\\u0024schema": "https://specs.livecontracts.io/v0.1.0/comment/schema.json#",
-                "content_media_type": "text/plain",
-                "content": "Hello world",
-                "timestamp": Date("2018-04-05T13:58:16Z"),
-                "identity": {
-                    "id": "4fd69b8e-6bd3-4d88-81dd-a6ed9308a14e"
-                }
             }
         ],
         "resources": [
