@@ -10,6 +10,7 @@ coverage:
     - models/*
     - services/*
     - lib/*
+    - tests/_support/TestEventTrait.php
 modules:
   enabled:
     - Asserts

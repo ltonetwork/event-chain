@@ -10,18 +10,6 @@ class AllWorkflowTester
     use TestEventTrait;
 
     /**
-     * Helper method, when creating test events' bodies
-     * @param  string $body  Encoded event body
-     * @return stdClass
-     */
-    public function decodeEventBody($body): stdClass
-    {
-        $data = base58_decode($body);        
-
-        return json_decode($data);
-    }
-
-    /**
      * Send post request
      * @param  string $url
      * @param  array $data
@@ -57,18 +45,5 @@ class AllWorkflowTester
             'reason' => $response->getReasonPhrase(),
             'body' => (string)$response->getBody()
         ];
-    }
-
-    /**
-     * Get existing chain
-     *
-     * @param string $id 
-     * @return EventChain|null
-     */
-    public function getExistingChain($id)
-    {
-        $gateway = App::getContainer()->get(EventChainGateway::class);
-        
-        return $gateway->fetch($id);
     }
 }

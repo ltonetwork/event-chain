@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use LTO\Account;
+use Improved as i;
 use Improved\IteratorPipeline\Pipeline;
 use Improved\Iterator\CombineIterator;
 
@@ -15,6 +16,20 @@ trait TestEventTrait
     }
 
     /**
+     * Get existing chain
+     *
+     * @codeCoverageIgnore
+     * @param string $id 
+     * @return EventChain|null
+     */
+    public function getExistingChain($id)
+    {
+        $gateway = App::getContainer()->get(EventChainGateway::class);
+        
+        return $gateway->fetch($id);
+    }
+
+    /**
      * Get chain data to send in request
      * @param  EventChain $chain
      * @return array
@@ -22,6 +37,18 @@ trait TestEventTrait
     public function castChainToData(EventChain $chain): array
     {
         return json_decode(json_encode($chain), true);
+    }
+
+    /**
+     * Decode event body
+     * @param  string $body  Encoded event body
+     * @return array
+     */
+    public function decodeEventBody($body): array
+    {
+        $data = base58_decode($body);        
+
+        return json_decode($data, true);
     }
 
     /**
@@ -77,16 +104,24 @@ trait TestEventTrait
      * @param EventChain $chain
      * @param int $eventsCount
      * @param array|null $bodies 
+     * @param bool $asPartial    Return chain with only added events, skipping previous
      * @return EventChain
      */
-    public function addEvents(EventChain $chain, int $eventsCount, ?array $bodies = null): EventChain
+    public function addEvents(EventChain $chain, int $eventsCount, ?array $bodies = null, bool $asPartial = false): EventChain
     {
         $node = $this->getNode();
         $newChain = clone $chain;
+        $countExist = $chain->events->count();
 
         for ($i = 0; $i < $eventsCount; $i++) {
             $body = $this->createEventBody($i, $bodies);
             $newChain->events[] = $this->createEvent($newChain, $node, $body);
+        }
+
+        if ($asPartial) {
+            $array = $newChain->events->getArrayCopy();
+            $events = array_slice($array, $countExist);
+            $newChain = $newChain->withEvents($events);
         }
 
         return $newChain;
