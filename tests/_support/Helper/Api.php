@@ -49,6 +49,19 @@ class Api extends \Codeception\Module
 
         return $time;
     }
+
+    /**
+     * Get scenario data from json file
+     *
+     * @param string $name
+     * @return array
+     */
+    public function getScenarioDump(string $name): array
+    {
+        $scenario = file_get_contents("tests/_data/scenarios/$name.json");
+
+        return json_decode($scenario, true);
+    }
     
     /**
      * Adds Signature authentication via ED25519 secret key.

@@ -8,10 +8,7 @@ use GuzzleHttp\Psr7\Response;
 $I = new ApiTester($scenario);
 $I->wantTo('Add a new event chain');
 
-$I->amSignatureAuthenticated("LtI60OqaM/gZbaeN8tWBJqOy7yiPwxSMZDo/aQvsPFzbJiGUQZ2iyDtBkL/+GJseJnUweTabuOn8RtR4V3MOKw=="); // wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp
-
-$scenario = file_get_contents('tests/_data/scenarios/basic-user-and-system.json');
-$scenario = json_decode($scenario, true);
+$I->amSignatureAuthenticated("LtI60OqaM/gZbaeN8tWBJqOy7yiPwxSMZDo/aQvsPFzbJiGUQZ2iyDtBkL/+GJseJnUweTabuOn8RtR4V3MOKw==");
 
 $bodies = [
     [
@@ -24,7 +21,7 @@ $bodies = [
         ],
         'encryptkey' => 'BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6'
     ],
-    $scenario,
+    $I->getScenarioDump('basic-user-and-system'),
     [
         '$schema' => 'https://specs.livecontracts.io/v0.2.0/process/schema.json#',
         'id' => 'j2134901218ja908323434',
