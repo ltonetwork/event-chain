@@ -37,15 +37,13 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
         $storage = new ResourceTrigger($endpoints, $httpClient, $httpError, $node);        
         $storage->trigger($resources);
 
-        $this->assertCount(6, $httpRequestContainer);
+        $this->assertCount(4, $httpRequestContainer);
 
         $expected = [
-            ['url' => 'http://simple-foo-bar.com', 'data' => ['foo' => 'res1_foo']],
-            ['url' => 'http://simple-foo-bar.com', 'data' => ['foo' => 'res2_foo']],
-            ['url' => 'http://simple-foo-bar.com', 'data' => ['bar' => 'res3_bar_id']],
-            ['url' => 'http://another-foo-bar-zoo.com', 'data' => ['foo' => 'res1_foo']],
-            ['url' => 'http://another-foo-bar-zoo.com', 'data' => ['foo' => 'res2_foo']],
-            ['url' => 'http://another-foo-bar-zoo.com', 'data' => ['bar' => 'res3_bar_id']]
+            ['url' => 'http://simple-foo-bar.com/foo_value', 'data' => ['foo' => 'foo_value']], // group resources 1 & 2
+            ['url' => 'http://simple-foo-bar.com/res3_bar_id', 'data' => ['bar' => 'res3_bar_id']],
+            ['url' => 'http://another-foo-bar-zoo.com/path/foo_value/action', 'data' => ['foo' => 'foo_value']], // group resources 1 & 2
+            ['url' => 'http://another-foo-bar-zoo.com/path/res3_bar_id/action', 'data' => ['bar' => 'res3_bar_id']]
         ];
 
         for ($i=0; $i < count($expected); $i++) { 
@@ -148,7 +146,7 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
     {
         return [
             (object)[
-                'url' => 'http://simple-foo-bar.com', 
+                'url' => 'http://simple-foo-bar.com/-', 
                 'resources' => [
                     (object)[ // resources 1 and 2
                         'schema' => 'http://example.com/foo/schema.json#',
@@ -161,7 +159,7 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
                 ]
             ],
             (object)[
-                'url' => 'http://another-foo-bar-zoo.com', 
+                'url' => 'http://another-foo-bar-zoo.com/path/-/action', 
                 'resources' => [
                     (object)[ // resources 1 and 2
                         'schema' => 'http://example.com/foo/schema.json#',
@@ -278,14 +276,12 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
 
         $resource1 = clone $tmpl;
         $resource1->id = 'res1_id';
-        $resource1->foo = 'res1_foo';
         $resource1->bar = (object)$resource1->bar;        
         $resource1->baz = (object)$resource1->baz;        
         $resource1->bar->id = 'res1_bar_id';         
 
         $resource2 = clone $tmpl;
         $resource2->id = 'res2_id';
-        $resource2->foo = 'res2_foo';
         $resource2->bar = (object)$resource2->bar;        
         $resource2->baz = (object)$resource2->baz;        
         $resource2->bar->id = 'res2_bar_id';          

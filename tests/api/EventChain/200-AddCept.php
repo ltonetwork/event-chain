@@ -107,6 +107,17 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     return new Response(200);
 });
 
+// Send message to process
+$I->expectHttpRequest(function (Request $request) use ($I) {
+    $json = json_encode(['id' => 'j2134901218ja908323434']);
+    
+    $I->assertEquals('http://legalflow/processes/j2134901218ja908323434/invoke', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+    
+    return new Response(200);
+});
+
 // Dispatch new nodes
 // $I->expectHttpRequest(function (Request $request) use ($I) {
 //     $I->assertEquals('http://event-queuer/queue?to%5B0%5D=node1', (string)$request->getUri());

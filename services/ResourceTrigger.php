@@ -67,6 +67,10 @@ class ResourceTrigger
     {
         $promises = [];
 
+        if ($resources instanceof Traversable) {
+            $resources = iterator_to_array($resources);
+        }
+
         foreach ($this->endpoints as $endpoint) {
             foreach ($endpoint->resources as $groupOpts) {
                 $groupPromises = Pipeline::with($resources)
@@ -85,6 +89,7 @@ class ResourceTrigger
                         $field = $groupOpts->group->process;
                         $data = (object)[$field => $value];
                         $data = $this->injectEventChain($data, $endpoint, $chain);
+                        $url = $this->expandUrl($endpoint->url, $value);
 
                         $options = [
                             'json' => $data, 
@@ -92,7 +97,7 @@ class ResourceTrigger
                             'signature_key_id' => base58_encode($this->node->sign->publickey)
                         ];
 
-                        return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
+                        return $this->httpClient->requestAsync('POST', $url, $options);
                     })
                     ->toArray();                
 
@@ -128,5 +133,17 @@ class ResourceTrigger
         $data->chain = $chain;
 
         return $data;
+    }
+
+    /**
+     * Insert parameter value into endpoint url
+     *
+     * @param string $url
+     * @param string $parameter 
+     * @return string
+     */
+    protected function expandUrl(string $url, string $parameter): string
+    {
+        return preg_replace('~/-(/|$)~', "/$parameter$1", $url);
     }
 }
