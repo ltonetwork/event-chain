@@ -11,17 +11,15 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
     use TestEventTrait;
 
     /**
-     * Test 'storeGrouped' method
+     * Test 'trigger' method
      */
-    public function testStoreGrouped()
+    public function testTrigger()
     {
         $endpoints = $this->getEndpoints();
         $resources = $this->getResources();
 
         $httpRequestContainer = [];
         $httpClient = $this->getHttpClientMock($httpRequestContainer, [
-            new GuzzleHttp\Psr7\Response(200),
-            new GuzzleHttp\Psr7\Response(200),
             new GuzzleHttp\Psr7\Response(200),
             new GuzzleHttp\Psr7\Response(200),
             new GuzzleHttp\Psr7\Response(200),
@@ -39,23 +37,25 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
         $storage = new ResourceTrigger($endpoints, $httpClient, $httpError, $node);        
         $storage->trigger($resources);
 
-        $this->assertCount(8, $httpRequestContainer);
+        $this->assertCount(6, $httpRequestContainer);
 
         $expected = [
-            ['url' => 'http://simple-foo.com', 'data' => ['foo' => 'res1_foo']],
-            ['url' => 'http://simple-foo.com', 'data' => ['foo' => 'res2_foo']],
-            ['url' => 'http://bar.com', 'data' => ['bar' => 'res3_bar_id']],
-            ['url' => 'http://bar-foo.com', 'data' => ['bar' => 'res1_bar_id']],
-            ['url' => 'http://bar-foo.com', 'data' => ['bar' => 'res2_bar_id']],
-            ['url' => 'http://baz-foo.com', 'data' => ['baz' => 'baz_id']],
-            ['url' => 'http://id.com', 'data' => ['id' => 'res1_id']],
-            ['url' => 'http://id.com', 'data' => ['id' => 'res2_id']],
+            ['url' => 'http://simple-foo-bar.com', 'data' => ['foo' => 'res1_foo']],
+            ['url' => 'http://simple-foo-bar.com', 'data' => ['foo' => 'res2_foo']],
+            ['url' => 'http://simple-foo-bar.com', 'data' => ['bar' => 'res3_bar_id']],
+            ['url' => 'http://another-foo-bar-zoo.com', 'data' => ['foo' => 'res1_foo']],
+            ['url' => 'http://another-foo-bar-zoo.com', 'data' => ['foo' => 'res2_foo']],
+            ['url' => 'http://another-foo-bar-zoo.com', 'data' => ['bar' => 'res3_bar_id']]
         ];
 
         for ($i=0; $i < count($expected); $i++) { 
             $data = $expected[$i];
             $request = $httpRequestContainer[$i]['request'];
+            $options = $httpRequestContainer[$i]['options'];
             $headers = array_only($request->getHeaders(), ['Content-Type']);
+
+            $this->assertTrue($options['http_errors']);
+            $this->assertSame(base58_encode('foo_node_sign_publickey'), $options['signature_key_id']);
 
             $this->assertEquals('POST', $request->getMethod());
             $this->assertEquals($data['url'], (string)$request->getUri());
@@ -65,9 +65,9 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
     }
 
     /**
-     * Test 'storeGrouped' method with event chain
+     * Test 'trigger' method with event chain
      */
-    public function testStoreGroupedEventChain()
+    public function testTriggerEventChain()
     {
         $chain = $this->getEventChain();
         $endpoints = $this->getEndpointsEventChain();
@@ -97,7 +97,7 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
                 'data' => ['scenario' => 'foo_scenario_id']
             ],
             [
-                'url' => 'http://simple-foo.com', 
+                'url' => 'http://another-foo.com', 
                 'data' => [
                     'scenario' => 'foo_scenario_id',
                     'chain' => [
@@ -109,7 +109,7 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
                 ]
             ],
             [
-                'url' => 'http://simple-foo.com', 
+                'url' => 'http://more-foo.com', 
                 'data' => [
                     'scenario' => 'foo_scenario_id',
                     'chain' => [
@@ -126,7 +126,11 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
         for ($i=0; $i < count($expected); $i++) { 
             $data = $expected[$i];
             $request = $httpRequestContainer[$i]['request'];
+            $options = $httpRequestContainer[$i]['options'];
             $headers = array_only($request->getHeaders(), ['Content-Type']);
+
+            $this->assertTrue($options['http_errors']);
+            $this->assertSame(base58_encode('foo_node_sign_publickey'), $options['signature_key_id']);
 
             $this->assertEquals('POST', $request->getMethod());
             $this->assertEquals($data['url'], (string)$request->getUri());
@@ -144,39 +148,35 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
     {
         return [
             (object)[
-                'url' => 'http://foo.com', 
-                'schema' => 'http://example.com/foo/schema.json#'
-            ], //skipped, no 'grouped' field
+                'url' => 'http://simple-foo-bar.com', 
+                'resources' => [
+                    (object)[ // resources 1 and 2
+                        'schema' => 'http://example.com/foo/schema.json#',
+                        'group' => (object)['process' => 'foo']
+                    ],
+                    (object)[ // resource 3
+                        'schema' => 'http://example.com/bar/schema.json#',
+                        'group' => (object)['process' => 'bar']
+                    ],
+                ]
+            ],
             (object)[
-                'url' => 'http://simple-foo.com', 
-                'schema' => 'http://example.com/foo/schema.json#', 
-                'grouped' => 'foo'
-            ], //recources 1 and 2
-            (object)[
-                'url' => 'http://bar.com', 
-                'schema' => 'http://example.com/bar/schema.json#', 
-                'grouped' => 'bar'
-            ], //resource 3
-            (object)[
-                'url' => 'http://zoo.com', 
-                'schema' => 'http://example.com/foo/schema.json#', 
-                'grouped' => 'non_exist_field'
-            ], //skipped, grouped field is null for all objects
-            (object)[
-                'url' => 'http://bar-foo.com', 
-                'schema' => 'http://example.com/foo/schema.json#', 
-                'grouped' => 'bar'
-            ], //resources 1 and 2
-            (object)[
-                'url' => 'http://baz-foo.com', 
-                'schema' => 'http://example.com/foo/schema.json#', 
-                'grouped' => 'baz'
-            ], //resources 1 and 2, same field value
-            (object)[
-                'url' => 'http://id.com', 
-                'schema' => 'http://example.com/foo/schema.json#', 
-                'grouped' => 'id'
-            ] //resources 1 and 2
+                'url' => 'http://another-foo-bar-zoo.com', 
+                'resources' => [
+                    (object)[ // resources 1 and 2
+                        'schema' => 'http://example.com/foo/schema.json#',
+                        'group' => (object)['process' => 'foo']
+                    ],
+                    (object)[ // resource 3
+                        'schema' => 'http://example.com/bar/schema.json#',
+                        'group' => (object)['process' => 'bar']
+                    ],
+                    (object)[ // no resources match
+                        'schema' => 'http://example.com/zoo/schema.json#',
+                        'group' => (object)['process' => 'zoo']
+                    ],
+                ]
+            ]
         ];
     }
 
@@ -190,21 +190,33 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
         return [
             (object)[
                 'url' => 'http://simple-foo.com', 
-                'schema' => 'http://example.com/foo/schema.json#', 
-                'grouped' => 'scenario',
-                'inject_chain' => false
+                'inject_chain' => false,
+                'resources' => [
+                    (object)[
+                        'schema' => 'http://example.com/foo/schema.json#',
+                        'group' => (object)['process' => 'scenario']
+                    ]
+                ]
             ],
             (object)[
-                'url' => 'http://simple-foo.com', 
-                'schema' => 'http://example.com/foo/schema.json#', 
-                'grouped' => 'scenario',
-                'inject_chain' => 'full'
+                'url' => 'http://another-foo.com', 
+                'inject_chain' => 'full',
+                'resources' => [
+                    (object)[
+                        'schema' => 'http://example.com/foo/schema.json#',
+                        'group' => (object)['process' => 'scenario']
+                    ]
+                ]
             ],
             (object)[
-                'url' => 'http://simple-foo.com', 
-                'schema' => 'http://example.com/foo/schema.json#', 
-                'grouped' => 'scenario',
-                'inject_chain' => 'empty'
+                'url' => 'http://more-foo.com', 
+                'inject_chain' => 'empty',
+                'resources' => [
+                    (object)[
+                        'schema' => 'http://example.com/foo/schema.json#',
+                        'group' => (object)['process' => 'scenario']
+                    ]
+                ]
             ],
         ];
     }

@@ -68,34 +68,36 @@ class ResourceTrigger
         $promises = [];
 
         foreach ($this->endpoints as $endpoint) {
-            if (!isset($endpoint->grouped)) {
-                continue;
+            foreach ($endpoint->resources as $groupOpts) {
+                $groupPromises = Pipeline::with($resources)
+                    ->filter(static function(ResourceInterface $resource) use ($groupOpts) {
+                        return $groupOpts->schema === null || $resource->getSchema() === $groupOpts->schema;
+                    })
+                    ->group(static function(ResourceInterface $resource) use ($groupOpts) {
+                        $field = $groupOpts->group->process;
+                        $value = $resource->{$field} ?? null;
+
+                        return is_scalar($value) ? $value : $value->id ?? null;
+                    })
+                    ->cleanup()
+                    ->keys()
+                    ->map(function($value) use ($endpoint, $groupOpts, $chain) {
+                        $field = $groupOpts->group->process;
+                        $data = (object)[$field => $value];
+                        $data = $this->injectEventChain($data, $endpoint, $chain);
+
+                        $options = [
+                            'json' => $data, 
+                            'http_errors' => true,
+                            'signature_key_id' => base58_encode($this->node->sign->publickey)
+                        ];
+
+                        return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
+                    })
+                    ->toArray();                
+
+                $promises = array_merge($promises, $groupPromises);
             }
-
-            $endpointPromises = Pipeline::with($resources)
-                ->filter(static function(ResourceInterface $resource) use ($endpoint) {
-                    return $endpoint->schema === null || $resource->getSchema() === $endpoint->schema;
-                })
-                ->group(static function(ResourceInterface $resource) use ($endpoint) {
-                    $field = $endpoint->grouped;
-                    $value = $resource->{$field} ?? null;
-
-                    return is_scalar($value) ? $value : $value->id ?? null;
-                })
-                ->cleanup()
-                ->keys()
-                ->map(function($value) use ($endpoint, $chain) {
-                    $field = $endpoint->grouped;
-                    $data = (object)[$field => $value];
-                    $data = $this->injectEventChain($data, $endpoint, $chain);
-
-                    $options = ['json' => $data, 'http_errors' => true];
-
-                    return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
-                })
-                ->toArray();
-
-            $promises = array_merge($promises, $endpointPromises);
         }
 
         Promise\unwrap($promises);
