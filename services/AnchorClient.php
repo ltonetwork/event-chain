@@ -31,7 +31,7 @@ class AnchorClient
      * @param \stdClass|array $config
      * @param HttpClient      $httpClient
      */
-    public function __construct($config, GuzzleHttp\ClientInterface $httpClient)
+    public function __construct($config, HttpClient $httpClient)
     {
         $this->config = (object)$config;
         $this->httpClient = $httpClient;
@@ -87,11 +87,11 @@ class AnchorClient
                 return "{$this->config->url}/hash/$hash/encoding/$encoding";
             })
             ->map(function (string $hash, string $url) {
-                return $this->httpClient->requestAsync('GET', $url, ['http_errors' => true]);
+                return $this->httpClient->requestAsync('GET', $url, ['http_errors' => false]);
             })
             ->then(function (iterable $iterable) {
                 // Keys may not be scalar, so we need to separate to get promises array.
-                ['keys' => $keys, 'promises' => $promises] = i\iterable_separate($iterable);
+                ['keys' => $keys, 'values' => $promises] = i\iterable_separate($iterable);
 
                 $responses = Promise\unwrap($promises);
                 ksort($responses, SORT_NUMERIC);
@@ -101,7 +101,7 @@ class AnchorClient
             ->filter(function (Response $response) {
                 return $response->getStatusCode() !== 404;
             })
-            ->apply(function (Response $response, string $url) {
+            ->apply(function (Response $response, string $url) {                
                 if ($response->getStatusCode() >= 400) {
                     $request = new Request('GET', $url);
                     throw RequestException::create($request, $response);
@@ -119,7 +119,7 @@ class AnchorClient
      */
     protected function decodeBody(Response $response, string $url): stdClass
     {
-        $result = json_decode($response->getBody());
+        $result = json_decode((string)$response->getBody());
 
         if (json_last_error() > 0) {
             $err = json_last_error_msg();

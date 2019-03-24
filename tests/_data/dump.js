@@ -93,44 +93,39 @@ db.getCollection("event_chains").insert([
         ]
     },
     {
-        "_id" : "CuG8MCUgM4GSHymbVkMNyMfjTFZfDtjRMyNZKFkY3K3sQ",
-        "events" : [
+        "_id": "2arvKCGdNNAAJmxbHAHvCJs2zaBdwVktTnDwq8AUcFNAcYVeryk8awfeQJqdtD",
+        "events": [
             {
-                "body": "2D5Gw6o78SjNqL2L3FPainPnNyeuHUwbck7v75u3KmWsUGbgGQuHya2Zu9sWbqJ8STuVrkWN1WwTVGE8hKuC6zXMJ2j2JJntQv3G8EYUZpHUeFYFML8yVnqLomdxy7TWS4bpM4rjZNrSpdho73JKfLbWjHNvBcJRUGNqTWHArtTUWwRuywesRCaoZ4Tv9nHfMcPCQ2iXzGRB47VMfReSmsvtvZi5afp9FwdGxtn54BjEYZQWU5HWCbU85BQ6nCsY9E6pz8STtnEQuLgdytXEmsRdFgBnPxzhqjDsrsd2TptgFV78P1qDgyhTDAP4nAgQ65irkfM6Qhv3xwkZPbtYqppLZ5E9MifCgnUCLMYz4c8tBYzPEuW7kT2kqkyhgsqFJR6rGakrhd8oscBfjp3XnW1nk6rW2PCtrNuoTpQgfz6qfM7QpgTpLSGRG5Rxxi2EZbTFJKqug2BP2",
-                "timestamp": 1522935547,
-                "previous": "HfZufBvUSwVwyDEZ9dH2HSAFceJcZCMALG3rsJCRVkUK",
+                "origin": "localhost",
+                "body": "9SNBWpXPrfwexDDFyxp6E29vFnUCqHdMA1G5uHaqXsvD4zZRH78VrAXBKS6RgBQVLBfZ1j5tvrtjiMv3xCMWjWRtMRdBa83yMRar8erY1kLsbfDgVfua7faJ27hsY7QFw7PsMvzqdreB1YT55dNm47pP6VwRWnNr9QkQk78Hqed9mnCKEHPxhooH1W3qNKEKgWmypRAgyno8A4oszDAgyV1xb7maz628dTr9nDnY7sCUpTKNDagMQejm2mSsN183wXgnD3ULpyFKwh9M1qkxwPPTMsA2fnkPfbMoZv6ZiSGh4UEJf1km4mjoSkFNyBKpoJuenTBFHnzxHq8YjL2B7Qc9xH2ed6gxck",
+                "timestamp": 1553431746,
+                "previous": "BVBcD3pMRrEwxR9t7sHa6dWKAhnhFZCxdEtZ9dV5cG6k",
                 "signkey": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",
-                "signature": "2pbTKZS6QbFkXhfeZyyTTmE5qx2znWmbowfZFCZvkhBWqMMHrfaow5ABseZSWvgM7Z7oby7n3Ru7fpsFs5xAqkof",
-                "hash": "CzVADg91Rt8qiFZf8dWmFpRyXwsYScSq6kT8paSV2jR7"
+                "signature": "41kLKJYuV4BYcSpwo5PNoZpztPXju2x5eAJtSNAv9P4UwFB89HjiU2DGmvPmshhxad8HDYiSGtxdfumouGwu7Syi",
+                "hash": "HqDutMxVv6PkLFgGWz8wByaEgSuS3R1zcGeNKW6hSFST"
             },
             {
-                "body": "C9Lc3bYFCHFdWXowT8tirjjvUXYVXicPR2N9EFMuFcGPC2jPnnN4uvTqNwQDmpjNAhddFwL7EhcQd9xxJ5tteTJEqMRQeG7L9VfgDsFwDqTfD5aUWuNE6XwHdpmnUgtmBnL1dN235SPQBH5G7cYpz7Fc7w6rCjf6VYKEuegZYQp4CyeQcGNo5JqMx8xUC718zpo4VTSfYuwdiSisAZVBnxck",
-                "timestamp": 1522935974,
-                "previous": "CzVADg91Rt8qiFZf8dWmFpRyXwsYScSq6kT8paSV2jR7",
+                "origin": "localhost",
+                "body": "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",
+                "timestamp": 1553431746,
+                "previous": "HqDutMxVv6PkLFgGWz8wByaEgSuS3R1zcGeNKW6hSFST",
                 "signkey": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",
-                "signature": "5qgTTX8TVsXe1YE6d4GkgSkS8oYfPgxnAqSR55FxxvCRNCpuFVbXXjv7peJ3mh4U4HThEBAyqGsReEtSxk12PuzB",
-                "hash": "B71kPDFRBbWeE3ubEGMXVsYAiMf55zbqXyW4Q1oSKGwV"
+                "signature": "3PPbb1mKnH1NekCcpMQnAhumkfDM1oTFm9WM4em5uNc8ZXtg2STsvXkMXpcNh3pugfTGGDfsDk5auZtw5Dts64fr",
+                "hash": "HMVbGHtcYm6DTciYAhkJkzDUnW1j1Mqo29X37rir5ufo"
             },
             {
-                "body": "2D5Gw6o78SjNqL2L3FPainPnNyeuHUwbck7v75u3KmWsUGbgGQuHya2Zu9sWbqJ8STuVrkWN1WwTVGE8hKuC6zXMJ2j2JJntQv3G8EYUZpHUeFYFMLFptKy8dWeBw3RWJfD2pGnsTVcVUq57Q7EMzNipoipRtNwsoV6TKzuMatHEDfiKUNXmaF9RX3X4XVGNdqy9wKZASC8r2TNQcAnnDD447szDKCTaCn1Lcp6Jkgt38yzfWYe5RMbMkS9fL7aRwmLNZpNR7GzxcGejUUu24HgaLCvjnBnZRm17yxfRdCHkD4ALSTDW86XQqBdvCeK92sjf4fykqgxcb21gR8gcRSiiKF9Ux53hYVmJYPXhqiptF1uZwG7Lzae5mvPNa3C6aHNNSTQszb3xV5h9BdJKasyrwfnYbfNKFXLnbEKVEJjSeNx65LArGW4CFXJjSSEXKMNTH962WpDtx",
-                "timestamp": 1522936267,
-                "previous": "B71kPDFRBbWeE3ubEGMXVsYAiMf55zbqXyW4Q1oSKGwV",
+                "origin": "localhost",
+                "body": "3XSHYrWjdzc2vpJtJhktdC5czN2XCpdgbzCUychqmFJgbwX5Y6xXZegbFmUQU1rZZniRqYwaXgRFLsiTLVxWwnBPVMbbHLmR7RZmiXX3YMBTdcewpXnjpyv6obN8nCpygzvTGYzEVXCRX8MgoRfKUqzLSvcj3gTZEEn3XJMF4WBzU3kpWRia4ChHcdQxnwRMnZM4TiRS2hSCduHLF6eqAUk",
+                "timestamp": 1553431746,
+                "previous": "HMVbGHtcYm6DTciYAhkJkzDUnW1j1Mqo29X37rir5ufo",
                 "signkey": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",
-                "signature": "3ZpCRvP4fFsMmhPCGz4TGFo61AYXhvpEgSAdisxKW648SA56vgAbcegfRSUbjdNnB89MHkm6t4PctFbmTFxP4sdV",
-                "hash": "7SQTkzpSExbP3oubq7BZqtNN8mq1GuzmWan8PpiNLLqn"
-            },
-            {
-                "body": "BB5VH1fcyPXQ4ksmreKXMNTUzSzuvAanfQN4DCHbayrK1wpvRLXbtfpoQjzsu8qd4twUjr4MMHP3cA67QBW3fTd8pdmqJGr5BtFeaCbTiW7aSCVK4CgtWN5qCdW873WwGNwy9FMUEHKUSQuhNa1SajQukbV2K9o6dcwkLyMEg3LwvaXY1sn6dX3JNJLCvNzUk8sMoUhnL",
-                "timestamp": 1522936267,
-                "previous": "7SQTkzpSExbP3oubq7BZqtNN8mq1GuzmWan8PpiNLLqn",
-                "signkey": "BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp",
-                "signature": "4vf1DVmn3w769g2CsXauog4hzWy3iSi1ewzvMVu9SrBrS5sc7aREtoBbWTHHidsHw9sNtgrPKdBug5C5Pmbrwfkk",
-                "hash": "DSNGi7HJvtqTMT1kYDWnLPdiRJeyYoztFbTyWWqaPmep"
+                "signature": "fAbopUhDjJvKkdCdQaFUN3DBP9sdSfYPeMnWTS9xBh5St5mvFepCejqon8bxVYGFK7JAyKqVduFsvBkh2SmXybk",
+                "hash": "J4pM5KNkrzeBb8233uFCq1tVRGN4LQ3SVNyDGU3Ys2Jw"
             }
         ],
         "identities": [
             {
-                "\\u0024schema": "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
+                "\\u0024schema": "https://specs.livecontracts.io/v0.2.0/identity/schema.json#",
                 "id": "4fd69b8e-6bd3-4d88-81dd-a6ed9308a14e",
                 "signkeys": {
                     "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
@@ -138,16 +133,13 @@ db.getCollection("event_chains").insert([
                 "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6"
             },
             {
-                "\\u0024schema": "https://specs.livecontracts.io/v0.1.0/identity/schema.json#",
+                "\\u0024schema": "https://specs.livecontracts.io/v0.2.0/identity/schema.json#",
                 "id": "4fd69b8e-6bd3-4d88-81dd-a6ed9308a14e",
                 "signkeys": {
                     "default": "BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp"
                 },
                 "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6"
             }
-        ],
-        "resources": [
-            "lt:/documents/23c85363-d2a4-4341-a993-9ba15a3037b5?v=31CDcS84"
         ]
     }
 ]);

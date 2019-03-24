@@ -92,8 +92,9 @@ class EventChainController extends Jasny\Controller
             'identities.signkeys.default' => $this->account->getPublicSignKey()
         ]);
 
-        if (isset($eventChain)) {
-            $eventChain->delete();
+        if (!isset($eventChain)) {
+            $this->notFound("Event chain not found");
+            return;
         }
 
         $this->noContent();

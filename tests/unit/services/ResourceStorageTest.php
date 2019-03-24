@@ -9,6 +9,7 @@ use Jasny\HttpDigest\HttpDigest;
 class ResourceStorageTest extends \Codeception\Test\Unit
 {
     use TestEventTrait;
+    use UnitTestHelperTrait;
 
     /**
      * Test 'store' method
@@ -239,25 +240,5 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         ];
 
         return $chain;
-    }
-
-    /**
-     * Get mock for http client
-     *
-     * @param array $container
-     * @param array $responses 
-     * @return GuzzleHttp\Client
-     */
-    protected function getHttpClientMock(array &$container, array $responses)
-    {
-        $mock = new GuzzleHttp\Handler\MockHandler($responses);
-        $handler = GuzzleHttp\HandlerStack::create($mock);
-        
-        $history = GuzzleHttp\Middleware::history($container);
-        $handler->push($history);
-
-        $httpClient = new GuzzleHttp\Client(['handler' => $handler]);
-
-        return $httpClient;
     }
 }
