@@ -8,7 +8,9 @@
             "previous": "BVBcD3pMRrEwxR9t7sHa6dWKAhnhFZCxdEtZ9dV5cG6k",
             "signkey": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",
             "signature": "41kLKJYuV4BYcSpwo5PNoZpztPXju2x5eAJtSNAv9P4UwFB89HjiU2DGmvPmshhxad8HDYiSGtxdfumouGwu7Syi",
-            "hash": "HqDutMxVv6PkLFgGWz8wByaEgSuS3R1zcGeNKW6hSFST"
+            "hash": "HqDutMxVv6PkLFgGWz8wByaEgSuS3R1zcGeNKW6hSFST",
+            "receipt": null,
+            "original": null
         },
         {
             "origin": "localhost",
@@ -17,7 +19,9 @@
             "previous": "HqDutMxVv6PkLFgGWz8wByaEgSuS3R1zcGeNKW6hSFST",
             "signkey": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",
             "signature": "3PPbb1mKnH1NekCcpMQnAhumkfDM1oTFm9WM4em5uNc8ZXtg2STsvXkMXpcNh3pugfTGGDfsDk5auZtw5Dts64fr",
-            "hash": "HMVbGHtcYm6DTciYAhkJkzDUnW1j1Mqo29X37rir5ufo"
+            "hash": "HMVbGHtcYm6DTciYAhkJkzDUnW1j1Mqo29X37rir5ufo",
+            "receipt": null,
+            "original": null
         },
         {
             "origin": "localhost",
@@ -26,7 +30,9 @@
             "previous": "HMVbGHtcYm6DTciYAhkJkzDUnW1j1Mqo29X37rir5ufo",
             "signkey": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",
             "signature": "fAbopUhDjJvKkdCdQaFUN3DBP9sdSfYPeMnWTS9xBh5St5mvFepCejqon8bxVYGFK7JAyKqVduFsvBkh2SmXybk",
-            "hash": "J4pM5KNkrzeBb8233uFCq1tVRGN4LQ3SVNyDGU3Ys2Jw"
+            "hash": "J4pM5KNkrzeBb8233uFCq1tVRGN4LQ3SVNyDGU3Ys2Jw",
+            "receipt": null,
+            "original": null
         }
     ],
     "identities": [
@@ -36,15 +42,10 @@
             "signkeys": {
                 "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
             },
-            "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6"
-        },
-        {
-            "$schema": "https://specs.livecontracts.io/v0.2.0/identity/schema.json#",
-            "id": "4fd69b8e-6bd3-4d88-81dd-a6ed9308a14e",
-            "signkeys": {
-                "default": "BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp"
-            },
-            "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6"
+            "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
+            "node": null,
+            "timestamp": null
         }
-    ]
+    ],
+    "resources": []
 }

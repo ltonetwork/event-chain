@@ -79,9 +79,10 @@ trait TestEventTrait
      * @param EventChain $chain
      * @param int        $startIdx
      * @param int        $countNewEvents
+     * @param array|null $bodies
      * @return EventChain
      */
-    public function createFork(EventChain $chain, int $startIdx, int $countNewEvents): EventChain
+    public function createFork(EventChain $chain, int $startIdx, int $countNewEvents, ?array $bodies = null): EventChain
     {
         $node = App::getContainer()->get('node.account');
         $fork = $chain->withEvents([]);
@@ -91,7 +92,8 @@ trait TestEventTrait
         }
 
         for ($i=0; $i < $countNewEvents; $i++) { 
-            $event = $this->createEvent($fork, $node, ['foo' => 'zoo']);
+            $body = $this->createEventBody($i, $bodies, ['foo' => 'zoo']);
+            $event = $this->createEvent($fork, $node, $body);
             $fork->events->add($event);
         }
 
@@ -211,11 +213,12 @@ trait TestEventTrait
      *
      * @param int $idx 
      * @param array $bodies
+     * @param array|null $default 
      * @return array
      */
-    protected function createEventBody(int $idx, ?array $bodies): array
+    protected function createEventBody(int $idx, ?array $bodies, ?array $default = null): array
     {
-        $body = ['foo' => 'bar'];
+        $body = $default ?: ['foo' => 'bar'];
 
         if (isset($bodies)) {
             if (!isset($bodies[$idx])) {

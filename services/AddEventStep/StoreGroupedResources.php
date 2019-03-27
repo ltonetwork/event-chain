@@ -60,7 +60,7 @@ class StoreGroupedResources
     {
         $signal =
             $validation->succeeded() &&
-            $partial->events !== [] &&
+            count($partial->events) !== 0 &&
             $this->chain->isEventSignedByAccount($partial->getLastEvent(), $this->node);
 
         if ($signal) {

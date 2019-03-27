@@ -158,9 +158,9 @@ class AnchorClientTest extends \Codeception\Test\Unit
         ];
 
         $expected = [
-            'http://some_base_url/hash/foo/encoding/base58' => $responses[0],
-            'http://some_base_url/hash/bar/encoding/base58' => $responses[1],
-            'http://some_base_url/hash/baz/encoding/base58' => $responses[2]
+            'foo' => $responses[0],
+            'bar' => $responses[1],
+            'baz' => $responses[2]
         ];
 
         $expectedUrls = [
@@ -213,9 +213,9 @@ class AnchorClientTest extends \Codeception\Test\Unit
         ];
 
         $expected = [
-            'http://some_base_url/hash/foo/encoding/base64' => $responses[0],
-            'http://some_base_url/hash/bar/encoding/base64' => $responses[1],
-            'http://some_base_url/hash/baz/encoding/base64' => $responses[2]
+            'foo' => $responses[0],
+            'bar' => $responses[1],
+            'baz' => $responses[2]
         ];
 
         $expectedUrls = [

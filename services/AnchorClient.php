@@ -82,9 +82,14 @@ class AnchorClient
      */
     public function fetchMultiple(iterable $hashes, string $encoding = 'base58'): Pipeline
     {
+        $hashMap = [];
+
         return Pipeline::with($hashes)
-            ->mapKeys(function (string $hash) use ($encoding) {
-                return "{$this->config->url}/hash/$hash/encoding/$encoding";
+            ->mapKeys(function (string $hash) use ($encoding, &$hashMap) {
+                $url = "{$this->config->url}/hash/$hash/encoding/$encoding";
+                $hashMap[$url] = $hash;
+
+                return $url;
             })
             ->map(function (string $hash, string $url) {
                 return $this->httpClient->requestAsync('GET', $url, ['http_errors' => false]);
@@ -107,7 +112,10 @@ class AnchorClient
                     throw RequestException::create($request, $response);
                 }
             })
-            ->map(Closure::fromCallable([$this, 'decodeBody']));
+            ->map(Closure::fromCallable([$this, 'decodeBody']))
+            ->mapKeys(function (?stdClass $data, string $url) use ($hashMap) {
+                return $hashMap[$url];
+            });
     }
 
     /**

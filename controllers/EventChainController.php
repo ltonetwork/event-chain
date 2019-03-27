@@ -97,6 +97,8 @@ class EventChainController extends Jasny\Controller
             return;
         }
 
+        $this->eventChains->delete($eventChain);
+
         $this->noContent();
     }
 }

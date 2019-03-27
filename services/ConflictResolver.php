@@ -70,18 +70,23 @@ class ConflictResolver
      */
     protected function getEarliestEvent(Event ...$events): Event
     {
+        $map = [];
+        foreach ($events as $event) {
+            $map[$event->hash] = $event;
+        }
+
         try {
-            return Pipeline::with($events)
+            return Pipeline::with($map)
                 ->flip()
-                ->map(function ($_, Event $event) {
-                    return $event->hash;
-                })
-                ->then([$this->anchor, 'fetchMultiple']) // Loops through all events and returns a new iterator.
+                ->then([$this->anchor, 'fetchMultiple']) // Loops through all hashes and returns a new iterator.
                 ->sort(function (stdClass $info1, stdClass $info2) {
                     return (int)version_compare(
                         "{$info1->block->height}.{$info1->transaction->position}",
                         "{$info2->block->height}.{$info2->transaction->position}"
                     );
+                })
+                ->mapKeys(function ($_, string $hash) use ($map) {
+                    return $map[$hash];
                 })
                 ->flip()
                 ->first(true);

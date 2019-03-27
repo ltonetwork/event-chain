@@ -87,7 +87,7 @@ class ConflictResolverTest extends \Codeception\Test\Unit
             $this->createInfo($theirBlock, $theirPosition)
         ];
         $anchorResult = Pipeline::with($anchorInfo)
-            ->setKeys([$ourEvent, $theirEvent])
+            ->setKeys([$ourEvent->hash, $theirEvent->hash])
             ->cleanup();
         $this->anchor->expects($this->once())->method('fetchMultiple')
             ->with($this->callback(function($iterator) use ($ourHash, $theirHash) {
@@ -122,7 +122,7 @@ class ConflictResolverTest extends \Codeception\Test\Unit
             $this->createInfo($theirBlock, $theirPosition)
         ];
         $anchorResult = Pipeline::with($anchorInfo)
-            ->setKeys([$ourEvent, $theirEvent])
+            ->setKeys([$ourEvent->hash, $theirEvent->hash])
             ->cleanup();
         $this->anchor->expects($this->once())->method('fetchMultiple')
             ->with($this->callback(function($iterator) use ($ourHash, $theirHash) {
