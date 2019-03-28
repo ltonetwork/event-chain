@@ -14,7 +14,7 @@ $I->amSignatureAuthenticated("LtI60OqaM/gZbaeN8tWBJqOy7yiPwxSMZDo/aQvsPFzbJiGUQZ
 
 $chainId = '2arvKCGdNNAAJmxbHAHvCJs2zaBdwVktTnDwq8AUcFNAcYVeryk8awfeQJqdtD';
 $data = $I->getEntityDump('event-chains', $chainId . '.fork-all');
-array_shift($data['events']);
+array_shift($data['events']); //make sure first event references non-exist event
 
 $I->haveHttpHeader('Content-Type', 'application/json');
 $I->haveHttpHeader('Digest', $I->calculateDigest($data));
