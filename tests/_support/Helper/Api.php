@@ -51,14 +51,14 @@ class Api extends \Codeception\Module
     }
 
     /**
-     * Get scenario data from json file
+     * Get entity data from json file
      *
      * @param string $name
      * @return array
      */
-    public function getScenarioDump(string $name): array
+    public function getEntityDump(string $folder, string $name): array
     {
-        $scenario = file_get_contents("tests/_data/scenarios/$name.json");
+        $scenario = file_get_contents("tests/_data/$folder/$name.json");
 
         return json_decode($scenario, true);
     }
@@ -239,6 +239,23 @@ class Api extends \Codeception\Module
     }
 
     /**
+     * See if error event was saved to chain
+     *
+     * @param array $errors
+     * @param array $events
+     */
+    public function seeValidErrorEventInResponse(array $errors, array $events)
+    {
+        $data = $this->getResponseJson();
+
+        $event = end($data->events);
+        $event->body = $this->decodeEventBody($event->body, false);
+
+        Assert::assertEquals($errors, $event->body['message']);
+        Assert::assertEquals($events, $event->body['events']);
+    }
+
+    /**
      * Check if the response JSON matches an event chain from the data directory.
      *
      * @param string $name  Event chain filename (without ext)
@@ -261,13 +278,22 @@ class Api extends \Codeception\Module
      */
     protected function assertResponseJsonEqualsFile(string $path): void
     {
-        $json = $this->getModule('REST')->grabResponse();
-
-        Assert::assertJson($json);
-
         $expected = json_decode(file_get_contents($path));
-        $actual = json_decode($json);
+        $actual = $this->getResponseJson();
 
         Assert::assertEquals($expected, $actual);
+    }    
+
+    /**
+     * Get response json data
+     *
+     * @return stdClass
+     */
+    protected function getResponseJson(): \stdClass
+    {
+        $json = $this->getModule('REST')->grabResponse();
+        Assert::assertJson($json);
+
+        return json_decode($json);
     }
 }

@@ -43,7 +43,7 @@ class EventFactory
     public function createErrorEvent($reason, array $events): Event
     {
         $message = is_string($reason) ? [$reason] : $reason;
-        $body = compact($message, $events);
+        $body = compact('message', 'events');
         
         $previous = $events !== [] ? $events[0]->previous : null;
         $event = new LTO\Event($body, $previous);

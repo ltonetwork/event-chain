@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Get all event chains of authenticated user
+ */
+
 $I = new ApiTester($scenario);
 $I->wantTo('get all event chains of user');
 

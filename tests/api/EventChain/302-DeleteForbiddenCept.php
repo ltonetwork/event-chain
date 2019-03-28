@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Delete event chain of another user
+ * Try to delete event chain of another user
  */
 
 $I = new ApiTester($scenario);

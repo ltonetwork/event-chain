@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Add new events to chain, if passing only those new events, skipping known
+ */
+
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 
@@ -9,7 +13,7 @@ $I->wantTo('Add events to existing chain, using partial chain');
 $I->amSignatureAuthenticated("LtI60OqaM/gZbaeN8tWBJqOy7yiPwxSMZDo/aQvsPFzbJiGUQZ2iyDtBkL/+GJseJnUweTabuOn8RtR4V3MOKw==");
 
 $bodies = [
-    $I->getScenarioDump('basic-user-and-system'),
+    $I->getEntityDump('scenarios', 'basic-user-and-system'),
     [
         '$schema' => 'https://specs.livecontracts.io/v0.2.0/process/schema.json#',
         'id' => 'j2134901218ja908323434',

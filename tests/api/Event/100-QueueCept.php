@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Add new chain to the queue
+ */
+
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 
@@ -19,7 +23,7 @@ $bodies = [
         ],
         'encryptkey' => 'BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6'
     ],
-    $I->getScenarioDump('basic-user-and-system'),
+    $I->getEntityDump('scenarios', 'basic-user-and-system'),
     [
         '$schema' => 'https://specs.livecontracts.io/v0.2.0/process/schema.json#',
         'id' => 'j2134901218ja908323434',
