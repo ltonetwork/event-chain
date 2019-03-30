@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Try adding event with invalid hash
+ * Try adding event with invalid signature to existing chain
  */
 
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 
 $I = new ApiTester($scenario);
-$I->wantTo('Try adding event with invalid hash');
+$I->wantTo('Try adding event with invalid signature');
 
 $I->amSignatureAuthenticated("LtI60OqaM/gZbaeN8tWBJqOy7yiPwxSMZDo/aQvsPFzbJiGUQZ2iyDtBkL/+GJseJnUweTabuOn8RtR4V3MOKw==");
 
@@ -22,12 +22,12 @@ $body0 = [
         'system' => 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y'
     ],
     'encryptkey' => 'BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6',
-    'timestamp' => '2019-03-30T19:10:43+0000' // is not present in encoded body, taken from event timestamp
+    'timestamp' => '2019-03-30T22:38:03+0000' // is not present in encoded body, taken from event timestamp
 ];
 
-$data = $I->getEntityDump('event-chains', 'only-identities');
+$data = $I->getEntityDump('event-chains', '2arvKCGdNNAAJmxbHAHvCJs2zaBdwVktTnDwq8AUcFNAcYVeryk8awfeQJqdtD.append');
 $chainId = $data['id'];
-$data['events'][0]['hash'] = 'foo';
+$data['events'][1]['signature'] = 'foo';
 
 // Save identity to workflow
 $I->expectHttpRequest(function (Request $request) use ($I, $body0) {
@@ -48,10 +48,23 @@ $I->expectTo('see error message');
 
 $I->seeResponseCodeIs(400);
 $I->seeResponseIsJson();
-$I->seeResponseContains("broken chain; previous of 'BuizdWTtk7A6Xrt71i8Fy1npwE8x5KUVP4Q82xFGFFHy' is 'Hm7W4Kprv52vfXoYmdG6Ee3pso6ruszaCLfJDxFotGjn', expected 'foo'");
+$I->seeResponseContains("event 'HNYfjH39pUgo6d2ovbVoEmu2REmedsRAYAy6UxeuoKX6': invalid signature");
 
-$I->expectTo('see that chain was not saved');
+$I->expectTo('see that error event was added to event chain');
 
 $I->sendGET('/event-chains/' . $chainId);
-$I->seeResponseCodeIs(404);
-$I->seeResponseEquals('Event chain not found');
+$I->seeResponseCodeIs(200);
+$I->seeResponseIsJson();
+
+// Existing events
+$I->seeResponseContainsJson(['events' => ['hash' => 'HqDutMxVv6PkLFgGWz8wByaEgSuS3R1zcGeNKW6hSFST']]);
+$I->seeResponseContainsJson(['events' => ['hash' => 'HMVbGHtcYm6DTciYAhkJkzDUnW1j1Mqo29X37rir5ufo']]);
+$I->seeResponseContainsJson(['events' => ['hash' => 'J4pM5KNkrzeBb8233uFCq1tVRGN4LQ3SVNyDGU3Ys2Jw']]);
+
+$I->seeResponseContainsJson(['events' => ['hash' => $data['events'][0]['hash']]]);
+$I->dontSeeResponseContainsJson(['events' => ['hash' => $data['events'][1]['hash']]]);
+$I->dontSeeResponseContainsJson(['events' => ['hash' => $data['events'][2]['hash']]]);
+$I->seeValidErrorEventInResponse(
+    ["event 'HNYfjH39pUgo6d2ovbVoEmu2REmedsRAYAy6UxeuoKX6': invalid signature"], 
+    [$data['events'][1], $data['events'][2]]
+);
