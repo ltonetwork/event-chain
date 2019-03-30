@@ -248,7 +248,7 @@ class Event extends MongoSubDocument implements Identifiable
         }
 
         if (isset($body) && !isset($body['$schema'])) {
-            $validation->addError('body is does not contain the $schema property');
+            $validation->addError('body does not contain the $schema property');
         }
 
         if (isset($this->signature) && !$this->verifySignature()) {
@@ -285,14 +285,14 @@ class Event extends MongoSubDocument implements Identifiable
         $data = parent::toData();
 
         if (isset($data['original'])) {
-            unset($data['original']['origin'], $data['original']['body']);
+            unset($data['original']['body']);
         }
 
         return $data;
     }
 
     /**
-     * Turn entity into data to be stored in the DB.
+     * Create entity from data
      *
      * @param array $data
      * @return Event
@@ -301,7 +301,7 @@ class Event extends MongoSubDocument implements Identifiable
     {
         $data = (array)$data;
 
-        if (isset($data['original'])) {
+        if (isset($data['original']) && is_array($data['original'])) {
             $data['original']['body'] = $data['body'];
         }
 

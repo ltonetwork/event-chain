@@ -186,10 +186,10 @@ trait TestEventTrait
      *
      * @param EventChain  $chain
      * @param LTO\Account $node
-     * @param array       $body
+     * @param array|null  $body
      * @return Event
      */
-    protected function createEvent(EventChain $chain, ?Account $node = null, array $body = []): Event
+    protected function createEvent(EventChain $chain, ?Account $node = null, ?array $body = []): Event
     {
         $node = $node ?? $this->getNode();
 
@@ -214,14 +214,14 @@ trait TestEventTrait
      * @param int $idx 
      * @param array $bodies
      * @param array|null $default 
-     * @return array
+     * @return array|null
      */
-    protected function createEventBody(int $idx, ?array $bodies, ?array $default = null): array
+    protected function createEventBody(int $idx, ?array $bodies, ?array $default = null): ?array
     {
         $body = $default ?: ['foo' => 'bar'];
 
         if (isset($bodies)) {
-            if (!isset($bodies[$idx])) {
+            if (!array_key_exists($idx, $bodies)) {
                 throw new InvalidArgumentException("No body for test event [$idx]");
             }
 

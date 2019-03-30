@@ -196,7 +196,7 @@ class EventTest extends \Codeception\Test\Unit
         
         $validation = $event->validate();
         
-        $this->assertEquals(['body is does not contain the $schema property'], $validation->getErrors());
+        $this->assertEquals(['body does not contain the $schema property'], $validation->getErrors());
     }
     
     public function testValidateRequired()

@@ -61,7 +61,14 @@ class StoreResource
                 return;
             }
 
-            $resource = $this->resourceFactory->extractFrom($event);
+            try {
+                $resource = $this->resourceFactory->extractFrom($event);
+            } catch (\UnexpectedValueException $e) {
+                $error = ValidationResult::error("failed to extract resource: %s", $e->getMessage());
+                $validation->add($error, "event '$event->hash': ");
+                return;
+            }
+
             $auth = $this->applyPrivilegeToResource($resource, $event);
 
             $validation->add($auth, "event '$event->hash': ");
