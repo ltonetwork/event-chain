@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Try adding event with invalid hash to existing chain
+ * Try adding event with no signkey attribute to existing chain
  */
 
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 
 $I = new ApiTester($scenario);
-$I->wantTo('Try adding event with invalid hash to existing chain');
+$I->wantTo('Try adding event with no signkey attribute to existing chain');
 
 $I->amSignatureAuthenticated("LtI60OqaM/gZbaeN8tWBJqOy7yiPwxSMZDo/aQvsPFzbJiGUQZ2iyDtBkL/+GJseJnUweTabuOn8RtR4V3MOKw==");
 
@@ -27,7 +27,7 @@ $body0 = [
 
 $data = $I->getEntityDump('event-chains', '2arvKCGdNNAAJmxbHAHvCJs2zaBdwVktTnDwq8AUcFNAcYVeryk8awfeQJqdtD.append');
 $chainId = $data['id'];
-$data['events'][1]['hash'] = 'foo';
+unset($data['events'][1]['signkey']);
 
 // Save identity to workflow
 $I->expectHttpRequest(function (Request $request) use ($I, $body0) {
@@ -46,12 +46,34 @@ $I->sendPOST('/event-chains', $data);
 
 $I->expectTo('see error message');
 
+$errors = [
+    "event 'HNYfjH39pUgo6d2ovbVoEmu2REmedsRAYAy6UxeuoKX6': signkey is required",
+    "event 'HNYfjH39pUgo6d2ovbVoEmu2REmedsRAYAy6UxeuoKX6': invalid signature",
+    "event 'HNYfjH39pUgo6d2ovbVoEmu2REmedsRAYAy6UxeuoKX6': invalid hash"
+];
+
 $I->seeResponseCodeIs(400);
 $I->seeResponseIsJson();
-$I->seeResponseContains("broken chain; previous of 'AvrFU9QSVpxu5ggcvTpg3n5jV3bdXvxWWLmnPTPKdbdW' is 'HNYfjH39pUgo6d2ovbVoEmu2REmedsRAYAy6UxeuoKX6', expected 'foo'");
+$I->seeResponseContainsJson($errors);
 
-$I->expectTo('see that chain was not changed');
+$I->expectTo('see that error event was added to event chain');
 
 $I->sendGET('/event-chains/' . $chainId);
 $I->seeResponseCodeIs(200);
-$I->seeResponseIsEventChain($chainId);
+$I->seeResponseIsJson();
+
+// Existing events
+$I->seeResponseContainsJson(['events' => ['hash' => 'HqDutMxVv6PkLFgGWz8wByaEgSuS3R1zcGeNKW6hSFST']]);
+$I->seeResponseContainsJson(['events' => ['hash' => 'HMVbGHtcYm6DTciYAhkJkzDUnW1j1Mqo29X37rir5ufo']]);
+$I->seeResponseContainsJson(['events' => ['hash' => 'J4pM5KNkrzeBb8233uFCq1tVRGN4LQ3SVNyDGU3Ys2Jw']]);
+
+$I->seeResponseContainsJson(['events' => ['hash' => $data['events'][0]['hash']]]);
+$I->dontSeeResponseContainsJson(['events' => ['hash' => $data['events'][1]['hash']]]);
+$I->dontSeeResponseContainsJson(['events' => ['hash' => $data['events'][2]['hash']]]);
+
+$data['events'][1]['signkey'] = null;
+
+$I->seeValidErrorEventInResponse(
+    $errors, 
+    [$data['events'][1], $data['events'][2]]
+);

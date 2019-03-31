@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Try adding event with invalid hash to existing chain
+ * Try adding event with no previous attribute to existing chain
  */
 
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 
 $I = new ApiTester($scenario);
-$I->wantTo('Try adding event with invalid hash to existing chain');
+$I->wantTo('Try adding event with no previous attribute to existing chain');
 
 $I->amSignatureAuthenticated("LtI60OqaM/gZbaeN8tWBJqOy7yiPwxSMZDo/aQvsPFzbJiGUQZ2iyDtBkL/+GJseJnUweTabuOn8RtR4V3MOKw==");
 
@@ -27,7 +27,7 @@ $body0 = [
 
 $data = $I->getEntityDump('event-chains', '2arvKCGdNNAAJmxbHAHvCJs2zaBdwVktTnDwq8AUcFNAcYVeryk8awfeQJqdtD.append');
 $chainId = $data['id'];
-$data['events'][1]['hash'] = 'foo';
+unset($data['events'][1]['previous']);
 
 // Save identity to workflow
 $I->expectHttpRequest(function (Request $request) use ($I, $body0) {
@@ -48,7 +48,7 @@ $I->expectTo('see error message');
 
 $I->seeResponseCodeIs(400);
 $I->seeResponseIsJson();
-$I->seeResponseContains("broken chain; previous of 'AvrFU9QSVpxu5ggcvTpg3n5jV3bdXvxWWLmnPTPKdbdW' is 'HNYfjH39pUgo6d2ovbVoEmu2REmedsRAYAy6UxeuoKX6', expected 'foo'");
+$I->seeResponseContains("broken chain; previous of 'HNYfjH39pUgo6d2ovbVoEmu2REmedsRAYAy6UxeuoKX6' is '', expected '66ddF5q4kaX8BjVvfMYR8ToD3CYhstz5jsk1jhcYH8Ln'");
 
 $I->expectTo('see that chain was not changed');
 
