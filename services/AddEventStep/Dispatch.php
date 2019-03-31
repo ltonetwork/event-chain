@@ -77,14 +77,14 @@ class Dispatch
         $otherNodes = $this->getAllNodesExcept($this->oldNodes, $systemNodes);
 
         // send partial chain to old nodes
-        if ($partial->events !== [] && $otherNodes !== []) {
+        if (count($partial->events) !== 0 && count($otherNodes) !== 0) {
             $this->dispatcher->dispatch($partial, $otherNodes);
         }
 
-        // send full node to new nodes
+        // send full chain to new nodes
         $newNodes = $this->getAllNodesExcept($this->chain->getNodes(), $this->oldNodes, $systemNodes);
 
-        if ($newNodes !== []) {
+        if (count($newNodes) !== 0) {
             $this->dispatcher->dispatch($this->chain, $newNodes);
         }
     }
@@ -96,7 +96,7 @@ class Dispatch
      * @param array ...$except
      * @return array
      */
-    protected function getAllNodesExcept(array $nodes, array ...$except)
+    protected function getAllNodesExcept(array $nodes, array ...$except): array
     {
         return array_unique(array_values(array_diff($nodes, ...$except)));
     }
