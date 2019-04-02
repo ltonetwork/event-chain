@@ -4,7 +4,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 
 /**
  * Trigger a warning on an unexpected HTTP error (status code >= 400).
- * Such a warning will lead most likely lead to an Exception. The warning will help in debugging.
+ * Such a warning will most likely lead to an Exception. The warning will help in debugging.
  *
  * @todo Turn this into middleware
  */
@@ -38,7 +38,7 @@ class HttpErrorWarning
      */
     public function __invoke(Response $response, string $url): void
     {
-        if ($response->getStatusCode() >= 400 && !in_array($response->getStatusCode(), $url, true)) {
+        if ($response->getStatusCode() >= 400 && !in_array($response->getStatusCode(), $this->notOn, true)) {
             $this->onError($response, $url);
         }
     }

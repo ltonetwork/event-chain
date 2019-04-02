@@ -11,12 +11,34 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
     use TestEventTrait;
 
     /**
-     * Test 'trigger' method
+     * Provide data for testing 'trigger' method
+     *
+     * @return array
      */
-    public function testTrigger()
+    public function triggerProvider()
     {
-        $endpoints = $this->getEndpoints();
         $resources = $this->getResources();
+
+        $callable = function() use ($resources) {
+            foreach ($resources as $item) {
+                yield $item;
+            }
+        };
+
+        return [
+            [$resources],
+            [$callable()]
+        ];
+    }
+
+    /**
+     * Test 'trigger' method
+     *
+     * @dataProvider triggerProvider
+     */
+    public function testTrigger($resources)
+    {
+        $endpoints = $this->getEndpoints();        
 
         $httpRequestContainer = [];
         $httpClient = $this->getHttpClientMock($httpRequestContainer, [

@@ -7,6 +7,8 @@ class NoDispatcher extends Dispatcher
 {   
     /**
      * Class constructor
+     *
+     * @codeCoverageIgnore
      */ 
     public function __construct()
     {

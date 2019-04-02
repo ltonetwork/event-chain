@@ -107,4 +107,17 @@ class DispatcherTest extends \Codeception\Test\Unit
         $dispatcher = new Dispatcher($this->config, $httpClient);
         $dispatcher->queue($chain);
     }
+
+    /**
+     * Test 'getNode' method
+     */
+    public function testGetNode()
+    {
+        $dispatcher = $this->createPartialMock(Dispatcher::class, ['info']);
+        $dispatcher->expects($this->once())->method('info')->willReturn((object)['node' => 'foo']);
+
+        $result = $dispatcher->getNode();
+
+        $this->assertSame('foo', $result);
+    }
 }
