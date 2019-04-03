@@ -12,7 +12,8 @@ use LTO\AccountFactory;
 return [
     static function (RouterInterface $router, ContainerInterface $container) {
         $service = $container->get(HttpDigest::class);
-        $middleware = new HttpDigestMiddleware($service);
+        $middleware = (new HttpDigestMiddleware($service))
+            ->withOptionalDigest($container->get('config.digest') === 'optional');
 
         return $middleware->asDoublePass();
     },

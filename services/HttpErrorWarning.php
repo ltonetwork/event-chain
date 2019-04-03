@@ -7,6 +7,7 @@ use Psr\Http\Message\ResponseInterface as Response;
  * Such a warning will lead most likely lead to an Exception. The warning will help in debugging.
  *
  * @todo Turn this into middleware
+ * @deprecated Should be middleware
  */
 class HttpErrorWarning
 {

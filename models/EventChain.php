@@ -6,7 +6,6 @@ use Jasny\DB\Entity\Identifiable;
 use Jasny\ValidationResult;
 use LTO\Account;
 use LTO\EventChain as LTOEventChain;
-use function Jasny\str_before;
 use function LTO\sha256;
 use function sodium_crypto_generichash as blake2b;
 

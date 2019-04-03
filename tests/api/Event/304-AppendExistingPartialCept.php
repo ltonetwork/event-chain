@@ -17,7 +17,6 @@ $data = $I->getEntityDump('event-chains', $chainId);
 array_shift($data['events']);
 
 $I->haveHttpHeader('Content-Type', 'application/json');
-$I->haveHttpHeader('Digest', $I->calculateDigest($data));
 $I->sendPOST('/event-chains', $data);
 
 $I->expectTo('see unchaged chain in response');

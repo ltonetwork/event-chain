@@ -31,9 +31,6 @@ class ResourceStorageTest extends \Codeception\Test\Unit
             new GuzzleHttp\Psr7\Response(200)
         ]);        
 
-        $httpError = $this->createMock(HttpErrorWarning::class);
-        $httpError->expects($this->never())->method('__invoke');
-
         $node = $this->createMock(Account::class);
         $node->sign = (object)['publickey' => 'foo_node_sign_publickey'];
 
@@ -41,7 +38,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
         $digest->expects($this->any())->method('create')->with(json_encode($resource))
             ->willReturn('some_calculated_digest');
 
-        $storage = new ResourceStorage($endpoints, $httpClient, $httpError, $node, $digest);        
+        $storage = new ResourceStorage($endpoints, $httpClient, $node, $digest);
         $storage->store($resource);
 
         $this->assertCount(2, $httpRequestContainer);
@@ -95,13 +92,10 @@ class ResourceStorageTest extends \Codeception\Test\Unit
             new GuzzleHttp\Psr7\Response(200)
         ]);        
 
-        $httpError = $this->createMock(HttpErrorWarning::class);
-        $httpError->expects($this->never())->method('__invoke');
-        
         $node = $this->createMock(Account::class);
         $node->sign = (object)['publickey' => 'foo_node_sign_publickey'];
 
-        $storage = new ResourceStorage($endpoints, $httpClient, $httpError, $node);        
+        $storage = new ResourceStorage($endpoints, $httpClient, $node);
         $storage->store($resource, $chain);
 
         $this->assertCount(3, $httpRequestContainer);
@@ -165,14 +159,6 @@ class ResourceStorageTest extends \Codeception\Test\Unit
             $this->assertTrue(!empty($headers['date'][0]));
             $this->assertJsonStringEqualsJsonString(json_encode($data['data']), (string)$request->getBody());            
         }   
-    }
-
-    /**
-     * Test 'deleteResources' method
-     */
-    public function testDeleteResources()
-    {
-        $this->markTestSkipped();
     }
 
     /**

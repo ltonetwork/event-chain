@@ -2,6 +2,7 @@
 
 /**
  * Delete not existing event chain
+ * @global $scenario
  */
 
 $I = new ApiTester($scenario);

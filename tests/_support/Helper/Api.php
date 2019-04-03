@@ -5,7 +5,6 @@ use MongoDB\Model\BSONArray;
 use MongoDB\Model\BSONDocument;
 use MongoDB\Model\ObjectId as MongoId;
 use MongoDB\BSON\UTCDateTime;
-use Jasny\HttpDigest\HttpDigest;
 use PHPUnit\Framework\Assert;
 
 // here you can define custom actions
@@ -21,19 +20,6 @@ class Api extends \Codeception\Module
     public function getJasnyModule()
     {
         return $this->getModule('\Jasny\Codeception\Module');
-    }
-
-    /**
-     * Calculate 'digest' header
-     *
-     * @param array $data
-     * @return string
-     */
-    public function calculateDigest($data)
-    {
-        $service = new HttpDigest('SHA-256');
-
-        return $service->create(''); //json_encode($data)
     }
 
     /**

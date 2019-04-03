@@ -45,7 +45,6 @@ $I->expectHttpRequest(function (Request $request) use ($I, $fork) {
 });
 
 $I->haveHttpHeader('Content-Type', 'application/json');
-$I->haveHttpHeader('Digest', $I->calculateDigest($fork));
 $I->sendPOST('/event-chains', $fork);
 
 $I->expectTo('see in response, that chain did not change');

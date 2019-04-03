@@ -2,6 +2,7 @@
 
 /**
  * Get all event chains of authenticated user
+ * @global $scenario
  */
 
 $I = new ApiTester($scenario);

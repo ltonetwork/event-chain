@@ -1,3 +1,5 @@
+digest: optional
+
 db:
   default:
     client: mongodb://localhost:27017

@@ -20,7 +20,6 @@ $data['events'][1] = $data['events'][2];
 $data['events'][2] = $temp;
 
 $I->haveHttpHeader('Content-Type', 'application/json');
-$I->haveHttpHeader('Digest', $I->calculateDigest($data));
 $I->sendPOST('/event-chains', $data);
 
 $I->expectTo('see error message');

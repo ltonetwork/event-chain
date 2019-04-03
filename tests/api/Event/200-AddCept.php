@@ -129,7 +129,6 @@ $I->expectHttpRequest(function (Request $request) use ($I) {
 // });
 
 $I->haveHttpHeader('Content-Type', 'application/json');
-$I->haveHttpHeader('Digest', $I->calculateDigest($data));
 $I->sendPOST('/event-chains', $data);
 
 $I->expectTo('see chain in response');

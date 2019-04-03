@@ -1,7 +1,7 @@
 locale: en_US
-
 cache: true
-log: true
+debug: false
+digest: required
 
 db:
   default:

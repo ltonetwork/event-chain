@@ -17,7 +17,6 @@ $data = $I->getEntityDump('event-chains', $chainId . '.fork-all');
 array_shift($data['events']); //make sure first event references non-exist event
 
 $I->haveHttpHeader('Content-Type', 'application/json');
-$I->haveHttpHeader('Digest', $I->calculateDigest($data));
 $I->sendPOST('/event-chains', $data);
 
 $I->expectTo('see error message in response');

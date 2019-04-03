@@ -54,7 +54,6 @@ $I->expectHttpRequest(function (Request $request) use ($I, $data) {
 });
 
 $I->haveHttpHeader('Content-Type', 'application/json');
-$I->haveHttpHeader('Digest', $I->calculateDigest($data));
 $I->sendPOST('/queue', $data);
 
 $I->expectTo('see successfull response "no content"');

@@ -1,12 +1,9 @@
 <?php declare(strict_types=1);
 
-use Improved as i;
-use const Improved\FUNCTION_ARGUMENT_PLACEHOLDER as __;
 use Improved\IteratorPipeline\Pipeline;
 use GuzzleHttp\ClientInterface as HttpClient;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Promise\PromiseInterface as GuzzlePromise;
-use Jasny\HttpDigest\HttpDigest;
 use LTO\Account;
 
 /**
@@ -25,11 +22,6 @@ class ResourceStorage
     protected $httpClient;
 
     /**
-     * @var HttpErrorWarning
-     */
-    protected $errorWarning;
-
-    /**
      * @var Account
      **/
     protected $node;
@@ -39,19 +31,12 @@ class ResourceStorage
      *
      * @param array            $endpoints
      * @param HttpClient       $httpClient
-     * @param HttpErrorWarning $errorWarning
      * @param Account          $node
      */
-    public function __construct(
-        array $endpoints, 
-        HttpClient $httpClient, 
-        HttpErrorWarning $errorWarning, 
-        Account $node
-    )
+    public function __construct(array $endpoints, HttpClient $httpClient, Account $node)
     {
         $this->endpoints = $endpoints;
         $this->httpClient = $httpClient;
-        $this->errorWarning = $errorWarning;
         $this->node = $node;
     }
 
@@ -91,7 +76,7 @@ class ResourceStorage
     {
         $options = [
             'json' => $resource,
-            'http_errors' => true, 
+            'http_errors' => true,
             'signature_key_id' => base58_encode($this->node->sign->publickey),
             'headers' => [
                 'X-Original-Key-Id' => $resource->original_key,
@@ -105,9 +90,9 @@ class ResourceStorage
 
     /**
      * Delete all resources.
+     * @todo Fix this method. Deleting resources is currently disabled.
      *
-     * @param iterable $resources
-     * @return void
+     * @param iterable<ResourceInterface> $resources
      */
     public function deleteResources(iterable $resources): void
     {
@@ -122,8 +107,7 @@ class ResourceStorage
                 return $this->mapping->getDoneUrl($resource->getId());
             })
             ->map(function (string $url) {
-                return $this->httpClient->requestAsync('DELETE', $url, ['http_errors' => false])
-                    ->then(i\function_partial($this->errorWarning, __, $url));
+                return $this->httpClient->requestAsync('DELETE', $url, ['http_errors' => false]);
             })
             ->toArray();
 

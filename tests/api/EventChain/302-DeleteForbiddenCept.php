@@ -2,6 +2,7 @@
 
 /**
  * Try to delete event chain of another user
+ * @global $scenario
  */
 
 $I = new ApiTester($scenario);

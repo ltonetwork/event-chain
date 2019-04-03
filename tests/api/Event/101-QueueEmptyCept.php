@@ -20,7 +20,6 @@ $data = [
 ];
 
 $I->haveHttpHeader('Content-Type', 'application/json');
-$I->haveHttpHeader('Digest', $I->calculateDigest($data));
 $I->sendPOST('/queue', $data);
 
 $I->expectTo('see error message');

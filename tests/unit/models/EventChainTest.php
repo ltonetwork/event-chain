@@ -1,8 +1,8 @@
 <?php
 
-use Jasny\DB\EntitySet;
-use kornrunner\Keccak;
 use LTO\Account;
+use function LTO\sha256;
+use function sodium_crypto_generichash as blake2b;
 
 /**
  * @covers EventChain
@@ -14,22 +14,19 @@ class EventChainTest extends \Codeception\Test\Unit
      */
     public function testCreateId()
     {
-        $base58 = new StephenHill\Base58();
-        
-        $signkey = $base58->decode("FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y");
-        
-        $signkeyHashed = substr(Keccak::hash(sodium_crypto_generichash($signkey, null, 32), 256), 0, 40);
-        $this->assertEquals("cfe2a4058d1329ffa541554fc0ce58c8376c7782", $signkeyHashed);
-        
-        $packed = pack('CH16H40', EventChain::ADDRESS_VERSION, '0000000000000000', $signkeyHashed);
-        $chksum = substr(Keccak::hash(sodium_crypto_generichash($packed), 256), 0, 8);
-        $this->assertEquals("ebd9a5be", $chksum);
-        
-        $idBinary = pack('CH16H40H8', EventChain::ADDRESS_VERSION, '0000000000000000', $signkeyHashed, $chksum);
-        $this->assertEquals(33, strlen($idBinary));
-        
-        $id = $base58->encode($idBinary);
-        $this->assertEquals('L1hGimV7Pp2CWTUViTuxakPRSq61ootWsh9FuLrU35Lay', $id);
+        $signkey = base58_decode("FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y");
+
+        $signkeyHashed = substr(sha256(blake2b($signkey)), 0, 20);
+        $this->assertEquals("2tBDhkXEsuVw2bqVsAhwHdZysRaP", base58_encode($signkeyHashed));
+
+        $nonce = str_repeat("\0", 20);
+
+        $packed = pack('Ca20a20', \LTO\EventChain::CHAIN_ID, $nonce, $signkeyHashed);
+        $chksum = substr(sha256(blake2b($packed)), 0, 4);
+        $this->assertEquals("4fop85", base58_encode($chksum));
+
+        $id = pack('Ca20a20a4', \LTO\EventChain::CHAIN_ID, $nonce, $signkeyHashed, $chksum);
+        $this->assertEquals('2ar3wSjTm1fA33qgckZ5Kxn1x89gKTivEeXtSLPmAXbZp8zA8XgiFyJGPxv6hj', base58_encode($id));
     }
     
     public function testGetInitialHash()
