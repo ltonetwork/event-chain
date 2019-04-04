@@ -84,4 +84,62 @@ class DispatcherManagerTest extends \Codeception\Test\Unit
         $manager = $this->createDispatcherManager(null, $dispatcher);
         $manager->dispatch($chain, $to);
     }
+
+    /**
+     * Test 'queueToSelf' method
+     */
+    public function testQueueToSelf()
+    {
+        $chain = $this->createMock(EventChain::class);
+
+        $dispatcher = $this->createMock(Dispatcher::class);
+        $dispatcher->expects($this->once())->method('queue')->with($chain);
+
+        $manager = $this->createDispatcherManager(null, $dispatcher);        
+
+        $manager->queueToSelf($chain);
+    }
+
+    /**
+     * Test 'getNode' method
+     */
+    public function testGetNode()
+    {
+        $dispatcher = $this->createMock(Dispatcher::class);
+        $dispatcher->expects($this->once())->method('getNode')->willReturn('foo');
+
+        $manager = $this->createDispatcherManager(null, $dispatcher);        
+
+        $result = $manager->getNode();
+
+        $this->assertSame('foo', $result);
+    }
+
+    /**
+     * Provide data for testing 'isEnabled' method
+     *
+     * @return array
+     */
+    public function isEnabledProvider()
+    {
+        return [
+            [Dispatcher::class, true],
+            [NoDispatcher::class, false]
+        ];
+    }
+
+    /**
+     * Test 'isEnabled' method
+     *
+     * @dataProvider isEnabledProvider
+     */
+    public function testIsEnabled($class, $expected)
+    {
+        $dispatcher = $this->createMock($class);
+        $manager = $this->createDispatcherManager(null, $dispatcher);        
+
+        $result = $manager->isEnabled();
+
+        $this->assertSame($expected, $result);
+    }
 }

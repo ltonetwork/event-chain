@@ -138,4 +138,113 @@ class ConflictResolverTest extends \Codeception\Test\Unit
 
         $this->assertSame($ret, $emptyChain);
     }
+
+    /**
+     * Test 'handleFork' method, if our last event equals to their last event
+     *
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage First event of partial chains should differ, both are 'a'
+     */
+    public function testHandleForkEqualException()
+    {
+        $ourEvent = $this->createMock(Event::class);
+        $theirEvent = $this->createMock(Event::class);
+        $ourEvent->hash = 'a';
+        $theirEvent->hash = 'a';
+
+        $ourChain = $this->createMock(EventChain::class);
+        $theirChain = $this->createMock(EventChain::class);
+
+        $ourChain->expects($this->once())->method('getFirstEvent')->willReturn($ourEvent);
+        $theirChain->expects($this->once())->method('getFirstEvent')->willReturn($theirEvent);
+
+        $this->resolver->handleFork($ourChain, $theirChain);
+    }
+
+    /**
+     * Provide data for testing 'handleFork' method, if anchor client throws an exception
+     *
+     * @return array
+     */
+    public function handleForkAnchorExceptionProvider()
+    {
+        return [
+            [
+                RangeException::class, 
+                UnresolvableConflictException::class,
+                "Events 'a, b' are not anchored yet",
+                UnresolvableConflictException::NOT_ANCHORED
+            ],
+            [
+                Exception::class, 
+                UnresolvableConflictException::class,
+                "Failed to fetch from anchoring service",
+                0
+            ]
+        ];
+    }
+
+    /**
+     * Test 'handleFork' method, if anchor clietn throws an exception
+     *
+     * @dataProvider handleForkAnchorExceptionProvider
+     */
+    public function testHandleForkAnchorException($throwException, $expectedException, $expectedMessage, $expectedCode)
+    {
+        $events = [
+            $this->createMock(Event::class),
+            $this->createMock(Event::class)
+        ];
+
+        $events[0]->hash = 'a';
+        $events[1]->hash = 'b';
+
+        $ourChain = $this->createMock(EventChain::class);
+        $theirChain = $this->createMock(EventChain::class);
+
+        $ourChain->expects($this->once())->method('getFirstEvent')->willReturn($events[0]);
+        $theirChain->expects($this->once())->method('getFirstEvent')->willReturn($events[1]);
+
+        $this->anchor->expects($this->once())->method('fetchMultiple')
+            ->will($this->returnCallback(function() use ($throwException) {
+                throw new $throwException();
+            }));                
+
+        $this->expectException($expectedException);
+        $this->expectExceptionMessage($expectedMessage);
+        $this->expectExceptionCode($expectedCode);            
+
+        $this->resolver->handleFork($ourChain, $theirChain);
+    }
+
+    /**
+     * Test 'handleFork' method, if events are not anchored
+     */
+    public function testHandleForkNotAnchored()
+    {
+        $events = [
+            $this->createMock(Event::class),
+            $this->createMock(Event::class)
+        ];
+
+        $events[0]->hash = 'a';
+        $events[1]->hash = 'b';
+
+        $ourChain = $this->createMock(EventChain::class);
+        $theirChain = $this->createMock(EventChain::class);
+
+        $ourChain->expects($this->once())->method('getFirstEvent')->willReturn($events[0]);
+        $theirChain->expects($this->once())->method('getFirstEvent')->willReturn($events[1]);
+
+        $this->anchor->expects($this->once())->method('fetchMultiple')
+            ->will($this->returnCallback(function() {
+                throw new RangeException();
+            }));                
+
+        $this->expectException(UnresolvableConflictException::class);
+        $this->expectExceptionMessage("Events 'a, b' are not anchored yet");
+        $this->expectExceptionCode(UnresolvableConflictException::NOT_ANCHORED);            
+
+        $this->resolver->handleFork($ourChain, $theirChain);
+    }
 }

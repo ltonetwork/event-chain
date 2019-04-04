@@ -91,7 +91,7 @@ class ConflictResolver
                 ->flip()
                 ->first(true);
         } catch (RangeException $e) {
-            throw $this->notAnchoredException($events);
+            throw $this->notAnchoredException($map);
         } catch (Exception $exception) {
             throw new UnresolvableConflictException("Failed to fetch from anchoring service", 0, $exception);
         }
@@ -100,19 +100,15 @@ class ConflictResolver
     /**
      * Create an unresolvable conflict exception when both chains are not anchored.
      *
-     * @param Event[] $events
+     * @param Event[] $eventsMap
      * @return UnresolvableConflictException
      */
-    protected function notAnchoredException(array $events)
+    protected function notAnchoredException(array $eventsMap)
     {
-        $hashes = Pipeline::with($events)
-            ->map(function (Event $event) {
-                return $event->hash;
-            })
-            ->concat("', '");
+        $hashes = array_keys($eventsMap);
 
         return new UnresolvableConflictException(
-            sprintf("Events '%s' are not anchored yet", $hashes),
+            sprintf("Events '%s' are not anchored yet", join(', ', $hashes)),
             UnresolvableConflictException::NOT_ANCHORED
         );
     }
