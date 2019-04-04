@@ -1,5 +1,5 @@
 {
-    "name": "lto/eventchain",
+    "name": "lto/event-chain",
     "description": "LTO Network - Event chain service",
     "license": "MIT",
     "require": {
