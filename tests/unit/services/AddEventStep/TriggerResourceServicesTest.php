@@ -16,7 +16,7 @@ use LTO\Account;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * @covers \AddEventStep\StoreGroupedResources
+ * @covers \AddEventStep\TriggerResourceServices
  */
 class TriggerResourceServicesTest extends \Codeception\Test\Unit
 {
@@ -47,7 +47,7 @@ class TriggerResourceServicesTest extends \Codeception\Test\Unit
         $this->resourceTrigger = $this->createMock(ResourceTrigger::class);
         $this->node = $this->createMock(Account::class);
 
-        $this->step = new StoreGroupedResources($this->chain, $this->resourceFactory, $this->resourceTrigger, $this->node);
+        $this->step = new TriggerResourceServices($this->chain, $this->resourceFactory, $this->resourceTrigger, $this->node);
     }
 
     public function provider()
@@ -80,27 +80,34 @@ class TriggerResourceServicesTest extends \Codeception\Test\Unit
         $this->chain->expects($this->any())->method('isEventSignedByAccount')->with($lastEvent, $this->node)->willReturn($isEventSigned);
 
         if ($done) {
+            $newEvents = $this->createMock(EventChain::class);
+
             $resource = $this->createMock(\ExternalResource::class);
+            $callback = function($arg) use ($resource) {
+                $isGenerator = $arg instanceof \Generator;
+
+                $array = [];
+                foreach ($arg as $key => $value) {
+                    $array[$key] = $value;
+                }
+
+                return $isGenerator && count($array) === 1 && $array[0] === $resource;
+            };
+
             $this->resourceFactory->expects($this->once())->method('extractFrom')
                 ->with($partialEvents[0])->willReturn($resource);
 
             $this->resourceTrigger->expects($this->once())->method('trigger')
-                ->with($this->callback(function($arg) use ($resource) {
-                    $isGenerator = $arg instanceof \Generator;
-
-                    $array = [];
-                    foreach ($arg as $key => $value) {
-                        $array[$key] = $value;
-                    }
-
-                    return $isGenerator && count($array) === 1 && $array[0] === $resource;
-                }), $this->chain);            
+                ->with($this->callback($callback), $this->chain)
+                ->willReturn($newEvents);            
         } else {            
+            $newEvents = null;
+
             $this->resourceFactory->expects($this->never())->method('extractFrom');
             $this->resourceTrigger->expects($this->never())->method('trigger');
         }
        
         $result = i\function_call($this->step, $partial, $validation);
-        $this->assertSame($partial, $result);
+        $this->assertSame($newEvents, $result);
     }
 }

@@ -48,7 +48,10 @@
         "psr-0": {
             "": ["lib/", "models/", "services/", "controllers/"]
         },
-        "files": ["vendor/jasny/php-functions/global.php"]
+        "files": [
+            "vendor/jasny/php-functions/global.php",
+            "lib/functions.php"
+        ]
     },
     "scripts": {
         "test": [

@@ -57,26 +57,35 @@ class EventManagerTest extends \Codeception\Test\Unit
      * @param EventChain  $chain
      * @return callable[]
      */
-    protected function stubSteps(?string $firstError, ?string $secondError, EventChain $newChain): array
+    protected function stubSteps(
+        ?string $firstError, 
+        ?string $secondError, 
+        EventChain $newChain, 
+        EventChain $dynamicNewChain
+    ): array
     {
         return [
-            function(EventChain $events, ValidationResult $validation) use ($firstError, $newChain): EventChain {
+            function(EventChain $events, ValidationResult $validation) use ($firstError, $newChain, $dynamicNewChain): EventChain {
+                static $called = 0;                
+                $called++;
+                $events->calledFirst = $called;
+
                 if ($firstError !== null) {
                     $validation->addError($firstError);
-                }
+                }                
 
-                $this->assertSame($newChain, $events);
-
-                return $newChain;
+                return $called === 1 ? $newChain : $dynamicNewChain;
             },
-            function(EventChain $events, ValidationResult $validation) use ($secondError, $newChain): EventChain {
+            function(EventChain $events, ValidationResult $validation) use ($secondError, $newChain, $dynamicNewChain): ?EventChain {
+                static $called = 0;
+                $called++;
+                $events->calledSecond = $called;
+
                 if ($secondError !== null) {
                     $validation->addError($secondError);
                 }
 
-                $this->assertSame($newChain, $events);
-
-                return $newChain;
+                return $called === 1 ? $dynamicNewChain : null;
             },
         ];
     }
@@ -85,7 +94,7 @@ class EventManagerTest extends \Codeception\Test\Unit
     public function addProvider()
     {
         return [
-            ['First error', 'secondError'],
+            ['First error', 'secondError', 'First error', 'secondError'],
             []
         ];
     }
@@ -98,16 +107,24 @@ class EventManagerTest extends \Codeception\Test\Unit
     {
         $chain = $this->createMock(EventChain::class);
         $newChain = $this->createMock(EventChain::class);
+        $dynamicNewChain = $this->createMock(EventChain::class);
+
+        $newChain->id = 'a';
+        $dynamicNewChain->id = 'b';
 
         $manager = $this->createEventManager(['getSteps']);
 
         $manager->expects($this->once())->method('getSteps')
-            ->willReturn($this->stubSteps($errors[0] ?? null, $errors[1] ?? null, $newChain));
+            ->willReturn($this->stubSteps($errors[0] ?? null, $errors[1] ?? null, $newChain, $dynamicNewChain));
 
         $result = $manager->add($chain, $newChain);
 
         $this->assertInstanceOf(ValidationResult::class, $result);
         $this->assertSame($errors, $result->getErrors());
+        $this->assertSame(1, $newChain->calledFirst);
+        $this->assertSame(1, $newChain->calledSecond);
+        $this->assertSame(2, $dynamicNewChain->calledFirst);
+        $this->assertSame(2, $dynamicNewChain->calledSecond);
     }
 
     /**
@@ -150,6 +167,6 @@ class EventManagerTest extends \Codeception\Test\Unit
         $this->assertInstanceOf(Step\SaveEvent::class, $steps[7]);
         $this->assertInstanceOf(Step\Walk::class, $steps[8]);
         $this->assertInstanceOf(Step\Dispatch::class, $steps[9]);
-        $this->assertInstanceOf(Step\StoreGroupedResources::class, $steps[10]);
+        $this->assertInstanceOf(Step\TriggerResourceServices::class, $steps[10]);
     }
 }

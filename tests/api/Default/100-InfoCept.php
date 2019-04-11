@@ -8,7 +8,7 @@ $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
 
 $I->seeResponseContainsJson([
-    'name' => 'lto/eventchain',
+    'name' => 'lto/event-chain',
     'description' => 'LTO Network - Event chain service',
     'env' => 'tests',
     'signkey' => App::getContainer()->get('node.account')->getPublicSignKey(),

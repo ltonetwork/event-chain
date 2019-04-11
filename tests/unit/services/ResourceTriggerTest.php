@@ -25,29 +25,47 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
             }
         };
 
+        $validateEvents = function(EventChain $chain, $result) {
+            $this->assertInstanceOf(EventChain::class, $result);
+            $this->assertSame($chain->id, $result->id);
+            $this->assertCount(2, $result->events);
+            $this->assertSame('foo', $result->events[0]->hash);
+            $this->assertSame('baz', $result->events[1]->hash);
+        };
+
+        $validateNoEvents = function(EventChain $chain, $result) {
+            $this->assertSame(null, $result);
+        };
+
         return [
-            [$resources],
-            [$callable()]
+            [$resources, $validateEvents, '{"hash": "foo"}', '{"hash": "baz"}'],
+            [$callable(), $validateEvents, '{"hash": "foo"}', '{"hash": "baz"}'],
+            [$resources, $validateNoEvents],
+            [$callable(), $validateNoEvents]
         ];
     }
 
     /**
-     * Test 'trigger' method
+     * Test 'trigger' method, specifically checking obtaining events and grouping resources
      *
      * @dataProvider triggerProvider
      */
-    public function testTrigger($resources)
+    public function testTriggerResultEvents($resources, $validateResult, $response1 = '', $response2 = '')
     {
+        $chain = $this->getEventChain();
+
         $endpoints = $this->getEndpoints();        
+        $responseHeader = ['Content-Type' => 'application/json'];
+        $schema = '';
 
         $httpRequestContainer = [];
         $httpClient = $this->getHttpClientMock($httpRequestContainer, [
+            new GuzzleHttp\Psr7\Response(200, $responseHeader, '"not object"'),
+            new GuzzleHttp\Psr7\Response(200, [], '{"hash": "bar"}'),
+            new GuzzleHttp\Psr7\Response(200, $responseHeader, $response1),
+            new GuzzleHttp\Psr7\Response(200, $responseHeader, '{}'),
             new GuzzleHttp\Psr7\Response(200),
-            new GuzzleHttp\Psr7\Response(200),
-            new GuzzleHttp\Psr7\Response(200),
-            new GuzzleHttp\Psr7\Response(200),
-            new GuzzleHttp\Psr7\Response(200),
-            new GuzzleHttp\Psr7\Response(200)
+            new GuzzleHttp\Psr7\Response(200, $responseHeader, $response2)
         ]);        
 
         $httpError = $this->createMock(HttpErrorWarning::class);
@@ -57,14 +75,18 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
         $node->sign = (object)['publickey' => 'foo_node_sign_publickey'];
 
         $storage = new ResourceTrigger($endpoints, $httpClient, $httpError, $node);        
-        $storage->trigger($resources);
+        $result = $storage->trigger($resources, $chain);
 
-        $this->assertCount(4, $httpRequestContainer);
+        $validateResult($chain, $result);
+
+        $this->assertCount(6, $httpRequestContainer);
 
         $expected = [
             ['url' => 'http://simple-foo-bar.com/foo_value', 'data' => ['foo' => 'foo_value']], // group resources 1 & 2
+            ['url' => 'http://simple-foo-bar.com/res5_foo', 'data' => ['foo' => 'res5_foo']], // resource 5
             ['url' => 'http://simple-foo-bar.com/res3_bar_id', 'data' => ['bar' => 'res3_bar_id']],
             ['url' => 'http://another-foo-bar-zoo.com/path/foo_value/action', 'data' => ['foo' => 'foo_value']], // group resources 1 & 2
+            ['url' => 'http://another-foo-bar-zoo.com/path/res5_foo/action', 'data' => ['foo' => 'res5_foo']], // resource 5
             ['url' => 'http://another-foo-bar-zoo.com/path/res3_bar_id/action', 'data' => ['bar' => 'res3_bar_id']]
         ];
 
@@ -85,7 +107,7 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
     }
 
     /**
-     * Test 'trigger' method with event chain
+     * Test 'trigger' method, specifically checking injecting event chain
      */
     public function testTriggerEventChain()
     {
@@ -324,7 +346,14 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
         $resource4->baz = (object)$resource4->baz;        
         $resource4->bar->id = 'res4_bar_id';        
 
-        return [$resource1, $resource2, $resource3, $resource4];
+        $resource5 = clone $tmpl;
+        $resource5->id = 'res5_id';
+        $resource5->foo = 'res5_foo';
+        $resource5->bar = (object)$resource5->bar;        
+        $resource5->baz = (object)$resource5->baz;        
+        $resource5->bar->id = 'res5_bar_id';         
+
+        return [$resource1, $resource2, $resource3, $resource4, $resource5];
     }
 
     /**

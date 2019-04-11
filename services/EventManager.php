@@ -116,7 +116,7 @@ class EventManager
             new Step\SaveEvent($chain, $this->chainGateway),
             new Step\Walk($chain), // <-- Nothing will happen without this step
             new Step\Dispatch($chain, $this->dispatcher, $this->node, $chain->getNodes()),
-            new Step\StoreGroupedResources($chain, $this->resourceFactory, $this->resourceTrigger, $this->node)
+            new Step\TriggerResourceServices($chain, $this->resourceFactory, $this->resourceTrigger, $this->node)
         ];
     }
 
@@ -132,8 +132,10 @@ class EventManager
         $validation = new ValidationResult();
         $data = $newEvents;
 
-        foreach ($steps as $step) {
-            $data = $step($data, $validation);
+        while (isset($data)) {
+            foreach ($steps as $step) {
+                $data = $step($data, $validation);
+            }
         }
 
         return $validation;

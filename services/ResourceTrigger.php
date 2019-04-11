@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
 use LTO\Account;
-use GuzzleHttp\ClientInterface as HttpClient;
 use Improved\IteratorPipeline\Pipeline;
 use GuzzleHttp\Promise;
+use GuzzleHttp\ClientInterface as HttpClient;
+use GuzzleHttp\Psr7\Response as HttpResponse;
 
 /**
  * Class to trigger on an external resource change.
@@ -61,9 +62,10 @@ class ResourceTrigger
      * Message resources that the event chain has been processed.
      *
      * @param iterable $resources
-     * @param EventChain|null $chain
+     * @param EventChain $chain
+     * @return EventChain|null    Events created after triggering some workflow actions
      */
-    public function trigger(iterable $resources, ?EventChain $chain = null): void
+    public function trigger(iterable $resources, EventChain $chain): ?EventChain
     {
         $promises = [];
 
@@ -86,18 +88,7 @@ class ResourceTrigger
                     ->cleanup()
                     ->keys()
                     ->map(function($value) use ($endpoint, $groupOpts, $chain) {
-                        $field = $groupOpts->group->process;
-                        $data = (object)[$field => $value];
-                        $data = $this->injectEventChain($data, $endpoint, $chain);
-                        $url = $this->expandUrl($endpoint->url, $value);
-
-                        $options = [
-                            'json' => $data, 
-                            'http_errors' => true,
-                            'signature_key_id' => base58_encode($this->node->sign->publickey)
-                        ];
-
-                        return $this->httpClient->requestAsync('POST', $url, $options);
+                        return $this->sendRequest($value, $endpoint, $groupOpts, $chain);
                     })
                     ->toArray();                
 
@@ -105,7 +96,69 @@ class ResourceTrigger
             }
         }
 
-        Promise\unwrap($promises);
+        $responses = Promise\unwrap($promises);
+
+        return $this->getEventsFromResponses($responses, $chain);
+    }
+
+    /**
+     * Send request
+     *
+     * @param string $value
+     * @param stdClass $endpoint 
+     * @param stdClass $groupOpts 
+     * @param EventChain $chain 
+     * @return GuzzleHttp\Psr7\Response
+     */
+    protected function sendRequest(string $value, stdClass $endpoint, stdClass $groupOpts, EventChain $chain)
+    {
+        $field = $groupOpts->group->process;
+        $data = (object)[$field => $value];
+        $data = $this->injectEventChain($data, $endpoint, $chain);
+        $url = $this->expandUrl($endpoint->url, $value);
+
+        $options = [
+            'json' => $data, 
+            'http_errors' => true,
+            'signature_key_id' => base58_encode($this->node->sign->publickey)
+        ];
+
+        return $this->httpClient->requestAsync('POST', $url, $options);
+    }
+
+    /**
+     * Get events from http queries responses
+     *
+     * @param array $responses
+     * @param EventChain $chain 
+     * @return EventChain|null
+     */
+    protected function getEventsFromResponses(array $responses, EventChain $chain): ?EventChain
+    {
+        $events = Pipeline::with($responses)
+            ->filter(function(HttpResponse $response): bool {
+                $contentType = $response->getHeaderLine('Content-Type');
+
+                return $contentType === 'application/json';
+            })
+            ->map(function(HttpResponse $response) {
+                $data = (string)$response->getBody();
+
+                return json_decode($data, true);
+            })
+            ->filter(function($data): bool {
+                return is_array($data) && count($data) > 0;
+            })
+            ->map(function(array $data): Event {
+                return (new Event)->setValues($data);
+            })
+            ->toArray();
+
+        $newChain = count($events) > 0 ? 
+            $chain->withEvents($events) : 
+            null;
+
+        return $newChain;
     }
 
     /**
@@ -113,12 +166,12 @@ class ResourceTrigger
      *
      * @param object $resource
      * @param object $endpoint
-     * @param EventChain|null $chain
+     * @param EventChain $chain
      * @return stdClass
      */
-    protected function injectEventChain(object $data, object $endpoint, ?EventChain $chain): stdClass
+    protected function injectEventChain(object $data, object $endpoint, EventChain $chain): stdClass
     {
-        if (!isset($chain) || !isset($endpoint->inject_chain) || !$endpoint->inject_chain) {
+        if (!isset($endpoint->inject_chain) || !$endpoint->inject_chain) {
             return $data;
         }
 
