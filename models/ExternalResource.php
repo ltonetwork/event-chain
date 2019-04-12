@@ -9,7 +9,10 @@ use function Jasny\str_before;
  */
 class ExternalResource implements ResourceInterface, Identifiable, Dynamic
 {
-    use ResourceBase;
+    use ResourceBase
+    {
+        ResourceBase::jsonSerialize as _jsonSerialize;
+    }
 
     /**
      * JSON Schema
@@ -41,5 +44,20 @@ class ExternalResource implements ResourceInterface, Identifiable, Dynamic
     public static function getIdProperty(): string
     {
         return 'id';
+    }
+
+    /**
+     * Cast to json
+     * 
+     * @return object
+     */
+    public function jsonSerialize(): object
+    {
+        $data = $this->_jsonSerialize();
+        if (!isset($data->id)) {
+            unset($data->id);
+        } 
+
+        return $data;
     }
 }

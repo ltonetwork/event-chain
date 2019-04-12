@@ -85,7 +85,9 @@ class ResourceStorage
             ]
         ];
 
-        return $this->httpClient->requestAsync('POST', $endpoint->url, $options);
+        $url = $this->expandUrl($endpoint->url, $resource);
+
+        return $this->httpClient->requestAsync('POST', $url, $options);
     }
 
     /**
@@ -139,5 +141,23 @@ class ResourceStorage
         $data->chain = $chain;
 
         return $data;
+    }
+
+    /**
+     * Insert parameter value into endpoint url
+     *
+     * @param string $url
+     * @param ResourceInterface $resource
+     * @return string
+     */
+    protected function expandUrl(string $url, ResourceInterface $resource): string
+    {
+        $regexp = '~/-(/|$)~';
+
+        if (!preg_match($regexp, $url)) {
+            return $url;
+        }
+
+        return preg_replace($regexp, "/{$resource->process}$1", $url);
     }
 }
