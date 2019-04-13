@@ -127,7 +127,7 @@ class ResourceTrigger
     }
 
     /**
-     * Get events from http queries responses
+     * Get event chain from http queries responses
      *
      * @param array $responses
      * @param EventChain $chain 
@@ -135,7 +135,7 @@ class ResourceTrigger
      */
     protected function getEventsFromResponses(array $responses, EventChain $chain): ?EventChain
     {
-        $events = Pipeline::with($responses)
+        $newChainData = Pipeline::with($responses)
             ->filter(function(HttpResponse $response): bool {
                 $contentType = $response->getHeaderLine('Content-Type');
 
@@ -146,16 +146,13 @@ class ResourceTrigger
 
                 return json_decode($data, true);
             })
-            ->filter(function($data): bool {
-                return is_array($data) && count($data) > 0;
+            ->filter(function($data) use ($chain): bool {
+                return is_array($data) && isset($data['id']) && $data['id'] === $chain->id;
             })
-            ->map(function(array $data): Event {
-                return (new Event)->setValues($data);
-            })
-            ->toArray();
+            ->first();
 
-        $newChain = count($events) > 0 ? 
-            $chain->withEvents($events) : 
+        $newChain = isset($newChainData) ? 
+            $chain->withEvents($newChainData['events']) : 
             null;
 
         return $newChain;
