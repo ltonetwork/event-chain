@@ -139,7 +139,7 @@ class ResourceTrigger
             ->filter(function(HttpResponse $response): bool {
                 $contentType = $response->getHeaderLine('Content-Type');
 
-                return $contentType === 'application/json';
+                return strpos($contentType, 'application/json') !== false;
             })
             ->map(function(HttpResponse $response) {
                 $data = (string)$response->getBody();
