@@ -26,7 +26,7 @@ endpoints:
 
   - schema: "https://specs.livecontracts.io/v0.2.0/process/schema.json#"
     url: "http://legalflow/processes/"
-    inject_chain: full
+    inject_chain: empty
 
   - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
     url: "http://legalflow/processes/-/response"

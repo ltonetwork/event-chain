@@ -17,6 +17,7 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
      */
     public function triggerProvider()
     {
+        $chain = $this->getEventChain();
         $resources = $this->getResources();
 
         $callable = function() use ($resources) {
@@ -37,11 +38,14 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
             $this->assertSame(null, $result);
         };
 
+        $partial1 = json_encode(['id' => $chain->id, 'events' => [['hash' => 'foo'], ['hash' => 'baz']]]);
+        $partial2 = json_encode(['id' => $chain->id, 'events' => [['hash' => 'not_used']]]);
+
         return [
-            [$resources, $validateEvents, '{"hash": "foo"}', '{"hash": "baz"}'],
-            [$callable(), $validateEvents, '{"hash": "foo"}', '{"hash": "baz"}'],
-            [$resources, $validateNoEvents],
-            [$callable(), $validateNoEvents]
+            [$chain, $resources, $validateEvents, $partial1, $partial2],
+            [$chain, $callable(), $validateEvents, $partial1, $partial2],
+            [$chain, $resources, $validateNoEvents],
+            [$chain, $callable(), $validateNoEvents]
         ];
     }
 
@@ -50,10 +54,8 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
      *
      * @dataProvider triggerProvider
      */
-    public function testTriggerResultEvents($resources, $validateResult, $response1 = '', $response2 = '')
+    public function testTriggerResultEvents($chain, $resources, $validateResult, $response1 = '', $response2 = '')
     {
-        $chain = $this->getEventChain();
-
         $endpoints = $this->getEndpoints();        
         $responseHeader = ['Content-Type' => 'application/json'];
         $schema = '';

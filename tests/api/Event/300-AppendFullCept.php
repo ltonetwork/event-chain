@@ -43,11 +43,18 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     $body = $bodies[1];
     $body['timestamp'] = $I->getTimeFromEvent($data['events'][2]);    
+    $body['chain'] = [
+        'id' => $data['id'],
+        'events' => [],
+        'identities' => [],
+        'resources' => []
+    ];
+
     $json = json_encode($body);
 
     $I->assertEquals('http://legalflow/processes/', (string)$request->getUri());
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
-    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+    $I->assertJsonStringContainsJsonString($json, (string)$request->getBody());
     
     return new Response(200);
 });

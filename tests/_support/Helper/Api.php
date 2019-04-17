@@ -6,6 +6,7 @@ use MongoDB\Model\BSONDocument;
 use MongoDB\Model\ObjectId as MongoId;
 use MongoDB\BSON\UTCDateTime;
 use PHPUnit\Framework\Assert;
+use Codeception\PHPUnit\Constraint\JsonContains;
 
 // here you can define custom actions
 // all public methods declared in helper class will be available in $I
@@ -153,6 +154,24 @@ class Api extends \Codeception\Module
         $actual   = json_decode($actualJson, true);
 
         \PHPUnit\Framework\Assert::assertEquals($expected, $actual, $message);
+    }
+    
+    /**
+     * Asserts that actual json string contains given expected json string data
+     * 
+     * @param string $expectedJson
+     * @param string $actualJson
+     * @param string $message
+     */
+    public function assertJsonStringContainsJsonString($expectedJson, $actualJson, $message = '')
+    {
+        \PHPUnit\Framework\Assert::assertJson($expectedJson, $message);
+        \PHPUnit\Framework\Assert::assertJson($actualJson, $message);
+
+        $expected = json_decode($expectedJson, true);
+        $actual   = json_decode($actualJson, true);
+
+        \PHPUnit\Framework\Assert::assertThat(json_encode($actual), new JsonContains($expected));
     }
     
     

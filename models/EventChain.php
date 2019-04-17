@@ -409,18 +409,4 @@ class EventChain extends MongoDocument
     {
         $this->events = clone $this->events;
     }
-
-    /**
-     * Cast to json
-     *
-     * @return object
-     */
-    public function jsonSerialize()
-    {
-        $data = parent::jsonSerialize();
-
-        $data->latest_hash = $this->getLatestHash();
-
-        return $data;
-    }
 }

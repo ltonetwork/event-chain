@@ -44,9 +44,9 @@ class ResourceStorage
      * Store a resource
      *
      * @param ResourceInterface $resource
-     * @param EventChain|null $chain 
+     * @param EventChain $chain 
      */
-    public function store(ResourceInterface $resource, ?EventChain $chain = null): void
+    public function store(ResourceInterface $resource, EventChain $chain): void
     {
         $promises = Pipeline::with($this->endpoints)
             ->filter(static function($endpoint) use ($resource) {
@@ -121,12 +121,12 @@ class ResourceStorage
      *
      * @param object $resource
      * @param object $endpoint 
-     * @param EventChain|null $chain 
+     * @param EventChain $chain 
      * @return ResourceInterface
      */
-    protected function injectEventChain(object $data, object $endpoint, ?EventChain $chain): ResourceInterface
+    protected function injectEventChain(object $data, object $endpoint, EventChain $chain): ResourceInterface
     {
-        if (!isset($chain) || !isset($endpoint->inject_chain) || !$endpoint->inject_chain) {
+        if (!isset($endpoint->inject_chain) || !$endpoint->inject_chain) {
             return $data;
         }
 

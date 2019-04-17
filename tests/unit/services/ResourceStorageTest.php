@@ -23,6 +23,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
             (object)['url' => 'http://www.zoo-foo.com', 'schema' => 'http://example.com/foo/schema.json#', 'grouped' => null]
         ];
 
+        $chain = $this->getEventChain();
         $resource = $this->getResource();
 
         $httpRequestContainer = [];
@@ -39,7 +40,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
             ->willReturn('some_calculated_digest');
 
         $storage = new ResourceStorage($endpoints, $httpClient, $node, $digest);
-        $storage->store($resource);
+        $storage->store($resource, $chain);
 
         $this->assertCount(2, $httpRequestContainer);
 

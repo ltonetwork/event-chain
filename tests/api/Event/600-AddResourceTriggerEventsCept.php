@@ -89,11 +89,18 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     $body = $bodies[2];
     $body['timestamp'] = $I->getTimeFromEvent($data['events'][2]);    
+    $body['chain'] = [
+        'id' => $data['id'],
+        'events' => [],
+        'identities' => [],
+        'resources' => []
+    ];
+
     $json = json_encode($body);
 
     $I->assertEquals('http://legalflow/processes/', (string)$request->getUri());
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
-    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+    $I->assertJsonStringContainsJsonString($json, (string)$request->getBody());
     
     return new Response(200);
 });
@@ -105,8 +112,13 @@ $I->expectHttpRequest(function (Request $request) use ($I, $appendData) {
     $I->assertEquals('http://legalflow/processes/j2134901218ja908323434/invoke', (string)$request->getUri());
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
     $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+
+    $responseChain = [
+        'id' => $appendData['id'],
+        'events' => [$appendData['events'][0]]
+    ];
     
-    return new Response(200, ['Content-Type' => 'application/json'], json_encode($appendData['events'][0]));
+    return new Response(200, ['Content-Type' => 'application/json'], json_encode($responseChain));
 });
 
 // Save first response at legalflow
@@ -129,8 +141,13 @@ $I->expectHttpRequest(function (Request $request) use ($I, $appendData) {
     $I->assertEquals('http://legalflow/processes/j2134901218ja908323434/invoke', (string)$request->getUri());
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
     $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+
+    $responseChain = [
+        'id' => $appendData['id'],
+        'events' => [$appendData['events'][1]]
+    ];
     
-    return new Response(200, ['Content-Type' => 'application/json'], json_encode($appendData['events'][1]));
+    return new Response(200, ['Content-Type' => 'application/json'], json_encode($responseChain));
 });
 
 // // Save second response at legalflow
@@ -153,8 +170,13 @@ $I->expectHttpRequest(function (Request $request) use ($I, $appendData) {
     $I->assertEquals('http://legalflow/processes/j2134901218ja908323434/invoke', (string)$request->getUri());
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
     $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+
+    $responseChain = [
+        'id' => $appendData['id'],
+        'events' => [$appendData['events'][2]]
+    ];
     
-    return new Response(200, ['Content-Type' => 'application/json'], json_encode($appendData['events'][2]));
+    return new Response(200, ['Content-Type' => 'application/json'], json_encode($responseChain));
 });
 
 // // Save third response at legalflow
