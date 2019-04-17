@@ -5,21 +5,28 @@ display_errors: false
 db:
   default:
     client: mongodb://mongo:27017
-    database: legalevents
+    database: lto_eventchain
 
-rollbar: false
+endpoints:
+  - schema: "https://specs.livecontracts.io/v0.2.0/scenario/schema.json#"
+    url: "http://legalflow/scenarios/"
 
-email:
-  From: test@example.com
-  FromName: Test
-  Mailer: mail
+  - schema: "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
+    url: "http://legalflow/identities/"
 
-queuer:
-  url: http://event-queuer
+  - schema: "https://specs.livecontracts.io/v0.2.0/process/schema.json#"
+    url: "http://legalflow/processes/"
+    inject_chain: empty
 
-anchor:
-  url: http://anchor
+  - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
+    url: "http://legalflow/processes/-/response"
 
-environment_variables:
-  MONGO_DB: db.default.client
-  MONGO_DB_PREFIX: db.default.prefix
+triggers:
+  - url: "http://legalflow/processes/-/invoke"
+    resources:
+      - schema: "https://specs.livecontracts.io/v0.2.0/process/schema.json#"
+        group:
+          process: id
+      - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
+        group:
+          process: process

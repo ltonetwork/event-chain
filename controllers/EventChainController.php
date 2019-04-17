@@ -69,7 +69,7 @@ class EventChainController extends Jasny\Controller
     {
         $eventChain = $this->eventChains->fetch([
             'id' => $id,
-            'identities.signkeys.default' => $this->account->getPublicSignKey()
+            'chains_for' => $this->account->getPublicSignKey()
         ]);
         
         if (!isset($eventChain)) {
