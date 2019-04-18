@@ -409,4 +409,27 @@ class EventChain extends MongoDocument
     {
         $this->events = clone $this->events;
     }
+
+    /**
+     * Convert a Jasny DB styled filter to a MongoDB query.
+     *
+     * @param array $filter
+     * @param array $opts
+     * @return array
+     */
+    protected static function filterToQuery($filter, array $opts = [])
+    {
+        $query = parent::filterToQuery($filter, $opts);
+
+        if (isset($filter['chains_for'])) {
+            unset($query['chains_for']);
+
+            $query['$or'] = [
+                ['identities.signkeys.default' => $filter['chains_for']],
+                ['identities.signkeys.system' => $filter['chains_for']]
+            ];
+        }
+
+        return $query;
+    }
 }
