@@ -218,4 +218,4 @@ $I->expectTo('obtain saved chain');
 $I->sendGET('/event-chains/' . $chainId);
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
-$I->seeResponseIsEventChain($chainId . '.full.invoke-process');
+$I->seeResponseIsEventChain($chainId . '.full.invoke-process', ['latest_hash']);

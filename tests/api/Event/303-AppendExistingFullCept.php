@@ -30,4 +30,4 @@ $I->sendGET('/event-chains/' . $chainId);
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
 
-$I->seeResponseIsEventChain($chainId);
+$I->seeResponseIsEventChain($chainId, ['latest_hash']);

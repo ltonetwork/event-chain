@@ -59,4 +59,4 @@ $I->expectTo('get whole chain and see, that it did not change');
 $I->sendGET('/event-chains/' . $chainId);
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
-$I->seeResponseIsEventChain($chainId);
+$I->seeResponseIsEventChain($chainId, ['latest_hash']);

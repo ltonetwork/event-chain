@@ -264,8 +264,9 @@ class Api extends \Codeception\Module
      * Check if the response JSON matches an event chain from the data directory.
      *
      * @param string $name  Event chain filename (without ext)
+     * @param array $exclude Exclude fields from response
      */
-    public function seeResponseIsEventChain($name)
+    public function seeResponseIsEventChain($name, $exclude = [])
     {
         $path = getcwd() . '/tests/_data/event-chains/' . $name . '.json';
 
@@ -273,18 +274,23 @@ class Api extends \Codeception\Module
             throw new \BadMethodCallException("Unable to locate event chain JSON: '$path' doesn't exist.");
         }
 
-        $this->assertResponseJsonEqualsFile($path);
+        $this->assertResponseJsonEqualsFile($path, $exclude);
     }
 
     /**
      * Assert response equals the contents of a JSON file.
      *
      * @param string $path
+     * @param array $exclude Exclude fields from response
      */
-    protected function assertResponseJsonEqualsFile(string $path): void
+    protected function assertResponseJsonEqualsFile(string $path, $exclude = []): void
     {
         $expected = json_decode(file_get_contents($path));
         $actual = $this->getResponseJson();
+
+        foreach ($exclude as $field) {
+            unset($actual->$field);
+        }
 
         Assert::assertEquals($expected, $actual);
     }    
