@@ -6,6 +6,7 @@ use Codeception\PHPUnit\Constraint\JsonContains;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\MessageInterface as Message;
+use Symfony\Component\Process\Process;
 
 // here you can define custom actions
 // all public methods declared in helper class will be available in $I
@@ -23,6 +24,120 @@ class WorkflowIntegration extends Api
      * @var string
      **/
     protected $responseBody;
+
+    /**
+     * List of launched console processes
+     * @var array
+     */
+    protected $processes = [];
+
+    /**
+     * If this test suite should be skipped
+     * @var boolean
+     */
+    protected $skipSuite = false;
+
+    /**
+     * Execute actions before suite
+     *
+     * @param array $settings
+     */
+    public function _beforeSuite($settings = [])
+    {
+        $this->runShellProcesses();        
+    }
+
+    /**
+     * Execute actions after suite
+     */
+    public function _afterSuite()
+    {
+        $this->stopShellProcesses();
+    }
+
+    /**
+     * Execute actions on class instance destruction
+     */
+    public function __destruct()
+    {
+        $this->stopShellProcesses();
+    }
+
+    /**
+     * Check if suite should be skipped
+     */
+    public function checkIfShouldSkipSuite()
+    {
+        return $this->skipSuite;
+    }
+
+    /**
+     * Run shell processes, needed for executing test suite
+     */
+    protected function runShellProcesses()
+    {   
+        //Manually init container, because it's not yet available in _beforeSuite
+        $root = $this->getRootDir();
+        $module = $this->getJasnyModule();        
+        $module->container = require_once($root . '/tests/workflow-integration/container.php');
+
+        $config = $module->container->get('config');
+
+        $commands = $config->workflow_integration->commands ?? null;
+        $wait = $config->workflow_integration->wait ?? null;
+
+        if (!isset($commands)) {
+            $this->skipSuite = true;
+            return;
+        }
+
+        foreach ($commands as $key => $command) {
+            if (!$command) {
+                continue;
+            }
+
+            if (!is_int($key)) {
+                continue; // configuration options
+            }
+
+            $process = Process::fromShellCommandline($command, $root, null, null, null);
+            $process->start();
+            $this->processes[] = $process;
+
+            codecept_debug('[RunProcess] Starting '.$command);
+        }
+
+        if (isset($wait)) {
+            sleep((int)$wait);
+        }
+    }
+
+    /**
+     * Stop shell processes
+     */
+    protected function stopShellProcesses()
+    {
+        foreach (array_reverse($this->processes) as $process) {
+            if (!$process->isRunning()) {
+                continue;
+            }
+
+            codecept_debug('[RunProcess] Stopping ' . $process->getCommandLine());
+            $process->stop();
+        }
+
+        $this->processes = [];
+    }
+
+    /**
+     * Get project root dir
+     *
+     * @return string
+     */
+    protected function getRootDir()
+    {
+        return dirname(dirname(dirname(__DIR__)));
+    }
 
     /**
      * Send post request

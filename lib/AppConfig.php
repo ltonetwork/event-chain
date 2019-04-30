@@ -79,6 +79,7 @@ class AppConfig extends Config
         }
         
         foreach ($env->getLevels() as $level) {
+            $level = trim($level);
             $file = "config/settings.$level{$suffix}.yml";
             
             if (file_exists($file)) {

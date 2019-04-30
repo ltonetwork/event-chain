@@ -8,6 +8,10 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 
 $I = new WorkflowIntegrationTester($scenario);
+if ($I->checkIfShouldSkipSuite()) {
+    $scenario->skip('Server processes config is not set');
+    return;
+}
 
 $I->wantTo('Create and invoke process, launching event trigger action');
 
