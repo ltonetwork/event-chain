@@ -76,20 +76,18 @@ class WorkflowIntegration extends Api
      */
     protected function runShellProcesses()
     {   
-        //Manually init container, because it's not yet available in _beforeSuite
-        $root = $this->getRootDir();
-        $module = $this->getJasnyModule();        
-        $module->container = require_once($root . '/tests/workflow-integration/container.php');
-
-        $config = $module->container->get('config');
-
-        $commands = $config->workflow_integration->commands ?? null;
-        $wait = $config->workflow_integration->wait ?? null;
+        list($commands, $wait) = $this->getProcessesCommands();
 
         if (!isset($commands)) {
             $this->skipSuite = true;
             return;
         }
+
+        if ($commands === 'manual') {
+            return;
+        }
+        
+        $root = $this->getRootDir();
 
         foreach ($commands as $key => $command) {
             if (!$command) {
@@ -110,6 +108,25 @@ class WorkflowIntegration extends Api
         if (isset($wait)) {
             sleep((int)$wait);
         }
+    }
+
+    /**
+     * Get commands to run server processes
+     *
+     * @return array
+     */
+    protected function getProcessesCommands()
+    {
+        //Manually init container, because it's not yet available in _beforeSuite
+        $root = $this->getRootDir();
+        $module = $this->getJasnyModule();        
+        $module->container = require_once($root . '/tests/workflow-integration/container.php');
+
+        $config = $module->container->get('config');
+        $commands = $config->workflow_integration->commands ?? null;
+        $wait = $config->workflow_integration->wait ?? null;
+
+        return [$commands, $wait];
     }
 
     /**
