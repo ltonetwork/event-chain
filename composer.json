@@ -1,7 +1,7 @@
 {
     "name": "lto/event-chain",
     "description": "LTO Network - Event chain service",
-    "license": "MIT",
+    "license": "GPL-3.0-or-later",
     "require": {
         "php": ">=7.2",
         "ext-json": "*",
