@@ -165,8 +165,9 @@ class EventManagerTest extends \Codeception\Test\Unit
         $this->assertInstanceOf(Step\StoreResource::class, $steps[5]);
         $this->assertInstanceOf(Step\HandleFailed::class, $steps[6]);
         $this->assertInstanceOf(Step\SaveEvent::class, $steps[7]);
-        $this->assertInstanceOf(Step\Walk::class, $steps[8]);
-        $this->assertInstanceOf(Step\Dispatch::class, $steps[9]);
-        $this->assertInstanceOf(Step\TriggerResourceServices::class, $steps[10]);
+        $this->assertInstanceOf(Step\AnchorEvent::class, $steps[8]);
+        $this->assertInstanceOf(Step\Walk::class, $steps[9]);
+        $this->assertInstanceOf(Step\Dispatch::class, $steps[10]);
+        $this->assertInstanceOf(Step\TriggerResourceServices::class, $steps[11]);
     }
 }

@@ -56,8 +56,8 @@ $bodies = [
 ];
 
 $chainId = '2bPHYGN2546YwkmVzP8aWMHqCzdPp7TUBy8tf3PB9DJShnPY6YrHqAyQDH4eBi';
-$data = $I->getEntityDump('event-chains', $chainId);
-$appendData = $I->getEntityDump('event-chains', $chainId . '.append.invoke-process');
+$data = $I->getEntityDump('event-chains', 'start-process-basic-system-and-user');
+$appendData = $I->getEntityDump('event-chains', 'start-process-basic-system-and-user.append.process-response');
 
 // Save identity to workflow
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
@@ -72,6 +72,16 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     return new Response(200);
 });
 
+// Anchor identity event
+$I->expectHttpRequest(function (Request $request) use ($I) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "5d6KjzhM5h7LTUSJwnd1RDdsfu64Kvia4dKBiniBv9LG", "encoding": "base58"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+
+    return new Response(200);
+});
+
 // Create scenario at legalflow
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     $body = $bodies[1];
@@ -80,6 +90,16 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
 
     $I->assertEquals('http://legalflow/scenarios/', (string)$request->getUri());
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+    
+    return new Response(200);
+});
+
+// Anchor scenario event
+$I->expectHttpRequest(function (Request $request) use ($I) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "6N6JVJc4H2DPXCR5Jxhitjnh32WkvYzUvt1f2KoFQcMr", "encoding": "base58"}';
     $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
     
     return new Response(200);
@@ -104,6 +124,16 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     
     return new Response(200);
 });
+
+// Anchor process event
+$I->expectHttpRequest(function (Request $request) use ($I) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "H9yPhvTKfPDWKHKe7W2kg3qMq5uk5qhNFzxW29qrHHEb", "encoding": "base58"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+    
+    return new Response(200);
+}); 
 
 // Send message to process. In response we obtain an event, containing first process' response
 $I->expectHttpRequest(function (Request $request) use ($I, $appendData) {
@@ -134,6 +164,16 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $appendData)
     return new Response(200);
 });
 
+// Anchor first response event
+$I->expectHttpRequest(function (Request $request) use ($I) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "6RYb1fACZ4crtd4APZe2iD29tdETv4rmCvuFp8t2ZVGg", "encoding": "base58"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+    
+    return new Response(200);
+}); 
+
 // // Send message to process. In response we obtain an event, containing second process' response
 $I->expectHttpRequest(function (Request $request) use ($I, $appendData) {
     $json = json_encode(['process' => 'j2134901218ja908323434']);
@@ -162,6 +202,16 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $appendData)
     
     return new Response(200);
 });
+
+// Anchor second response event
+$I->expectHttpRequest(function (Request $request) use ($I) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "DE8Bx3yc8daVi21WFVzmYStdmtXHi51bAKrfjU7Wyu6o", "encoding": "base58"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+    
+    return new Response(200);
+}); 
 
 // // Send message to process. In response we obtain an event, containing third process' response
 $I->expectHttpRequest(function (Request $request) use ($I, $appendData) {
@@ -192,6 +242,16 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $appendData)
     return new Response(200);
 });
 
+// Anchor third response event
+$I->expectHttpRequest(function (Request $request) use ($I) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "9Bg32zZZjeXVts5nFPfJGQ5TiYdSXmvq52jmwH4D8zy1", "encoding": "base58"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+    
+    return new Response(200);
+}); 
+
 // // Send message to process. All actions are done, so no data is returned
 $I->expectHttpRequest(function (Request $request) use ($I, $appendData) {
     $json = json_encode(['process' => 'j2134901218ja908323434']);
@@ -211,11 +271,11 @@ $I->expectTo('see chain in response');
 $I->dontSee('broken chain');
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
-$I->seeResponseIsEventChain($chainId . '.full.invoke-process');
+$I->seeResponseIsEventChain('start-process-basic-system-and-user.full.process-response');
 
 $I->expectTo('obtain saved chain');
 
 $I->sendGET('/event-chains/' . $chainId);
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
-$I->seeResponseIsEventChain($chainId . '.full.invoke-process', ['latest_hash']);
+$I->seeResponseIsEventChain('start-process-basic-system-and-user.full.process-response', ['latest_hash']);

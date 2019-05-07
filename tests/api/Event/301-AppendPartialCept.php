@@ -39,6 +39,16 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     return new Response(200);
 });
 
+// Anchor scenario event
+$I->expectHttpRequest(function (Request $request) use ($I, $data) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "' . $data['events'][0]['hash'] . '", "encoding": "base58"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+
+    return new Response(200);
+});
+
 // Start process at legalflow
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     $body = $bodies[1];
@@ -56,6 +66,16 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
     $I->assertJsonStringContainsJsonString($json, (string)$request->getBody());
     
+    return new Response(200);
+});
+
+// Anchor process event
+$I->expectHttpRequest(function (Request $request) use ($I, $data) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "' . $data['events'][1]['hash'] . '", "encoding": "base58"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+
     return new Response(200);
 });
 

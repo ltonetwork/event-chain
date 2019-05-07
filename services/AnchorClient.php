@@ -35,8 +35,7 @@ class AnchorClient
     {
         $this->config = (object)$config;
         $this->httpClient = $httpClient;
-    }
-    
+    }    
     
     /**
      * Anchor the given hash.
@@ -56,7 +55,6 @@ class AnchorClient
         
         $this->httpClient->request('POST', $url, $options);
     }
-
 
     /**
      * Fetch anchor information.

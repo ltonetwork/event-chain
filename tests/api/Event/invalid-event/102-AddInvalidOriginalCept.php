@@ -40,6 +40,26 @@ $I->expectHttpRequest(function (Request $request) use ($I, $body0) {
     return new Response(200);
 });
 
+// Anchor identity event
+$I->expectHttpRequest(function (Request $request) use ($I, $data) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "Hm7W4Kprv52vfXoYmdG6Ee3pso6ruszaCLfJDxFotGjn", "encoding": "base58"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+
+    return new Response(200);
+});
+
+// Anchor error event
+$I->expectHttpRequest(function (Request $request) use ($I, $data) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"encoding": "base58"}';
+    $I->assertJsonStringContainsJsonString($json, (string)$request->getBody());
+
+    return new Response(200);
+});
+
 $I->haveHttpHeader('Content-Type', 'application/json');
 $I->sendPOST('/event-chains', $data);
 

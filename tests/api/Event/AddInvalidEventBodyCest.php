@@ -10,7 +10,7 @@ use GuzzleHttp\Psr7\Response;
 class AddInvalidEventBodyCest
 {
     /**
-     * Logout after each test
+     * Login before each test
      */
     public function _before(ApiTester $I): void
     {
@@ -65,8 +65,7 @@ class AddInvalidEventBodyCest
         $bodies = $this->mockEventBodies($example['body']);
         $data = $this->mockEventChainData($I, $bodies);
 
-        $this->expectHttpRequest($I, 'http://legalflow/identities/', $bodies[0], $data['events'][0]);
-        $this->doTest($I, $example, $data);
+        $this->doTest($I, $example, $bodies, $data);
     }
 
     /**
@@ -74,15 +73,49 @@ class AddInvalidEventBodyCest
      *
      * @param ApiTester $I
      * @param \Codeception\Example $example 
+     * @param array $bodies 
      * @param array $data 
      */
-    protected function doTest(ApiTester $I, \Codeception\Example $example, array $data): void
+    protected function doTest(ApiTester $I, \Codeception\Example $example, array $bodies, array $data): void
     {
+        // Save identity to workflow
+        $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
+            $body = $bodies[0];
+            $body['timestamp'] = $I->getTimeFromEvent($data['events'][0]);
+            $json = json_encode($body);
+
+            $I->assertEquals('http://legalflow/identities/', (string)$request->getUri());
+            $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+            $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+            
+            return new Response(200);
+        });
+
+        // Anchor identity event
+        $I->expectHttpRequest(function (Request $request) use ($I, $data) {
+            $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+            $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+            $json = '{"hash": "' . $data['events'][0]['hash'] . '", "encoding": "base58"}';
+            $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+
+            return new Response(200);
+        });
+
+        // Anchor error event
+        $I->expectHttpRequest(function (Request $request) use ($I, $data) {
+            $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+            $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+            $json = '{"encoding": "base58"}';
+            $I->assertJsonStringContainsJsonString($json, (string)$request->getBody());
+
+            return new Response(200);
+        });
+
         $hash = $data['events'][1]['hash'];
         $error = "event '{$hash}': " . str_replace('%hash', $hash, $example['message']);
 
         $I->haveHttpHeader('Content-Type', 'application/json');
-                $I->sendPOST('/event-chains', $data);
+        $I->sendPOST('/event-chains', $data);
 
         $I->expectTo('see error message');
 
@@ -149,27 +182,5 @@ class AddInvalidEventBodyCest
         $chain = $I->createEventChain(3, $bodies);
 
         return $I->castChainToData($chain);
-    }
-
-    /**
-     * Expect http request
-     *
-     * @param ApiTester $I
-     * @param string $url 
-     * @param array $data 
-     * @param array $event 
-     */
-    protected function expectHttpRequest(ApiTester $I, string $url, array $data, array $event): void
-    {
-        $I->expectHttpRequest(function (Request $request) use ($I, $url, $data, $event) {
-            $data['timestamp'] = $I->getTimeFromEvent($event);
-            $json = json_encode($data);
-
-            $I->assertEquals($url, (string)$request->getUri());
-            $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
-            $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
-            
-            return new Response(200);
-        });
     }
 }

@@ -114,6 +114,7 @@ class EventManager
             new Step\StoreResource($chain, $this->resourceFactory, $this->resourceStorage),
             new Step\HandleFailed($chain, $this->eventFactory),
             new Step\SaveEvent($chain, $this->chainGateway),
+            new Step\AnchorEvent($chain, $this->node, $this->anchor),
             new Step\Walk($chain), // <-- Nothing will happen without this step
             new Step\Dispatch($chain, $this->dispatcher, $this->node, $chain->getNodes()),
             new Step\TriggerResourceServices($chain, $this->resourceFactory, $this->resourceTrigger, $this->node)

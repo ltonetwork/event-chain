@@ -66,6 +66,16 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies) {
     return new Response(200);
 });
 
+// Anchor first identity event
+$I->expectHttpRequest(function (Request $request) use ($I, $data) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "5mVtRycET4yKEJjrZpUEaqjyCKX6SDiLBVbx8PqoA7ka", "encoding": "base58"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+
+    return new Response(200);
+});
+
 // Save second identity to workflow
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies) {    
     $json = json_encode($bodies[1]);
@@ -77,6 +87,16 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies) {
     return new Response(200);
 });
 
+// Anchor second identity event
+$I->expectHttpRequest(function (Request $request) use ($I, $data) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "EYkhPF3uJjq9CdtxozDhH5CV74Z5dbVr8jAM5spTEYbv", "encoding": "base58"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+
+    return new Response(200);
+});
+
 // Save third identity to workflow
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies) {    
     $json = json_encode($bodies[2]);
@@ -85,6 +105,16 @@ $I->expectHttpRequest(function (Request $request) use ($I, $bodies) {
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
     $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
     
+    return new Response(200);
+});
+
+// Anchor third identity event
+$I->expectHttpRequest(function (Request $request) use ($I, $data) {
+    $I->assertEquals('http://anchor/hash', (string)$request->getUri());
+    $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
+    $json = '{"hash": "BG2oBdh3DuYdCfbARm5GArtUmSHzbnPAwFtRiQf5UdZe", "encoding": "base58"}';
+    $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
+
     return new Response(200);
 });
 
