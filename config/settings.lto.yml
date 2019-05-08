@@ -37,11 +37,8 @@ triggers:
         group:
           process: process
 
-queuer: false
-
-anchor: false
-
 environment_variables:
   MONGO_DB: db.default.client
   MONGO_DB_PREFIX: db.default.prefix
   ANCHOR_URL: anchor.url
+  QUEUER_URL: queuer.url

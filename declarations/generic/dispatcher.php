@@ -6,7 +6,7 @@ use Psr\Log\LoggerInterface;
 
 return [
     Dispatcher::class => function (ContainerInterface $container) {
-        $config = $container->get('config')->queuer;
+        $config = isset($container->get('config')->queuer) ? $container->get('config')->queuer : false;
         $httpClient = $container->get(ClientInterface::class);
 
         $dispatcher = $config === false ?

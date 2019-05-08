@@ -15,3 +15,4 @@ email:
 environment_variables:
   MONGO_DB: db.default.client
   ANCHOR_URL: anchor.url
+  QUEUER_URL: queuer.url
