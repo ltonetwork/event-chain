@@ -1,5 +1,14 @@
 language: php
-php: 7.1
+php:
+  - 7.2
+
+dist: xenial
+addons:
+  apt:
+    sources:
+    - sourceline: ppa:ondrej/php
+    packages:
+    - libsodium-dev
 
 # Add your branch here to have it tested and deployed
 branches:
@@ -11,14 +20,8 @@ branches:
 services: mongodb
 
 before_install:
-# Install libsodium
-- sudo add-apt-repository ppa:ondrej/php -y
-- sudo apt-get -qq update
-- sudo apt-get install libsodium-dev
-- pecl install libsodium
-
-# Install MongoDB PHP extension
-- pecl install mongodb
+- pecl install --soft libsodium
+- echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 # Configure Git
 - git config --global user.email "travis-ci@legalthings.net"
@@ -50,7 +53,3 @@ before_script:
 script:
 # Run tests
 - test "$RUN_TESTS" == "false" || php bin/codecept run --coverage --coverage-xml
-
-after_success:
-# Bump version (for master branch)
-- test "$TRAVIS_BRANCH" != 'master' -o "$TRAVIS_PULL_REQUEST" != "false" || test -n "$(git tag --contains)" || bin/bump-version
