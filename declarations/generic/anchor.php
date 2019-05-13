@@ -4,7 +4,7 @@ use Jasny\Container\AutowireContainerInterface;
 
 return [
     AnchorClient::class => function (AutowireContainerInterface $container) {
-        $config = $container->get('config.anchor');
+        $config = isset($container->get('config')->anchor) ? $container->get('config')->anchor : false;
         $client = $config === false ?
             new NoAnchorClient() :
             $container->autowire(AnchorClient::class, $config);

@@ -38,6 +38,7 @@ class AppConfig extends Config
         $this->loadFromComposerJson();
         $this->loadSettings($source);
         $this->loadSettings($source, '.local');
+        $this->loadSettings($source, '', 'config/local');
 
         $this->addEnvironmentVariables();
         $this->addAppVersion();
@@ -72,15 +73,15 @@ class AppConfig extends Config
      * @param ApplicationEnv $env
      * @param string         $suffix
      */
-    protected function loadSettings($env, $suffix = null): void
+    protected function loadSettings($env, $suffix = '', $path = 'config'): void
     {
-        if (file_exists("config/settings{$suffix}.yml")) {
-            parent::load("config/settings{$suffix}.yml");
+        if (file_exists("$path/settings{$suffix}.yml")) {
+            parent::load("$path/settings{$suffix}.yml");
         }
         
         foreach ($env->getLevels() as $level) {
             $level = trim($level);
-            $file = "config/settings.$level{$suffix}.yml";
+            $file = "$path/settings.$level{$suffix}.yml";
             
             if (file_exists($file)) {
                 parent::load($file);

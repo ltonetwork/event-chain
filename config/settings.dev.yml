@@ -5,7 +5,7 @@ digest: optional
 db:
   default:
     client: mongodb://localhost:27017
-    database: legalevent
+    database: lto_eventchain
 
 email:
   From: info@example.com
@@ -35,7 +35,3 @@ triggers:
       - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
         group:
           process: process
-
-queuer: false
-
-anchor: false
