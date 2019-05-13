@@ -416,6 +416,50 @@ class StoreResourceTest extends \Codeception\Test\Unit
     }
 
     /**
+     * Test '__invoke' method, if there was error while extracting resource from event
+     */
+    public function testInvokeExtractError()
+    {
+        $step = $this->getStep(['applyPrivilegeToResource', 'storeResource']);
+        $events = [
+            $this->createMock(Event::class),
+            $this->createMock(Event::class),
+            $this->createMock(Event::class)
+        ];
+
+        $pipe = Pipeline::with($events);
+        $resource = $this->createMock(\ExternalResource::class);
+
+        $this->resourceFactory->expects($this->exactly(2))->method('extractFrom')
+            ->withConsecutive([$events[0]], [$events[1]])
+            ->will($this->returnCallback(function($event) use ($resource) {
+                static $count = 0;
+                $count++;
+
+                if ($count < 2) {
+                    return $resource;
+                }
+
+                throw new \UnexpectedValueException("error on event $count");
+            }));
+
+        $step->expects($this->once())->method('applyPrivilegeToResource')
+            ->with($this->identicalTo($resource), $this->identicalTo($events[0]))
+            ->willReturn(ValidationResult::success());
+
+        $resource->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
+        $step->expects($this->once())->method('storeResource')->with($this->identicalTo($resource))
+            ->willReturn(ValidationResult::success());
+
+        $validation = new ValidationResult();
+
+        $result = $step($pipe, $validation);
+        $result->walk();
+
+        $errors = $validation->getErrors();
+    }
+
+    /**
      * Get step mock for testing
      *
      * @param array $methods
