@@ -44,4 +44,20 @@ class Identity extends MongoSubDocument implements ResourceInterface, Identifiab
     {
         return 'id';
     }
+
+    /**
+     * Cast to json
+     * 
+     * @return object
+     */
+    public function jsonSerialize(): object
+    {
+        $data = parent::jsonSerialize();
+
+        if (isset($this->timestamp) && $this->timestamp instanceof DateTime) {
+            $data->timestamp = $this->timestamp->getTimestamp();
+        }
+
+        return $data;
+    }
 }

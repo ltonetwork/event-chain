@@ -69,17 +69,17 @@ class StoreResource
                 return;
             }
 
-            $auth = $this->applyPrivilegeToResource($resource, $event);
+            $authzValidation = $this->applyPrivilegeToResource($resource, $event);
 
-            $validation->add($auth, "event '$event->hash': ");
+            $validation->add($authzValidation, "event '$event->hash': ");
             $validation->add($resource->validate(), "event '$event->hash': ");
 
             if ($validation->failed()) {
                 return;
             }
 
-            $stored = $this->storeResource($resource);
-            $validation->add($stored, "event '$event->hash': ");
+            $storedValidation = $this->storeResource($resource);
+            $validation->add($storedValidation, "event '$event->hash': ");
         });
     }
 

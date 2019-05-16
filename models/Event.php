@@ -98,7 +98,8 @@ class Event extends MongoSubDocument implements Identifiable
     public function cast()
     {
         if (is_a($this->timestamp, MongoDB\BSON\Int64::class)) {
-            $this->timestamp = (string)$this->timestamp;
+            // For local run on 32-bit machine
+            $this->timestamp = (string)$this->timestamp; // @codeCoverageIgnore 
         }
 
         return parent::cast();
@@ -284,7 +285,8 @@ class Event extends MongoSubDocument implements Identifiable
     {
         $data = parent::toData();
 
-        if (isset($data['original'])) {
+        if ($this->original instanceof Event) {
+            $data['original'] = $this->original->getValues();
             unset($data['original']['body']);
         }
 

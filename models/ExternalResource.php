@@ -58,8 +58,8 @@ class ExternalResource implements ResourceInterface, Identifiable, Dynamic
             unset($data->id);
         } 
 
-        if (isset($data->timestamp) && $data->timestamp instanceof DateTime) {
-            $data->timestamp = $data->timestamp->getTimestamp();
+        if (isset($this->timestamp) && $this->timestamp instanceof DateTime) {
+            $data->timestamp = $this->timestamp->getTimestamp();
         }
 
         return $data;
