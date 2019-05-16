@@ -1,6 +1,7 @@
 <?php
 
 use LTO\Account;
+use Jasny\ValidationResult;
 
 /**
  * @covers Event
@@ -153,6 +154,9 @@ class EventTest extends \Codeception\Test\Unit
     {        
         $event = $this->createPartialMock(Event::class, ['verifySignature']);
         $event->expects($this->once())->method('verifySignature')->willReturn(false);
+
+        $original = $this->createMock(Event::class);
+        $original->expects($this->once())->method('validate')->willReturn(ValidationResult::error('bar error'));
         
         $event->setValues([
             "body" => "abc",
@@ -161,7 +165,8 @@ class EventTest extends \Codeception\Test\Unit
             "signkey" => "8TxFbgGPKVhuauHJ47vn3C74eVugAghTGou35Wtd51Mj",
             "hash" => "EdqM52SpXCn5c1uozuvuH5o9Tcr41kYeCWz4Ymu6ngbt",
             "signature" => "",
-            "origin" => "node1"
+            "origin" => "node1",
+            "original" => $original
         ]);
         
         $identity = $this->createMock(Identity::class);
@@ -175,7 +180,8 @@ class EventTest extends \Codeception\Test\Unit
         $this->assertEquals([
             'body is not base58 encoded json',
             'invalid signature',
-            'invalid hash'
+            'invalid hash',
+            'original event; bar error'
         ], $validation->getErrors());
     }
     
@@ -257,12 +263,56 @@ class EventTest extends \Codeception\Test\Unit
      */
     public function testCastToLtoEvent()
     {
+        $original = $this->createMock(Event::class);
+        $castedOriginal = $this->createMock(LTO\Event::class);
+
         $event = new Event();
         $event->body = 'foo';
+        $event->original = $original;
+
+        $original->expects($this->once())->method('castToLtoEvent')->willReturn($castedOriginal);
 
         $result = $event->castToLtoEvent();
 
         $this->assertInstanceOf(LTO\Event::class, $result);
         $this->assertSame('foo', $result->body);
+        $this->assertSame($castedOriginal, $result->original);
+    }
+
+    /**
+     * Test 'toData' method
+     */
+    public function testToData()
+    {
+        $event = new Event();
+        $event->original = new Event();
+        $event->original->body = 'foo';
+        $event->original->hash = 'bar';
+
+        $result = $event->toData();
+
+        $this->assertSame('bar', $result['original']['hash']);
+        $this->assertFalse(isset($result['original']['body']));
+    }
+
+    /**
+     * Test 'fromData' method
+     */
+    public function testFromData()
+    {
+        $data = [
+            'original' => [
+                'hash' => 'foo'
+            ],
+            'body' => 'bar'
+        ];
+
+        $result = Event::fromData($data);
+
+        $this->assertInstanceOf(Event::class, $result);
+        $this->assertInstanceOf(Event::class, $result->original);        
+        $this->assertSame('bar', $result->body);
+        $this->assertSame('bar', $result->original->body);
+        $this->assertSame('foo', $result->original->hash);
     }
 }

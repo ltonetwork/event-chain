@@ -27,7 +27,7 @@ class AnnotationsFactory extends \Jasny\Meta\Factory\Annotations
         i\type_check(
             $refl,
             [ReflectionProperty::class, ReflectionMethod::class],
-            new InvalidArgumentException("Unsupported Reflector class: %s")
+            new InvalidArgumentException("Unsupported Reflector class: " . get_class($refl))
         );
 
         if (strstr($var, '|')) {

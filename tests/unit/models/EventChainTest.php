@@ -3,12 +3,16 @@
 use LTO\Account;
 use function LTO\sha256;
 use function sodium_crypto_generichash as blake2b;
+use Jasny\DB\EntitySet;
 
 /**
  * @covers EventChain
  */
 class EventChainTest extends \Codeception\Test\Unit
 {
+    use TestEventTrait;
+    use Jasny\TestHelper;
+
     /**
      * @coversNothing
      */
@@ -556,5 +560,184 @@ class EventChainTest extends \Codeception\Test\Unit
         $event->signkey = '4WfbPKDYJmuZeJUHgwnVV64mBeMqMbSGt1p75UegcSCG';
         $event->origin = 'node2';
         $this->assertTrue($chain->isEventSignedByIdentityNode($event, 'node2'));
+    }
+
+    /**
+     * Provide data for testing 'isValidId' method
+     *
+     * @return array
+     */
+    public function isValidIdProvider()
+    {
+        $chain1 = $this->createEventChain(1);
+        $chain2 = $this->createEventChain(1);
+        $chain2->id = base58_encode('foo');
+
+        return [
+            [$chain1, true],
+            [$chain2, false]
+        ];
+    }
+
+    /**
+     * Test 'isValidId' method
+     *
+     * @dataProvider isValidIdProvider
+     */
+    public function testIsValidId($chain, $expected)
+    {
+        $result = $chain->isValidId();
+
+        $this->assertSame($expected, $result);
+    }
+
+    /**
+     * Test 'isValidId' method, if chain has no events
+     *
+     * @expectedException UnderflowException
+     * @expectedExceptionMessage chain has no events
+     */
+    public function testIsValidIdNoEvents()
+    {
+        $chain = $this->createEventChain(0);
+
+        $chain->isValidId();
+    }
+
+    /**
+     * Test 'withEvents' method
+     */
+    public function testWithEvents()
+    {
+        $identities = [
+            $this->createMock(Identity::class),
+            $this->createMock(Identity::class)
+        ];
+
+        $chain = $this->createEventChain(3);
+        $chain->resources = ['foo', 'bar'];
+        $chain->identities = $identities;
+
+        $events = [
+            $this->createMock(Event::class),
+            $this->createMock(Event::class)
+        ];
+
+        $result = $chain->withEvents($events);
+
+        $this->assertInstanceOf(EventChain::class, $result);
+        $this->assertSame($chain->id, $result->id);
+        $this->assertEquals(['foo', 'bar'], $result->resources);
+        $this->assertEquals($identities, $result->identities);
+
+        $this->assertInstanceOf(EntitySet::class, $result->events);
+        $this->assertCount(2, $result->events);
+        $this->assertSame($events[0], $result->events[0]);
+        $this->assertSame($events[1], $result->events[1]);
+    }
+
+    /**
+     * Test 'getPartialAfter' method
+     */
+    public function testGetPartialAfter()
+    {
+        $chain = $this->createEventChain(5);
+        $identities = [
+            $this->createMock(Identity::class),
+            $this->createMock(Identity::class)
+        ];
+
+        $chain->identities = $identities;
+        $chain->resources = ['foo', 'bar'];
+
+        $prevEvents = $chain->events;
+        $hash = $chain->events[2]->hash;
+
+        $result = $chain->getPartialAfter($hash);
+
+        $this->assertInstanceOf(EventChain::class, $result);
+        $this->assertSame($chain->id, $result->id);
+        $this->assertEquals(['foo', 'bar'], $result->resources);
+        $this->assertEquals($identities, $result->identities);
+
+        $this->assertInstanceOf(EntitySet::class, $result->events);
+        $this->assertCount(2, $result->events);
+        $this->assertSame($prevEvents[3], $result->events[0]);
+        $this->assertSame($prevEvents[4], $result->events[1]);
+    }
+
+    /**
+     * Test 'getPartialAfter' method for initial hash
+     */
+    public function testGetPartialAfterInitialHash()
+    {
+        $chain = $this->createEventChain(5);
+        $identities = [
+            $this->createMock(Identity::class),
+            $this->createMock(Identity::class)
+        ];
+
+        $chain->identities = $identities;
+        $chain->resources = ['foo', 'bar'];
+
+        $prevEvents = $chain->events;
+        $hash = $chain->getInitialHash();
+
+        $result = $chain->getPartialAfter($hash);
+
+        $this->assertInstanceOf(EventChain::class, $result);
+        $this->assertSame($chain->id, $result->id);
+        $this->assertEquals(['foo', 'bar'], $result->resources);
+        $this->assertEquals($identities, $result->identities);
+
+        $this->assertInstanceOf(EntitySet::class, $result->events);
+        $this->assertEquals($prevEvents, $result->events);
+    }
+
+    /**
+     * Test 'getPartialAfter' method for not-existing hash
+     *
+     * @expectedException OutOfBoundsException
+     * @expectedExceptionMessage Event 'foo' not found
+     */
+    public function testGetPartialAfterNotExistHash()
+    {
+        $chain = $this->createEventChain(2);
+
+        $chain->getPartialAfter('foo');
+    }
+
+    /**
+     * Test '__clone' method
+     */
+    public function testClone()
+    {
+        $chain = $this->createEventChain(2);
+        $events = $chain->events;
+
+        $result = clone $chain;
+
+        $this->assertEquals($events, $result->events);
+        $this->assertNotSame($events, $result->events);
+    }
+
+    /**
+     * Test 'filterToQuery' method
+     */
+    public function testFilterToQuery()
+    {
+        $filter = ['chains_for' => 'foo'];
+        $chain = $this->createEventChain(1);
+
+        $result = $this->callPrivateMethod($chain, 'filterToQuery', [$filter]);
+
+        $expected = [
+            '$or' => [
+                ['identities.signkeys.default' => 'foo'],
+                ['identities.signkeys.system' => 'foo']
+            ]
+        ];
+
+        $this->assertEquals($expected, $result);
     }
 }

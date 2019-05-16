@@ -29,7 +29,7 @@ $data = $I->castChainToData($newChain);
 // Create scenario at legalflow
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     $body = $bodies[0];
-    $body['timestamp'] = $I->getTimeFromEvent($data['events'][1]);    
+    $body['timestamp'] = $data['events'][1]['timestamp'];    
     $json = json_encode($body);
 
     $I->assertEquals('http://legalflow/scenarios/', (string)$request->getUri());
@@ -52,7 +52,7 @@ $I->expectHttpRequest(function (Request $request) use ($I, $data) {
 // Start process at legalflow
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     $body = $bodies[1];
-    $body['timestamp'] = $I->getTimeFromEvent($data['events'][2]);    
+    $body['timestamp'] = $data['events'][2]['timestamp'];    
     $body['chain'] = [
         'id' => $data['id'],
         'events' => [],

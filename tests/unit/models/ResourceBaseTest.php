@@ -107,4 +107,16 @@ class ResourceBaseTest extends \Codeception\Test\Unit
         
         $this->assertEquals($expected, $this->resource->getValues());
     }
+
+    /**
+     * Test 'getSchema' method
+     */
+    public function testGetSchema()
+    {
+        $this->resource->schema = 'foo';
+
+        $result = $this->resource->getSchema();
+
+        $this->assertSame('foo', $result);        
+    }
 }

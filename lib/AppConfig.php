@@ -20,6 +20,8 @@ use Jasny\ApplicationEnv;
  *  - settings.dev.local.yml
  *  - settings.dev.foo.local.yml
  *  - settings.dev.foo.bar.local.yml
+ *
+ * @codeCoverageIgnore
  */
 class AppConfig extends Config
 {

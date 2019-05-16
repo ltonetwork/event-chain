@@ -24,20 +24,6 @@ class Api extends \Codeception\Module
     }
 
     /**
-     * Get timestamp string from event data
-     *
-     * @param array $eventData
-     * @return string
-     */
-    public function getTimeFromEvent(array $eventData)
-    {
-        $dateTime = \DateTime::createFromFormat('U', (string)$eventData['timestamp']);
-        $time = $dateTime->format(\DATE_ISO8601);
-
-        return $time;
-    }
-
-    /**
      * Get entity data from json file
      *
      * @param string $name

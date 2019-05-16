@@ -10,6 +10,8 @@ use MongoDB\BSON\ObjectId;
 
 /**
  * Base class for Mongo Documents.
+ *
+ * @codeCoverageIgnore
  * @deprecated To be replaced with the new Jasny DB layer.
  */
 abstract class MongoDocument extends Mongo\Document implements Enrichable
