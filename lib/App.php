@@ -71,7 +71,7 @@ class App
      */
     public static function getContainerEntries(): EntryLoader
     {
-        $files = new ArrayIterator(glob('declarations/{generic,models}/*.php', GLOB_BRACE));
+        $files = new ArrayIterator(glob('declarations/services/*.php', GLOB_BRACE));
 
         /** @var EntryLoader&iterable<Closure> $entryLoader */
         $entryLoader = new EntryLoader($files);
