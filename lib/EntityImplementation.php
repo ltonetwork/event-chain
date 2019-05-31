@@ -10,7 +10,8 @@ trait EntityImplementation
     /**
      * Convert loaded values to an entity.
      * Calls the construtor *after* setting the properties.
-     * 
+     *
+     * @codeCoverageIgnore
      * @param array|stdClass $values
      * @return static
      */

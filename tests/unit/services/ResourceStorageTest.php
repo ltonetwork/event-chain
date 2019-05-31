@@ -78,8 +78,8 @@ class ResourceStorageTest extends \Codeception\Test\Unit
     public function testStoreEventChain()
     {
         $endpoints = [
-            (object)['url' => 'http://www.foo.com', 'schema' => 'http://example.com/foo/schema.json#', 'inject_chain' => false],
-            (object)['url' => 'http://www.zoo-foo.com', 'schema' => 'http://example.com/foo/schema.json#', 'inject_chain' => 'full'],
+            (object)['url' => 'http://www.foo.com/-', 'schema' => 'http://example.com/foo/schema.json#', 'inject_chain' => false],
+            (object)['url' => 'http://www.zoo-foo.com/-/zoo', 'schema' => 'http://example.com/foo/schema.json#', 'inject_chain' => 'full'],
             (object)['url' => 'http://www.zoo-foo.com', 'schema' => 'http://example.com/foo/schema.json#', 'inject_chain' => 'empty']
         ];
 
@@ -103,19 +103,19 @@ class ResourceStorageTest extends \Codeception\Test\Unit
 
         $expected = [
             [
-                'url' => 'http://www.foo.com',
+                'url' => 'http://www.foo.com/foo_process_id',
                 'data' => [
                     '$schema' => 'http://example.com/foo/schema.json#',
-                    'id' => 'foo_process_id',
+                    'process' => 'foo_process_id',
                     'scenario' => 'foo_scenario_id',
                     'timestamp' => null
                 ]
             ],
             [
-                'url' => 'http://www.zoo-foo.com',
+                'url' => 'http://www.zoo-foo.com/foo_process_id/zoo',
                 'data' => [
                     '$schema' => 'http://example.com/foo/schema.json#',
-                    'id' => 'foo_process_id',
+                    'process' => 'foo_process_id',
                     'scenario' => 'foo_scenario_id',
                     'timestamp' => null,
                     'chain' => [
@@ -130,7 +130,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
                 'url' => 'http://www.zoo-foo.com',
                 'data' => [
                     '$schema' => 'http://example.com/foo/schema.json#',
-                    'id' => 'foo_process_id',
+                    'process' => 'foo_process_id',
                     'scenario' => 'foo_scenario_id',
                     'timestamp' => null,
                     'chain' => [
@@ -195,7 +195,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
     {
         return new class() extends ExternalResource {
             public $schema = 'http://example.com/foo/schema.json#';
-            public $id = 'foo_process_id';
+            public $process = 'foo_process_id';
             public $scenario = 'foo_scenario_id';
             public $original_key = 'foo_event_public_signkey';
             protected $zoo = 'zoo_value';

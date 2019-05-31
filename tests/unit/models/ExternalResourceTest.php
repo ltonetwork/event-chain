@@ -30,4 +30,20 @@ class ExternalResourceTest extends \Codeception\Test\Unit
         $this->assertAttributeEquals('lt:/foos/123', 'id', $resource);
         $this->assertAttributeEquals('red', 'color', $resource);
     }
+
+    /**
+     * Test 'jsonSerialize' method
+     */
+    public function testJsonSerialize()
+    {
+        $resource = new ExternalResource();
+        $resource->id = null;
+        $resource->timestamp = (new DateTime())->setTimestamp(1234);
+
+        $result = $resource->jsonSerialize();
+
+        $this->assertInstanceOf(stdClass::class, $result);
+        $this->assertFalse(property_exists($result, 'id'));
+        $this->assertSame(1234, $result->timestamp);
+    }
 }

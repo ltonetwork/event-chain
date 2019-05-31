@@ -29,7 +29,7 @@ $bodies = [
             'system' => 'CcdaoWD1ZW49ZgMeLJoki2sFZhraZSwHNuweJeEaBZmV'
         ],
         'encryptkey' => 'BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6',
-        'timestamp' => '2019-03-31T21:57:45+0000' // was not included when encoding body, taken from event
+        'timestamp' => 1554069465 // was not included when encoding body, taken from event
     ],
     [
         '$schema' => 'https://specs.livecontracts.io/v0.2.0/identity/schema.json#',
@@ -40,7 +40,7 @@ $bodies = [
             'system' => 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y'
         ],
         'encryptkey' => 'BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6',
-        'timestamp' => '2019-03-31T21:57:45+0000' // was not included when encoding body, taken from event
+        'timestamp' => 1554069465 // was not included when encoding body, taken from event
     ],
     [
         '$schema' => 'https://specs.livecontracts.io/v0.2.0/identity/schema.json#',
@@ -51,7 +51,7 @@ $bodies = [
             'system' => 'DwqSGapJ295NavPy6wWzmxiR8nSXv3k8zPAoeto6Ct9C'
         ],
         'encryptkey' => 'BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6',
-        'timestamp' => '2019-03-31T21:57:45+0000' // was not included when encoding body, taken from event
+        'timestamp' => 1554069465 // was not included when encoding body, taken from event
     ],
 ];
 

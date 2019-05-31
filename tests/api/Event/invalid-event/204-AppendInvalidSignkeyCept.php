@@ -22,7 +22,7 @@ $body0 = [
         'system' => 'FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y'
     ],
     'encryptkey' => 'BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6',
-    'timestamp' => '2019-03-30T22:38:03+0000' // is not present in encoded body, taken from event timestamp
+    'timestamp' => 1553985483 // is not present in encoded body, taken from event timestamp
 ];
 
 $data = $I->getEntityDump('event-chains', '2arvKCGdNNAAJmxbHAHvCJs2zaBdwVktTnDwq8AUcFNAcYVeryk8awfeQJqdtD.append');

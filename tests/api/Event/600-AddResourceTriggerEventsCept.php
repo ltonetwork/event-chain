@@ -62,7 +62,7 @@ $appendData = $I->getEntityDump('event-chains', 'start-process-basic-system-and-
 // Save identity to workflow
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     $body = $bodies[0];
-    $body['timestamp'] = $I->getTimeFromEvent($data['events'][0]);    
+    $body['timestamp'] = $data['events'][0]['timestamp'];    
     $json = json_encode($body);
 
     $I->assertEquals('http://legalflow/identities/', (string)$request->getUri());
@@ -85,7 +85,7 @@ $I->expectHttpRequest(function (Request $request) use ($I) {
 // Create scenario at legalflow
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     $body = $bodies[1];
-    $body['timestamp'] = $I->getTimeFromEvent($data['events'][1]);    
+    $body['timestamp'] = $data['events'][1]['timestamp'];    
     $json = json_encode($body);
 
     $I->assertEquals('http://legalflow/scenarios/', (string)$request->getUri());
@@ -108,7 +108,7 @@ $I->expectHttpRequest(function (Request $request) use ($I) {
 // Start process at legalflow
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     $body = $bodies[2];
-    $body['timestamp'] = $I->getTimeFromEvent($data['events'][2]);    
+    $body['timestamp'] = $data['events'][2]['timestamp'];    
     $body['chain'] = [
         'id' => $data['id'],
         'events' => [],
@@ -154,7 +154,7 @@ $I->expectHttpRequest(function (Request $request) use ($I, $appendData) {
 // Save first response at legalflow
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $appendData) {
     $body = $bodies[3];
-    $body['timestamp'] = $I->getTimeFromEvent($appendData['events'][0]);    
+    $body['timestamp'] = $appendData['events'][0]['timestamp'];    
     $json = json_encode($body);
 
     $I->assertEquals('http://legalflow/processes/j2134901218ja908323434/response', (string)$request->getUri());
@@ -193,7 +193,7 @@ $I->expectHttpRequest(function (Request $request) use ($I, $appendData) {
 // // Save second response at legalflow
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $appendData) {
     $body = $bodies[4];
-    $body['timestamp'] = $I->getTimeFromEvent($appendData['events'][1]);    
+    $body['timestamp'] = $appendData['events'][1]['timestamp'];    
     $json = json_encode($body);
 
     $I->assertEquals('http://legalflow/processes/j2134901218ja908323434/response', (string)$request->getUri());
@@ -232,7 +232,7 @@ $I->expectHttpRequest(function (Request $request) use ($I, $appendData) {
 // // Save third response at legalflow
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $appendData) {
     $body = $bodies[5];
-    $body['timestamp'] = $I->getTimeFromEvent($appendData['events'][2]);    
+    $body['timestamp'] = $appendData['events'][2]['timestamp'];    
     $json = json_encode($body);
 
     $I->assertEquals('http://legalflow/processes/j2134901218ja908323434/response', (string)$request->getUri());

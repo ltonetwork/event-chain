@@ -81,7 +81,7 @@ class AddInvalidEventBodyCest
         // Save identity to workflow
         $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
             $body = $bodies[0];
-            $body['timestamp'] = $I->getTimeFromEvent($data['events'][0]);
+            $body['timestamp'] = $data['events'][0]['timestamp'];
             $json = json_encode($body);
 
             $I->assertEquals('http://legalflow/identities/', (string)$request->getUri());

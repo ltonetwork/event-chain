@@ -9,6 +9,8 @@ class NoAnchorClient extends AnchorClient
 {    
     /**
      * Class constructor
+     *
+     * @codeCoverageIgnore
      */
     public function __construct()
     {
@@ -18,6 +20,7 @@ class NoAnchorClient extends AnchorClient
     /**
      * Anchor the given hash.
      *
+     * @codeCoverageIgnore
      * @param string $hash
      * @param string $encoding
      */
