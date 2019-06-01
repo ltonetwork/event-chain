@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+    web:
+      image: legalthings/nginx
+      ports:
+          - "8080:80"
+      environment:
+        - PHP_HOST=event-chain
+      networks:
+        - lto
+      depends_on:
+        - event-chain
+
+    event-chain:
+      image: event-chain
+      environment:
+      - MONGO_DB=mongodb://mongo:27017
+      networks:
+      - lto
+      depends_on:
+      - mongo
+
+    mongo:
+      image: "mongo:3"
+      networks:
+      - lto
+
+networks:
+  lto:
+    driver: bridge
