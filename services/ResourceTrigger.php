@@ -114,13 +114,17 @@ class ResourceTrigger
     {
         $field = $groupOpts->group->process;
         $data = (object)[$field => $value];
-        $data = $this->injectEventChain($data, $endpoint, $chain);
         $url = $this->expandUrl($endpoint->url, $value);
 
         $options = [
-            'json' => $data, 
+            'headers' => [
+                'X-Event-Chain' => $chain->id . ':' . $chain->getLatestHash(),
+                'Content-Type' => 'application/json',
+                'date' => date(DATE_RFC1123)
+            ],
+            'json' => $data,
             'http_errors' => true,
-            'signature_key_id' => base58_encode($this->node->sign->publickey)
+            'signature_key_id' => base58_encode($this->node->sign->publickey),
         ];
 
         return $this->httpClient->requestAsync('POST', $url, $options);
@@ -156,33 +160,6 @@ class ResourceTrigger
             null;
 
         return $newChain;
-    }
-
-    /**
-     * Inject event chain into query data
-     *
-     * @param object $resource
-     * @param object $endpoint
-     * @param EventChain $chain
-     * @return stdClass
-     */
-    protected function injectEventChain(object $data, object $endpoint, EventChain $chain): stdClass
-    {
-        if (!isset($endpoint->inject_chain) || !$endpoint->inject_chain) {
-            return $data;
-        }
-
-        $data = clone $data;
-
-        if ($endpoint->inject_chain === 'empty') {
-            $latestHash = $chain->getLatestHash();
-            $chain = $chain->withoutEvents();
-            $chain->latest_hash = $latestHash;
-        }
-
-        $data->chain = $chain;
-
-        return $data;
     }
 
     /**

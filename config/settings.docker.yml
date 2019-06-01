@@ -1,25 +1,27 @@
-debug: true
-cache: false
-display_errors: false
-
 db:
   default:
     client: mongodb://mongo:27017
     database: lto_eventchain
 
+queuer:
+  url: http://event-queuer
+
+anchor:
+  url: http://anchor
+
 endpoints:
   - schema: "https://specs.livecontracts.io/v0.2.0/scenario/schema.json#"
-    url: "http://legalflow/scenarios/"
+    url: http://legalflow/scenarios/
 
   - schema: "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
-    url: "http://legalflow/identities/"
+    url: http://legalflow/identities/
 
   - schema: "https://specs.livecontracts.io/v0.2.0/process/schema.json#"
-    url: "http://legalflow/processes/"
+    url: http://legalflow/processes/
     inject_chain: empty
 
   - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
-    url: "http://legalflow/processes/-/response"
+    url: http://legalflow/processes/-/response
 
 triggers:
   - url: "http://legalflow/processes/-/invoke"

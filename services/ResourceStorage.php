@@ -44,23 +44,17 @@ class ResourceStorage
      * Store a resource
      *
      * @param ResourceInterface $resource
-     * @param EventChain $chain 
+     * @param EventChain $chain
      */
     public function store(ResourceInterface $resource, EventChain $chain): void
     {
-        $promises = Pipeline::with($this->endpoints)
-            ->filter(static function($endpoint) use ($resource) {
-                return $endpoint->schema === null || $resource->getSchema() === $endpoint->schema;
-            })
-            ->filter(static function($endpoint) {
-                return !isset($endpoint->grouped);
-            })
-            ->map(function($endpoint) use ($resource, $chain) {
-                $resource = $this->injectEventChain($resource, $endpoint, $chain);
+        $promises = [];
 
-                return $this->sendStoreRequest($resource, $endpoint);
-            })
-            ->toArray();
+        foreach ($this->endpoints as $endpoint) {
+            if ($endpoint->schema === null || $resource->getSchema() === $endpoint->schema) {
+                $promises[] = $this->sendStoreRequest($resource, $endpoint, $chain);
+            }
+        }
 
         Promise\unwrap($promises);
     }
@@ -69,17 +63,21 @@ class ResourceStorage
      * Send request
      *
      * @param ResourceInterface $resource
-     * @param stdClass          $endpoint 
+     * @param stdClass          $endpoint
      * @return GuzzleHttp\Promise\PromiseInterface
      */
-    protected function sendStoreRequest(ResourceInterface $resource, stdClass $endpoint): GuzzlePromise
-    {
+    protected function sendStoreRequest(
+        ResourceInterface $resource,
+        stdClass $endpoint,
+        EventChain $chain
+    ): GuzzlePromise {
         $options = [
             'json' => $resource,
             'http_errors' => true,
             'signature_key_id' => base58_encode($this->node->sign->publickey),
             'headers' => [
                 'X-Original-Key-Id' => $resource->original_key,
+                'X-Event-Chain' => $chain->id . ':' . $chain->getLatestHash(),
                 'Content-Type' => 'application/json',
                 'date' => date(DATE_RFC1123)
             ]
@@ -114,33 +112,6 @@ class ResourceStorage
             ->toArray();
 
         Promise\unwrap($promises);
-    }
-
-    /**
-     * Inject event chain into query data
-     *
-     * @param object $resource
-     * @param object $endpoint 
-     * @param EventChain $chain 
-     * @return ResourceInterface
-     */
-    protected function injectEventChain(object $data, object $endpoint, EventChain $chain): ResourceInterface
-    {
-        if (!isset($endpoint->inject_chain) || !$endpoint->inject_chain) {
-            return $data;
-        }
-
-        $data = clone $data;
-
-        if ($endpoint->inject_chain === 'empty') {
-            $latestHash = $chain->getLatestHash();
-            $chain = $chain->withoutEvents();
-            $chain->latest_hash = $latestHash;
-        }
-
-        $data->chain = $chain;
-
-        return $data;
     }
 
     /**

@@ -11,16 +11,15 @@ return [
     Account::class => function (ContainerInterface $container) {
         /** @var AccountFactory $factory */
         $factory = $container->get(AccountFactory::class);
+        $accountInfo = $container->get('config.lto.account');
 
-        $accountSeed = getenv('LTO_ACCOUNT_SEED_BASE58');
-
-        if ((string)$accountSeed === '' && $container->get(ApplicationEnv::class)->is('prod')) {
+        if ($accountInfo === '') {
             throw new RuntimeException("LTO account seed missing; set LTO_ACCOUNT_SEED_BASE58 env var");
         }
 
-        return (string)$accountSeed !== ''
-            ? $factory->seed(base58_decode($accountSeed))
-            : $factory->create(arrayify(get_object_vars((new Config)->load('config/node.yml'))));
+        return is_string($accountInfo)
+            ? $factory->seed(base58_decode($accountInfo))
+            : $factory->create(arrayify($accountInfo));
     },
     'node.account' => function (ContainerInterface $container) {
         return $container->get(Account::class);

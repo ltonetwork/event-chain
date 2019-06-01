@@ -11,12 +11,6 @@ email:
   keep: true
   Mailer: mock
 
-queuer:
-  url: http://event-queuer
-
-anchor:
-  url: http://anchor
-
 endpoints:
   - schema: "https://specs.livecontracts.io/v0.2.0/scenario/schema.json#"
     url: "http://legalflow/scenarios/"
@@ -26,7 +20,6 @@ endpoints:
 
   - schema: "https://specs.livecontracts.io/v0.2.0/process/schema.json#"
     url: "http://legalflow/processes/"
-    inject_chain: empty
 
   - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
     url: "http://legalflow/processes/-/response"
@@ -40,3 +33,12 @@ triggers:
       - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
         group:
           process: process
+
+lto:
+  account:
+    sign:
+      secretkey: wJ4WH8dD88fSkNdFQRjaAhjFUZzZhV5yiDLDwNUnp6bYwRXrvWV8MJhQ9HL9uqMDG1n7XpTGZx7PafqaayQV8Rp
+      publickey: FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y
+    encrypt:
+      secretkey: BnjFJJarge15FiqcxrB7Mzt68nseBXXR4LQ54qFBsWJN
+      publickey: BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6

@@ -5,14 +5,12 @@ digest: required
 
 db:
   default:
-    client: mongodb://localhost:27017
+    client: !env MONGO_DB mongodb://localhost:27017
     database: lto_eventchain
 
 email:
   from: info@legalthings.io
   from_name: Legalthings
 
-environment_variables:
-  MONGO_DB: db.default.client
-  ANCHOR_URL: anchor.url
-  QUEUER_URL: queuer.url
+lto:
+  account: !env LTO_ACCOUNT_SEED_BASE58
