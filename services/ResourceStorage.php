@@ -3,7 +3,6 @@
 use Improved\IteratorPipeline\Pipeline;
 use GuzzleHttp\ClientInterface as HttpClient;
 use GuzzleHttp\Promise;
-use GuzzleHttp\Promise\PromiseInterface as GuzzlePromise;
 use LTO\Account;
 
 /**
@@ -48,13 +47,19 @@ class ResourceStorage
      */
     public function store(ResourceInterface $resource, EventChain $chain): void
     {
-        $promises = [];
+        $promises = Pipeline::with($this->endpoints)
+            ->filter(static function($endpoint) use ($resource) {
+                return $endpoint->schema === null || $resource->getSchema() === $endpoint->schema;
+            })
+            ->filter(static function($endpoint) {
+                return !isset($endpoint->grouped);
+            })
+            ->map(function($endpoint) use ($resource, $chain) {
+                $resource = $this->injectEventChain($resource, $endpoint, $chain);
 
-        foreach ($this->endpoints as $endpoint) {
-            if ($endpoint->schema === null || $resource->getSchema() === $endpoint->schema) {
-                $promises[] = $this->sendStoreRequest($resource, $endpoint, $chain);
-            }
-        }
+                return $this->sendStoreRequest($resource, $endpoint);
+            })
+            ->toArray();
 
         Promise\unwrap($promises);
     }
@@ -66,11 +71,8 @@ class ResourceStorage
      * @param stdClass          $endpoint
      * @return GuzzleHttp\Promise\PromiseInterface
      */
-    protected function sendStoreRequest(
-        ResourceInterface $resource,
-        stdClass $endpoint,
-        EventChain $chain
-    ): GuzzlePromise {
+    protected function sendStoreRequest(ResourceInterface $resource, stdClass $endpoint, EventChain $chain)
+    {
         $options = [
             'json' => $resource,
             'http_errors' => true,
@@ -112,6 +114,33 @@ class ResourceStorage
             ->toArray();
 
         Promise\unwrap($promises);
+    }
+
+    /**
+     * Inject event chain into query data
+     *
+     * @param object $resource
+     * @param object $endpoint
+     * @param EventChain $chain
+     * @return ResourceInterface
+     */
+    protected function injectEventChain(object $data, object $endpoint, EventChain $chain): ResourceInterface
+    {
+        if (!isset($endpoint->inject_chain) || !$endpoint->inject_chain) {
+            return $data;
+        }
+
+        $data = clone $data;
+
+        if ($endpoint->inject_chain === 'empty') {
+            $latestHash = $chain->getLatestHash();
+            $chain = $chain->withoutEvents();
+            $chain->latest_hash = $latestHash;
+        }
+
+        $data->chain = $chain;
+
+        return $data;
     }
 
     /**
