@@ -133,11 +133,11 @@ class EventManager
         $validation = new ValidationResult();
         $data = $newEvents;
 
-        while (isset($data)) {
+        do {
             foreach ($steps as $step) {
                 $data = $step($data, $validation);
             }
-        }
+        } while ($data !== null); // The last step may return more events that also need to be processed.
 
         return $validation;
     }
