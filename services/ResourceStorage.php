@@ -57,7 +57,7 @@ class ResourceStorage
             ->map(function($endpoint) use ($resource, $chain) {
                 $resource = $this->injectEventChain($resource, $endpoint, $chain);
 
-                return $this->sendStoreRequest($resource, $endpoint);
+                return $this->sendStoreRequest($resource, $endpoint, $chain);
             })
             ->toArray();
 
