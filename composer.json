@@ -27,7 +27,7 @@
         "jasny/container": "^1.0",
         "jasny/application-env": "^1.0",
         "jasny/autowire": "^1.0",
-        "improved/improved": "~1.0.0",
+        "improved/improved": "~0.1.0",
         "nesbot/carbon": "^2.11",
         "ramsey/uuid": "^3.8",
         "lto/api": "^0.2.1",
