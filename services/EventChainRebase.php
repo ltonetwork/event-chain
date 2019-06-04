@@ -34,7 +34,7 @@ class EventChainRebase
      */
     public function rebase(EventChain $leadChain, EventChain $laterChain): EventChain
     {
-        if ($leadChain->isEmpty() || $laterChain->isEmpty()) {
+        if (!$leadChain->hasEvents() || !$laterChain->hasEvents()) {
             throw new BadMethodCallException('Rebasing chains should not be empty');
         }
 

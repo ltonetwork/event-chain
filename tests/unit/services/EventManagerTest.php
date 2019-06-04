@@ -168,6 +168,6 @@ class EventManagerTest extends \Codeception\Test\Unit
         $this->assertInstanceOf(Step\AnchorEvent::class, $steps[8]);
         $this->assertInstanceOf(Step\Walk::class, $steps[9]);
         $this->assertInstanceOf(Step\Dispatch::class, $steps[10]);
-        $this->assertInstanceOf(Step\TriggerResourceServices::class, $steps[11]);
+        $this->assertInstanceOf(Step\TriggerResources::class, $steps[11]);
     }
 }

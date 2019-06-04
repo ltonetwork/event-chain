@@ -40,6 +40,11 @@ class EventChain extends MongoDocument
      */
     public $resources = [];
 
+    /**
+     * The hash of the previous event not in this partial chain.
+     * @var string
+     */
+    protected $partialPrevious;
 
     /**
      * Class constructor.
@@ -73,7 +78,9 @@ class EventChain extends MongoDocument
      */
     public function getLatestHash(): string
     {
-        return count($this->events) > 0 ? $this->getLastEvent()->hash : $this->getInitialHash();
+        return count($this->events) > 0
+            ? $this->getLastEvent()->hash
+            : ($this->partialPrevious ?? $this->getInitialHash());
     }
     
     /**
@@ -86,6 +93,10 @@ class EventChain extends MongoDocument
     {
         if (count($this->events) === 0) {
             throw new UnderflowException("chain has no events");
+        }
+
+        if ($this->isPartial()) {
+            throw new OutOfBoundsException("partial chain doesn't hold the first event");
         }
 
         return $this->events[0];
@@ -220,13 +231,15 @@ class EventChain extends MongoDocument
     
     
     /**
-     * Check if this chain has the genisis event or is empty.
+     * Check if this chain has the genesis event or is empty.
      *
      * @return bool
      */
     public function isPartial(): bool
     {
-        return count($this->events) > 0 && $this->getFirstEvent()->previous !== $this->getInitialHash();
+        return count($this->events) > 0
+            ? $this->events[0]->previous !== $this->getInitialHash()
+            : $this->partialPrevious !== null;
     }
     
     /**
@@ -234,12 +247,11 @@ class EventChain extends MongoDocument
      *
      * @return bool
      */
-    public function isEmpty(): bool
+    public function hasEvents(): bool
     {
-        return count($this->events) === 0;
+        return count($this->events) !== 0;
     }
-    
-    
+
     /**
      * Check if id is valid
      *
@@ -308,7 +320,7 @@ class EventChain extends MongoDocument
         
         return $validation;
     }
-    
+
     /**
      * Return an event chain without any events
      *
@@ -323,7 +335,7 @@ class EventChain extends MongoDocument
     }
 
     /**
-     * Return an event chain with the given events
+     * Return a partial event chain with the new events.
      *
      * @param Event[] $events
      * @return static
@@ -332,7 +344,7 @@ class EventChain extends MongoDocument
     {
         $chain = clone $this;
         $chain->events = EntitySet::forClass(Event::class, $events);
-        
+
         return $chain;
     }
     
@@ -346,15 +358,8 @@ class EventChain extends MongoDocument
      */
     public function getEventsAfter(string $hash): array
     {
-        if ($this->getInitialHash() === $hash) {
-            /** @var Event[] $events */
-            $events = $this->events->getArrayCopy();
+        $events = !$this->isPartial() && $this->getInitialHash() === $hash ? [] : null;
 
-            return $events;
-        }
-        
-        $events = null;
-        
         foreach ($this->events as $event) {
             if (isset($events)) {
                 $events[] = $event;
@@ -363,8 +368,10 @@ class EventChain extends MongoDocument
             }
         }
         
-        if (!isset($events)) {
-            throw new OutOfBoundsException("Event '$hash' not found");
+        if ($events === null) {
+            throw new OutOfBoundsException(
+                "Event '$hash' not found" . ($this->isPartial() ? ' in partial chain' : '')
+            );
         }
         
         return $events;
@@ -379,10 +386,25 @@ class EventChain extends MongoDocument
      */
     public function getPartialAfter(string $hash): EventChain
     {
-        $events = $this->getEventsAfter($hash) ?? [];
-        return $this->withEvents($events);
+        $partial = $this->withEvents($this->getEventsAfter($hash));
+        $partial->partialPrevious = $this->getLatestHash();
+
+        return $partial;
     }
-    
+
+    /**
+     * Get a partial chain consisting without any events.
+     *
+     * @return EventChain
+     */
+    public function getPartialWithoutEvents(): EventChain
+    {
+        $partial = $this->withEvents([]);
+        $partial->partialPrevious = $this->getLatestHash();
+
+        return $partial;
+    }
+
     
     /**
      * Register that a resource is used in this chain
@@ -408,6 +430,19 @@ class EventChain extends MongoDocument
     public function __clone()
     {
         $this->events = clone $this->events;
+    }
+
+    /**
+     * Prepare result when casting object to JSON
+     *
+     * @return object
+     */
+    public function jsonSerialize()
+    {
+        $result = parent::jsonSerialize();
+        $result->latestHash = $this->getLatestHash();
+
+        return $result;
     }
 
     /**

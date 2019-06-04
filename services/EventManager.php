@@ -88,6 +88,10 @@ class EventManager
      */
     public function add(EventChain $chain, EventChain $newEvents): ValidationResult
     {
+        if ($chain->id !== $newEvents->id) {
+            throw new UnexpectedValueException("Can't add events of a different chain");
+        }
+
         if ($chain->isPartial()) {
             throw new UnexpectedValueException("Partial event chain; doesn't contain the genesis event");
         }
@@ -106,7 +110,6 @@ class EventManager
     protected function getSteps(EventChain $chain): array
     {
         return [
-            new Step\ValidateInput($chain),
             new Step\SyncChains($chain),
             new Step\SkipKnownEvents(),
             new Step\HandleFork($chain, $this->conflictResolver),
@@ -115,9 +118,9 @@ class EventManager
             new Step\HandleFailed($chain, $this->eventFactory),
             new Step\SaveEvent($chain, $this->chainGateway),
             new Step\AnchorEvent($chain, $this->node, $this->anchor),
+            new Step\TriggerResources($chain, $this->resourceFactory, $this->resourceTrigger, $this->node),
             new Step\Walk($chain), // <-- Nothing will happen without this step
             new Step\Dispatch($chain, $this->dispatcher, $this->node, $chain->getNodes()),
-            new Step\TriggerResourceServices($chain, $this->resourceFactory, $this->resourceTrigger, $this->node)
         ];
     }
 
@@ -130,14 +133,15 @@ class EventManager
      */
     protected function step(EventChain $newEvents, callable ...$steps): ValidationResult
     {
-        $validation = new ValidationResult();
-        $data = $newEvents;
+        $validation = $newEvents->validate();
 
-        do {
-            foreach ($steps as $step) {
-                $data = $step($data, $validation);
-            }
-        } while ($data !== null); // The last step may return more events that also need to be processed.
+        // Using an ArrayObject, so more events can be added while iterating through the new events.
+        $eventList = new ArrayObject($newEvents->events->getArrayCopy());
+        $data = $eventList;
+
+        foreach ($steps as $step) {
+            $data = $step($data, $validation, $eventList);
+        }
 
         return $validation;
     }

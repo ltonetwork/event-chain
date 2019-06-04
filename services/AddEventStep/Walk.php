@@ -6,7 +6,7 @@ use EventChain;
 use Improved\IteratorPipeline\Pipeline;
 
 /**
- * The previous actions are just setting up the pipeline, but nothing actually happends until we walk through the
+ * The previous actions are just setting up the pipeline, but nothing actually happens until we walk through the
  * events.
  */
 class Walk
@@ -34,8 +34,13 @@ class Walk
      */
     public function __invoke(Pipeline $pipeline): EventChain
     {
-        $events = $pipeline->toArray();
+        $newEvents = $this->chain->withoutEvents();
 
-        return $this->chain->withEvents($events);
+        foreach ($pipeline as $event) {
+            $this->chain->events[] = $event;
+            $newEvents->events[] = $event;
+        }
+
+        return $newEvents;
     }
 }

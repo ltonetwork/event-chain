@@ -16,7 +16,7 @@ use LTO\Account;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * @covers \AddEventStep\TriggerResourceServices
+ * @covers \AddEventStep\TriggerResources
  */
 class TriggerResourceServicesTest extends \Codeception\Test\Unit
 {
@@ -47,7 +47,7 @@ class TriggerResourceServicesTest extends \Codeception\Test\Unit
         $this->resourceTrigger = $this->createMock(ResourceTrigger::class);
         $this->node = $this->createMock(Account::class);
 
-        $this->step = new TriggerResourceServices($this->chain, $this->resourceFactory, $this->resourceTrigger, $this->node);
+        $this->step = new TriggerResources($this->chain, $this->resourceFactory, $this->resourceTrigger, $this->node);
     }
 
     public function provider()

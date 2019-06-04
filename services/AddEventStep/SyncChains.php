@@ -2,8 +2,9 @@
 
 namespace AddEventStep;
 
+use ArrayObject;
 use EventChain;
-use Improved\Iterator\CombineIterator;
+use FillCombineIterator;
 use Improved\IteratorPipeline\Pipeline;
 use Jasny\ValidationResult;
 
@@ -35,14 +36,14 @@ class SyncChains
     /**
      * Invoke the step.
      *
-     * @param EventChain       $newEvents
+     * @param ArrayObject      $newEvents   Using an ArrayObject, so more events can be added while stepping.
      * @param ValidationResult $validation
      * @return Pipeline
      */
-    public function __invoke(EventChain $newEvents, ValidationResult $validation): Pipeline
+    public function __invoke(ArrayObject $newEvents, ValidationResult $validation): Pipeline
     {
         $following = [];
-        $previous = $newEvents->getFirstEvent()->previous;
+        $previous = $newEvents[0]->previous;
 
         try {
             $following = $this->chain->getEventsAfter($previous);
@@ -50,8 +51,6 @@ class SyncChains
             $validation->addError("events don't fit on chain, '%s' not found", $previous);
         }
 
-        $known = array_values($following) + array_fill(0, count($newEvents->events), null);
-
-        return Pipeline::with(new CombineIterator($known, $newEvents->events));
+        return Pipeline::with(new FillCombineIterator(array_values($following), $newEvents));
     }
 }

@@ -61,6 +61,7 @@ class NoAnchorClient extends AnchorClient
      */
     protected function throwException()
     {
-        throw new Exception("Unable to fetch information from anchoring service. The event-chain service runs in a local-only setup (anchor disabled).");
+        throw new Exception("Unable to fetch information from anchoring service. The event-chain service " .
+            "runs in a local-only setup (anchor disabled).");
     }
 }

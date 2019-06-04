@@ -2,7 +2,7 @@
 
 use Improved\IteratorPipeline\Pipeline;
 use GuzzleHttp\ClientInterface as HttpClient;
-use GuzzleHttp\Promise;
+use Psr\Http\Message\ResponseInterface as Response;
 use LTO\Account;
 
 /**
@@ -10,6 +10,9 @@ use LTO\Account;
  */
 class ResourceStorage
 {
+    use ResourceService\ExtractFromResponseTrait;
+    use ResourceService\InjectEventChainTrait;
+
     /**
      * @var array
      */
@@ -40,28 +43,48 @@ class ResourceStorage
     }
 
     /**
-     * Store a resource
+     * Store a resource.
+     * Return any new events created by storing the resource.
      *
      * @param ResourceInterface $resource
      * @param EventChain $chain
+     * @return EventChain
      */
-    public function store(ResourceInterface $resource, EventChain $chain): void
+    public function store(ResourceInterface $resource, EventChain $chain): EventChain
     {
-        $promises = Pipeline::with($this->endpoints)
+        $partial = $chain->getPartialWithoutEvents();
+
+        Pipeline::with($this->endpoints)
             ->filter(static function($endpoint) use ($resource) {
                 return $endpoint->schema === null || $resource->getSchema() === $endpoint->schema;
             })
             ->filter(static function($endpoint) {
                 return !isset($endpoint->grouped);
             })
-            ->map(function($endpoint) use ($resource, $chain) {
-                $resource = $this->injectEventChain($resource, $endpoint, $chain);
+            ->map(function($endpoint) use ($resource, $partial) {
+                $resource = $this->injectEventChain($resource, $endpoint, $partial);
 
-                return $this->sendStoreRequest($resource, $endpoint, $chain);
+                return $this->sendStoreRequest($resource, $endpoint, $partial);
             })
-            ->toArray();
+            ->map(function(Response $response) {
+                return $this->getEventsFromResponse($response);
+            })
+            ->filter(function(?EventChain $newEvents) use ($chain) {
+                if ($newEvents !== null && $newEvents->id !== $chain->id) {
+                    trigger_error("Ignoring additional events; chain mismatch", E_USER_WARNING);
+                    return false;
+                }
 
-        Promise\unwrap($promises);
+                return $newEvents !== null && $newEvents->events !== [];
+            })
+            ->apply(function($newEvents) use ($partial) {
+                foreach ($newEvents->events as $event) {
+                    $partial->events[] = $event;
+                }
+            })
+            ->walk();
+
+        return $partial;
     }
 
     /**
@@ -69,9 +92,10 @@ class ResourceStorage
      *
      * @param ResourceInterface $resource
      * @param stdClass          $endpoint
-     * @return GuzzleHttp\Promise\PromiseInterface
+     * @param EventChain        $chain
+     * @return Response
      */
-    protected function sendStoreRequest(ResourceInterface $resource, stdClass $endpoint, EventChain $chain)
+    protected function sendStoreRequest(ResourceInterface $resource, stdClass $endpoint, EventChain $chain): Response
     {
         $options = [
             'json' => $resource,
@@ -85,79 +109,6 @@ class ResourceStorage
             ]
         ];
 
-        $url = $this->expandUrl($endpoint->url, $resource);
-
-        return $this->httpClient->requestAsync('POST', $url, $options);
-    }
-
-    /**
-     * Delete all resources.
-     * @todo Fix this method. Deleting resources is currently disabled.
-     *
-     * @param iterable<ResourceInterface> $resources
-     */
-    public function deleteResources(iterable $resources): void
-    {
-        //temp
-        throw new Exception('deleteResources method is disabled');
-
-        $promises = Pipeline::with($resources)
-            ->filter(function (ResourceInterface $resource) {
-                return $resource instanceof ExternalResource && $this->mapping->hasDoneUrl($resource->getId());
-            })
-            ->map(function (ExternalResource $resource) {
-                return $this->mapping->getDoneUrl($resource->getId());
-            })
-            ->map(function (string $url) {
-                return $this->httpClient->requestAsync('DELETE', $url, ['http_errors' => false]);
-            })
-            ->toArray();
-
-        Promise\unwrap($promises);
-    }
-
-    /**
-     * Inject event chain into query data
-     *
-     * @param object $resource
-     * @param object $endpoint
-     * @param EventChain $chain
-     * @return ResourceInterface
-     */
-    protected function injectEventChain(object $data, object $endpoint, EventChain $chain): ResourceInterface
-    {
-        if (!isset($endpoint->inject_chain) || !$endpoint->inject_chain) {
-            return $data;
-        }
-
-        $data = clone $data;
-
-        if ($endpoint->inject_chain === 'empty') {
-            $latestHash = $chain->getLatestHash();
-            $chain = $chain->withoutEvents();
-            $chain->latest_hash = $latestHash;
-        }
-
-        $data->chain = $chain;
-
-        return $data;
-    }
-
-    /**
-     * Insert parameter value into endpoint url
-     *
-     * @param string $url
-     * @param ResourceInterface $resource
-     * @return string
-     */
-    protected function expandUrl(string $url, ResourceInterface $resource): string
-    {
-        $regexp = '~/-(/|$)~';
-
-        if (!preg_match($regexp, $url)) {
-            return $url;
-        }
-
-        return preg_replace($regexp, "/{$resource->process}$1", $url);
+        return $this->httpClient->request('POST', $endpoint->url, $options);
     }
 }

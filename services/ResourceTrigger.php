@@ -2,7 +2,6 @@
 
 use LTO\Account;
 use Improved\IteratorPipeline\Pipeline;
-use GuzzleHttp\Promise;
 use GuzzleHttp\ClientInterface as HttpClient;
 use GuzzleHttp\Psr7\Response as HttpResponse;
 
@@ -12,6 +11,9 @@ use GuzzleHttp\Psr7\Response as HttpResponse;
  */
 class ResourceTrigger
 {
+    use ResourceService\ExtractFromResponseTrait;
+    use ResourceService\InjectEventChainTrait;
+
     /**
      * @var array
      */
@@ -21,11 +23,6 @@ class ResourceTrigger
      * @var HttpClient
      */
     protected $httpClient;
-
-    /**
-     * @var HttpErrorWarning
-     */
-    protected $errorWarning;
 
     /**
      * @var Account
@@ -42,19 +39,12 @@ class ResourceTrigger
      *
      * @param string[]         $triggers
      * @param HttpClient       $httpClient
-     * @param HttpErrorWarning $errorWarning
      * @param Account          $node
      */
-    public function __construct(
-        array $triggers,
-        HttpClient $httpClient,
-        HttpErrorWarning $errorWarning,
-        Account $node
-    )
+    public function __construct(array $triggers, HttpClient $httpClient, Account $node)
     {
         $this->endpoints = $triggers;
         $this->httpClient = $httpClient;
-        $this->errorWarning = $errorWarning;
         $this->node = $node;
     }
 
@@ -67,55 +57,78 @@ class ResourceTrigger
      */
     public function trigger(iterable $resources, EventChain $chain): ?EventChain
     {
-        $promises = [];
-
         if ($resources instanceof Traversable) {
             $resources = iterator_to_array($resources);
         }
 
         foreach ($this->endpoints as $endpoint) {
-            foreach ($endpoint->resources as $groupOpts) {
-                $groupPromises = Pipeline::with($resources)
-                    ->filter(static function(ResourceInterface $resource) use ($groupOpts) {
-                        return $groupOpts->schema === null || $resource->getSchema() === $groupOpts->schema;
-                    })
-                    ->group(static function(ResourceInterface $resource) use ($groupOpts) {
-                        $field = $groupOpts->group->process;
-                        $value = $resource->{$field} ?? null;
+            foreach ($endpoint->resources as $opts) {
+                $newEvents = $this->triggerOne($resources, $chain, $endpoint, $opts);
 
-                        return is_scalar($value) ? $value : $value->id ?? null;
-                    })
-                    ->cleanup()
-                    ->keys()
-                    ->map(function($value) use ($endpoint, $groupOpts, $chain) {
-                        return $this->sendRequest($value, $endpoint, $groupOpts, $chain);
-                    })
-                    ->toArray();                
-
-                $promises = array_merge($promises, $groupPromises);
+                if ($newEvents !== null) {
+                    break; // First process the new events before triggering more
+                }
             }
         }
 
-        $responses = Promise\unwrap($promises);
+        return $newEvents;
+    }
 
-        return $this->getEventsFromResponses($responses, $chain);
+    /**
+     * Run trigger of a single endpoint.
+     * Additional events returned by the trigger are added to the event chain.
+     *
+     * @param array      $resources
+     * @param EventChain $chain
+     * @param string     $endpoint
+     * @param array      $opts
+     * @return EventChain|null
+     */
+    protected function triggerOne(array $resources, EventChain $chain, stdClass $endpoint, stdClass $opts): ?EventChain
+    {
+        return Pipeline::with($resources)
+            ->filter(static function(ResourceInterface $resource) use ($opts) {
+                return $opts->schema === null || $resource->getSchema() === $opts->schema;
+            })
+            ->group(static function(ResourceInterface $resource) use ($opts) {
+                $data = null;
+
+                foreach ($opts->group as $key => $field) {
+                    $data[$key] = $resource->{$field} ?? null;
+                }
+
+                return $data;
+            })
+            ->cleanup()
+            ->keys()
+            ->map(function(array $data) use ($endpoint, $chain) {
+                return $this->sendRequest((object)$data, $endpoint, $chain);
+            })
+            ->map(function(HttpResponse $response) {
+                return $this->getEventsFromResponse($response);
+            })
+            ->filter(function(?EventChain $newEvents) use ($chain) {
+                if ($newEvents !== null && $newEvents->id !== $chain->id) {
+                    trigger_error("Ignoring additional events; chain mismatch", E_USER_WARNING);
+                    return false;
+                }
+
+                return $newEvents !== null && $newEvents->events !== [];
+            })
+            ->first(); // Will not send more requests after first trigger has send new events
     }
 
     /**
      * Send request
      *
-     * @param string $value
-     * @param stdClass $endpoint 
-     * @param stdClass $groupOpts 
-     * @param EventChain $chain 
+     * @param stdClass   $data
+     * @param stdClass   $endpoint
+     * @param EventChain $chain
      * @return GuzzleHttp\Psr7\Response
      */
-    protected function sendRequest(string $value, stdClass $endpoint, stdClass $groupOpts, EventChain $chain)
+    protected function sendRequest(stdClass $data, stdClass $endpoint, EventChain $chain)
     {
-        $field = $groupOpts->group->process;
-        $data = (object)[$field => $value];
         $data = $this->injectEventChain($data, $endpoint, $chain);
-        $url = $this->expandUrl($endpoint->url, $value);
 
         $options = [
             'headers' => [
@@ -126,77 +139,6 @@ class ResourceTrigger
             'signature_key_id' => base58_encode($this->node->sign->publickey)
         ];
 
-        return $this->httpClient->requestAsync('POST', $url, $options);
-    }
-
-    /**
-     * Get event chain from http queries responses
-     *
-     * @param array $responses
-     * @param EventChain $chain 
-     * @return EventChain|null
-     */
-    protected function getEventsFromResponses(array $responses, EventChain $chain): ?EventChain
-    {
-        $newChainData = Pipeline::with($responses)
-            ->filter(function(HttpResponse $response): bool {
-                $contentType = $response->getHeaderLine('Content-Type');
-
-                return strpos($contentType, 'application/json') !== false;
-            })
-            ->map(function(HttpResponse $response) {
-                $data = (string)$response->getBody();
-
-                return json_decode($data, true);
-            })
-            ->filter(function($data) use ($chain): bool {
-                return is_array($data) && isset($data['id']) && $data['id'] === $chain->id;
-            })
-            ->first();
-
-        $newChain = isset($newChainData) ? 
-            $chain->withEvents($newChainData['events']) : 
-            null;
-
-        return $newChain;
-    }
-
-    /**
-     * Inject event chain into query data
-     *
-     * @param object $resource
-     * @param object $endpoint
-     * @param EventChain $chain
-     * @return stdClass
-     */
-    protected function injectEventChain(object $data, object $endpoint, EventChain $chain): stdClass
-    {
-        if (!isset($endpoint->inject_chain) || !$endpoint->inject_chain) {
-            return $data;
-        }
-
-        $data = clone $data;
-
-        if ($endpoint->inject_chain === 'empty') {
-            $latestHash = $chain->getLatestHash();
-            $chain = $chain->withoutEvents();
-            $chain->latest_hash = $latestHash;
-        }
-
-        $data->chain = $chain;
-
-        return $data;
-    }
-
-    /**
-     * Insert parameter value into endpoint url
-     *
-     * @param string $url
-     * @param string $parameter 
-     * @return string
-     */
-    protected function expandUrl(string $url, string $parameter): string
-    {
-        return preg_replace('~/-(/|$)~', "/$parameter$1", $url);
+        return $this->httpClient->request('POST', $endpoint->url, $options);
     }
 }

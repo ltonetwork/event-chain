@@ -2,10 +2,11 @@
 
 namespace AddEventStep;
 
+use ArrayObject;
+use ResourceInterface;
 use Improved\IteratorPipeline\Pipeline;
 use Jasny\ValidationResult;
 use Jasny\DB\Entity\Identifiable;
-use Jasny\DB\EntitySet;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 
@@ -52,11 +53,12 @@ class StoreResource
     /**
      * @param Pipeline         $pipeline
      * @param ValidationResult $validation
+     * @param ArrayObject      $newEvents
      * @return Pipeline
      */
-    public function __invoke(Pipeline $pipeline, ValidationResult $validation): Pipeline
+    public function __invoke(Pipeline $pipeline, ValidationResult $validation, ArrayObject $newEvents): Pipeline
     {
-        return $pipeline->apply(function (\Event $event) use ($validation): void {
+        return $pipeline->apply(function (\Event $event) use ($validation, $newEvents): void {
             if ($validation->failed()) {
                 return;
             }
@@ -78,7 +80,7 @@ class StoreResource
                 return;
             }
 
-            $storedValidation = $this->storeResource($resource);
+            $storedValidation = $this->storeResource($resource, $newEvents);
             $validation->add($storedValidation, "event '$event->hash': ");
         });
     }
@@ -86,13 +88,16 @@ class StoreResource
     /**
      * Store a new event and add it to the chain
      *
-     * @param \ResourceInterface $resource
+     * @param ResourceInterface $resource
+     * @param ArrayObject       $newEvents
      * @return ValidationResult
      */
-    protected function storeResource(\ResourceInterface $resource): ValidationResult
+    protected function storeResource(ResourceInterface $resource, ArrayObject $newEvents): ValidationResult
     {
+        $newChain = $this->chain->withEvents($newEvents->getArrayCopy());
+
         try {
-            $this->resourceStorage->store($resource, $this->chain);
+            $addedEvents = $this->resourceStorage->store($resource, $newChain);
         } catch (GuzzleException $e) {
             $id = 'ResourceInterface' . ($resource instanceof Identifiable ? ' ' . $resource->getId() : '');
             $reason = $e instanceof ClientException ? $e->getMessage() : 'Server error';
@@ -101,6 +106,10 @@ class StoreResource
         }
 
         $this->chain->registerResource($resource);
+
+        foreach ($addedEvents->events ?? [] as $event) {
+            $newEvents->append($event);
+        }
 
         return ValidationResult::success();
     }
@@ -115,7 +124,7 @@ class StoreResource
      */
     public function applyPrivilegeToResource(\ResourceInterface $resource, \Event $event): ValidationResult
     {
-        if ($this->chain->isEmpty()) {
+        if (!$this->chain->hasEvents()) {
             return $resource instanceof \Identity ?
                 ValidationResult::success() :
                 ValidationResult::error("initial resource must be an identity");
