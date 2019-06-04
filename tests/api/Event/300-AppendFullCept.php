@@ -53,12 +53,6 @@ $I->expectHttpRequest(function (Request $request) use ($I, $data) {
 $I->expectHttpRequest(function (Request $request) use ($I, $bodies, $data) {
     $body = $bodies[1];
     $body['timestamp'] = $data['events'][2]['timestamp'];    
-    $body['chain'] = [
-        'id' => $data['id'],
-        'events' => [],
-        'identities' => [],
-        'resources' => []
-    ];
 
     $json = json_encode($body);
 
