@@ -30,12 +30,13 @@ trait ExtractFromResponseTrait
 
         $body = (string)$response->getBody();
         $data = json_decode($body, true);
+        $isValidJson = json_last_error() !== JSON_ERROR_NONE || !isset($data['id']) || !isset($data['events']);
 
-        if (json_last_error() !== JSON_ERROR_NONE || !isset($data['id'])) {
+        if (!$isValidJson) {
             trigger_error("Invalid JSON response: " . json_last_error_msg(), E_USER_WARNING);
             return null;
         }
 
-        return isset($data['id']) && isset($data['events']) ? EventChain::fromData($data) : null;
+        return EventChain::fromData($data);
     }
 }

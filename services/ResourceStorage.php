@@ -61,10 +61,10 @@ class ResourceStorage
             ->filter(static function($endpoint) {
                 return !isset($endpoint->grouped);
             })
-            ->map(function($endpoint) use ($resource, $partial) {
-                $resource = $this->injectEventChain($resource, $endpoint, $partial);
+            ->map(function($endpoint) use ($resource, $chain) {
+                $resource = $this->injectEventChain($resource, $endpoint, $chain);
 
-                return $this->sendStoreRequest($resource, $endpoint, $partial);
+                return $this->sendStoreRequest($resource, $endpoint, $chain);
             })
             ->map(function(Response $response) {
                 return $this->getEventsFromResponse($response);
@@ -75,7 +75,7 @@ class ResourceStorage
                     return false;
                 }
 
-                return $newEvents !== null && $newEvents->events !== [];
+                return $newEvents !== null && count($newEvents->events) > 0;
             })
             ->apply(function($newEvents) use ($partial) {
                 foreach ($newEvents->events as $event) {

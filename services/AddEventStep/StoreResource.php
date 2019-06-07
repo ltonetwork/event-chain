@@ -94,10 +94,8 @@ class StoreResource
      */
     protected function storeResource(ResourceInterface $resource, ArrayObject $newEvents): ValidationResult
     {
-        $newChain = $this->chain->withEvents($newEvents->getArrayCopy());
-
         try {
-            $addedEvents = $this->resourceStorage->store($resource, $newChain);
+            $addedEvents = $this->resourceStorage->store($resource, $this->chain);
         } catch (GuzzleException $e) {
             $id = 'ResourceInterface' . ($resource instanceof Identifiable ? ' ' . $resource->getId() : '');
             $reason = $e instanceof ClientException ? $e->getMessage() : 'Server error';

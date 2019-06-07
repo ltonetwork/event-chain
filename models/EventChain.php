@@ -289,8 +289,15 @@ class EventChain extends MongoDocument
         
         if (count($this->events) === 0) {
             $validation->addError('no events');
-        } elseif ($this->getFirstEvent()->previous === $this->getInitialHash() && !$this->isValidId()) {
-            $validation->addError('invalid id');
+        } else {
+            $invalidId = 
+                !$this->isPartial() && 
+                $this->getFirstEvent()->previous === $this->getInitialHash() && 
+                !$this->isValidId();
+
+            if ($invalidId) {
+                $validation->addError('invalid id');
+            }
         }
         
         $validation->add($this->validateIntegrity());
@@ -393,7 +400,7 @@ class EventChain extends MongoDocument
     }
 
     /**
-     * Get a partial chain consisting without any events.
+     * Get a partial chain without any events.
      *
      * @return EventChain
      */

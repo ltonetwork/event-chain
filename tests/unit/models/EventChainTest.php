@@ -73,14 +73,10 @@ class EventChainTest extends \Codeception\Test\Unit
     
     public function testGetFirstEvent()
     {
-        $event1 = $this->createMock(Event::class);
-        $event2 = $this->createMock(Event::class);
+        $chain = $this->createEventChain(2);
+        $result = $chain->getFirstEvent();
         
-        $chain = EventChain::create()->setValues([
-            'events' => [ $event1, $event2 ]
-        ]);
-        
-        $this->assertSame($event1, $chain->getFirstEvent());
+        $this->assertSame($chain->events[0], $result);
     }
 
     /**
@@ -119,19 +115,19 @@ class EventChainTest extends \Codeception\Test\Unit
         $chain->getLastEvent();
     }
 
-    public function testIsEmptyTrue()
+    public function testHasEventsFalse()
     {
         $chain = new EventChain();
         
-        $this->assertTrue($chain->isEmpty());
+        $this->assertFalse($chain->hasEvents());
     }
 
-    public function testIsEmptyFalse()
+    public function testHasEventsTrue()
     {
         $chain = new EventChain();
         $chain->events[] = $this->createMock(Event::class);
         
-        $this->assertFalse($chain->isEmpty());
+        $this->assertTrue($chain->hasEvents());
     }
     
     public function testIsPartialFalse()

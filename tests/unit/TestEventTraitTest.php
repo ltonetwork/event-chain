@@ -78,7 +78,7 @@ class TestEventTraitTest extends \Codeception\Test\Unit
 
         $this->assertInstanceOf(EventChain::class, $chain); 
         $this->assertNotEmpty($chain->id);
-        $this->assertTrue($chain->isEmpty());
+        $this->assertFalse($chain->hasEvents());
     }
 
     /**
