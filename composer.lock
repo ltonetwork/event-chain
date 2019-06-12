@@ -427,16 +427,16 @@
         },
         {
             "name": "improved/iterable",
-            "version": "v0.1.3",
+            "version": "v0.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/improved-php-library/iterable.git",
-                "reference": "6673f1b4b88628794183556e51ee62203ecf2eeb"
+                "reference": "4ab425f587708b4632c8f06b9cdce2cad959fa80"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/improved-php-library/iterable/zipball/6673f1b4b88628794183556e51ee62203ecf2eeb",
-                "reference": "6673f1b4b88628794183556e51ee62203ecf2eeb",
+                "url": "https://api.github.com/repos/improved-php-library/iterable/zipball/4ab425f587708b4632c8f06b9cdce2cad959fa80",
+                "reference": "4ab425f587708b4632c8f06b9cdce2cad959fa80",
                 "shasum": ""
             },
             "require": {
@@ -463,6 +463,7 @@
                     "src/functions/iterable_average.php",
                     "src/functions/iterable_after.php",
                     "src/functions/iterable_before.php",
+                    "src/functions/iterable_chunk.php",
                     "src/functions/iterable_cleanup.php",
                     "src/functions/iterable_column.php",
                     "src/functions/iterable_concat.php",
@@ -500,6 +501,7 @@
                     "src/functions/iterable_type_check.php",
                     "src/functions/iterable_type_cast.php",
                     "src/functions/iterable_unique.php",
+                    "src/functions/iterable_unwind.php",
                     "src/functions/iterable_values.php",
                     "src/functions/iterable_walk.php"
                 ]
@@ -516,7 +518,7 @@
                 }
             ],
             "description": "Functions to interact with arrays, iterators and other traversable objects",
-            "time": "2019-06-03T17:24:29+00:00"
+            "time": "2019-06-06T02:25:16+00:00"
         },
         {
             "name": "improved/type",
@@ -1684,16 +1686,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "2.19.0",
+            "version": "2.19.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "c3545b39197d314205226ac3c33cb4db99aa54ab"
+                "reference": "5cf102d1476fdf92f1f991bd1a1a0d93c65755ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/c3545b39197d314205226ac3c33cb4db99aa54ab",
-                "reference": "c3545b39197d314205226ac3c33cb4db99aa54ab",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/5cf102d1476fdf92f1f991bd1a1a0d93c65755ca",
+                "reference": "5cf102d1476fdf92f1f991bd1a1a0d93c65755ca",
                 "shasum": ""
             },
             "require": {
@@ -1740,7 +1742,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2019-05-30T10:15:05+00:00"
+            "time": "2019-06-04T20:07:46+00:00"
         },
         {
             "name": "oscarotero/psr7-middlewares",

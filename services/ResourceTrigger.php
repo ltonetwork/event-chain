@@ -61,17 +61,22 @@ class ResourceTrigger
             $resources = iterator_to_array($resources);
         }
 
-        foreach ($this->endpoints as $endpoint) {
-            foreach ($endpoint->resources as $opts) {
-                $newEvents = $this->triggerOne($resources, $chain, $endpoint, $opts);
+        $partial = $chain->withoutEvents();
 
-                if ($newEvents !== null) {
-                    break; // First process the new events before triggering more
+        Pipeline::with($this->endpoints)
+            ->unwind('resources')
+            ->map(function($endpoint) use($resources, $chain) {
+                return $this->triggerEndpoint($resources, $chain, $endpoint);
+            })
+            ->flatten()
+            ->apply(function(EventChain $newEvents) use ($partial) {
+                foreach ($newEvents->events as $event) {
+                    $partial->events[] = $event;
                 }
-            }
-        }
+            })
+            ->walk();
 
-        return $newEvents;
+        return $partial;
     }
 
     /**
@@ -82,10 +87,12 @@ class ResourceTrigger
      * @param EventChain $chain
      * @param string     $endpoint
      * @param array      $opts
-     * @return EventChain|null
+     * @return iterable
      */
-    protected function triggerOne(array $resources, EventChain $chain, stdClass $endpoint, stdClass $opts): ?EventChain
+    protected function triggerEndpoint(array $resources, EventChain $chain, stdClass $endpoint): iterable
     {
+        $opts = $endpoint->resources;
+
         return Pipeline::with($resources)
             ->filter(static function(ResourceInterface $resource) use ($opts) {
                 return $opts->schema === null || $resource->getSchema() === $opts->schema;
@@ -114,8 +121,7 @@ class ResourceTrigger
                 }
 
                 return $newEvents !== null && $newEvents->events !== [];
-            })
-            ->first(); // Will not send more requests after first trigger has send new events
+            });
     }
 
     /**
