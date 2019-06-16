@@ -48,11 +48,13 @@ class WalkTest extends \Codeception\Test\Unit
 
         $chainClone = $this->createMock(EventChain::class);
 
-        $this->chain->expects($this->once())->method('withEvents')->with($events)->willReturn($chainClone);
+        $this->chain->expects($this->once())->method('withoutEvents')->willReturn($chainClone);
         
         $pipeline = Pipeline::with($events);               
         $ret = i\function_call($this->step, $pipeline);
 
         $this->assertSame($chainClone, $ret);
+        $this->assertEquals($events, $chainClone->events);
+        $this->assertEquals($events, $this->chain->events);
     }    
 }
