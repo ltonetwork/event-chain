@@ -22,7 +22,7 @@ $I->expectTo('see unchaged chain in response');
 
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
-$I->seeResponseIsEventChain($chainId);
+$I->seeResponseIsEventChain($chainId, ['latestHash']);
 
 $I->expectTo('get whole chain and see if it did not change');
 
@@ -30,4 +30,4 @@ $I->sendGET('/event-chains/' . $chainId);
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
 
-$I->seeResponseIsEventChain($chainId, ['latest_hash']);
+$I->seeResponseIsEventChain($chainId, ['latestHash']);

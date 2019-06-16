@@ -106,9 +106,9 @@ $I->expectHttpRequest(function (Request $request) use ($I) {
 
 // Send message to process
 $I->expectHttpRequest(function (Request $request) use ($I) {
-    $json = json_encode(['id' => 'j2134901218ja908323434']);
+    $json = json_encode(['process' => 'j2134901218ja908323434']);
     
-    $I->assertEquals('http://legalflow/processes/j2134901218ja908323434/invoke', (string)$request->getUri());
+    $I->assertEquals('http://legalflow/processes/-/invoke', (string)$request->getUri());
     $I->assertEquals('application/json', $request->getHeaderLine('Content-Type'));
     $I->assertJsonStringEqualsJsonString($json, (string)$request->getBody());
     
