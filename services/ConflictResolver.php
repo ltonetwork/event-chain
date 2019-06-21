@@ -43,8 +43,8 @@ class ConflictResolver
      */
     public function handleFork(EventChain $ourChain, EventChain $theirChain): EventChain
     {
-        $ourEvent = $ourChain->getFirstEvent();
-        $theirEvent = $theirChain->getFirstEvent();
+        $ourEvent = $ourChain->getFirstEvent(true);
+        $theirEvent = $theirChain->getFirstEvent(true);
 
         if ($ourEvent->hash === $theirEvent->hash) {
             $hash = $ourEvent->hash;

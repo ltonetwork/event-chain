@@ -86,16 +86,17 @@ class EventChain extends MongoDocument
     /**
      * Get the first event of the chain.
      *
+     * @param bool $allowPartial
      * @return Event
      * @throws UnderflowException
      */
-    public function getFirstEvent(): Event
+    public function getFirstEvent(bool $allowPartial = false): Event
     {
         if (count($this->events) === 0) {
             throw new UnderflowException("chain has no events");
         }
 
-        if ($this->isPartial()) {
+        if (!$allowPartial && $this->isPartial()) {
             throw new OutOfBoundsException("partial chain doesn't hold the first event");
         }
 
