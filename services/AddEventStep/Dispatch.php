@@ -85,7 +85,7 @@ class Dispatch
         $newNodes = $this->getAllNodesExcept($this->chain->getNodes(), $this->oldNodes, $systemNodes);
 
         if (count($newNodes) !== 0) {
-            $this->dispatcher->dispatch($this->chain, $newNodes);
+            $this->dispatcher->dispatch($this->chain->onlyWithEvents(), $newNodes);
         }
     }
 

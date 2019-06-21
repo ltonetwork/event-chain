@@ -354,7 +354,21 @@ class EventChain extends MongoDocument
 
         return $chain;
     }
-    
+
+    /**
+     * Return an event chain without identities and resources
+     *
+     * @return static
+     */
+    public function onlyWithEvents(): self
+    {
+        $chain = clone $this;
+        
+        $chain->identities = [];
+        $chain->resources = [];
+
+        return $chain;
+    }    
     
     /**
      * Get all events that follow the specified event.
