@@ -78,6 +78,15 @@ class EventChainTest extends \Codeception\Test\Unit
         
         $this->assertSame($chain->events[0], $result);
     }
+    
+    public function testGetFirstPartialEvent()
+    {
+        $chain = $this->createEventChain(2);
+        $partial = $this->addEvents($chain, 1, null, true);
+        $result = $partial->getFirstEvent(true);
+        
+        $this->assertSame($partial->events[0], $result);
+    }
 
     /**
      * @expectedException UnderflowException
@@ -89,6 +98,17 @@ class EventChainTest extends \Codeception\Test\Unit
         ]);
         
         $chain->getFirstEvent();
+    }
+
+    /**
+     * @expectedException OutOfBoundsException
+     * @expectedExceptionMessage partial chain doesn't hold the first event
+     */
+    public function testGetFirstPartialEventException()
+    {
+        $chain = $this->createEventChain(2);
+        $partial = $this->addEvents($chain, 1, null, true);        
+        $partial->getFirstEvent();
     }
 
     public function testGetLastEvent()
@@ -735,5 +755,22 @@ class EventChainTest extends \Codeception\Test\Unit
         ];
 
         $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Test 'onlyWithEvents' method
+     */
+    public function testOnlyWithEvents()
+    {
+        $chain = $this->createEventChain(2);
+        $chain->identities = [$this->createMock(Identity::class)];
+        $chain->resources = ['foo'];
+
+        $result = $chain->onlyWithEvents();
+
+        $this->assertSame($chain->id, $result->id);
+        $this->assertEquals($chain->events, $result->events);
+        $this->assertEquals([], $result->identities);
+        $this->assertEquals([], $result->resources);
     }
 }

@@ -89,6 +89,7 @@ class EventChain extends MongoDocument
      * @param bool $allowPartial
      * @return Event
      * @throws UnderflowException
+     * @throws OutOfBoundsException
      */
     public function getFirstEvent(bool $allowPartial = false): Event
     {

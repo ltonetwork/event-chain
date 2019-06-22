@@ -1,6 +1,8 @@
 <?php
 
 use Jasny\ValidationResult;
+use Jasny\DB\EntitySet;
+use Improved\IteratorPipeline\Pipeline;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 use AddEventStep as Step;
 
@@ -10,6 +12,7 @@ use AddEventStep as Step;
 class EventManagerTest extends \Codeception\Test\Unit
 {
     use Jasny\TestHelper;
+    use TestEventTrait;
 
     /**
      * Create mock dependencies for EventManager
@@ -28,6 +31,29 @@ class EventManagerTest extends \Codeception\Test\Unit
             EventChainGateway::class => $this->createMock(EventChainGateway::class),
             ConflictResolver::class => $this->createMock(ConflictResolver::class),
         ];
+    }
+
+    /**
+     * Test 'add' method
+     */
+    public function testAdd()
+    {
+        $chain = $this->createEventChain(2);
+        $newChain = $this->addEvents($chain, 2, null, true);
+
+        $steps = $this->mockSteps($chain, $newChain);
+        $manager = $this->createEventManager(['getSteps']);
+
+        $manager->expects($this->once())->method('getSteps')->willReturn($steps);
+
+        $result = $manager->add($chain, $newChain);
+        $expectedErrors = [
+            'first step error',
+            'second step error'
+        ];
+
+        $this->assertInstanceOf(ValidationResult::class, $result);
+        $this->assertEquals($expectedErrors, $result->getErrors());
     }
 
     /**
@@ -50,81 +76,43 @@ class EventManagerTest extends \Codeception\Test\Unit
     }
 
     /**
-     * Create stubs for the steps.
-     *
-     * @param string|null $firstError
-     * @param string|null $secondError
-     * @param EventChain  $chain
-     * @return callable[]
+     * Mock event manager steps
+     * 
+     * @return array
      */
-    protected function stubSteps(
-        ?string $firstError, 
-        ?string $secondError, 
-        EventChain $newChain, 
-        EventChain $dynamicNewChain
-    ): array
+    protected function mockSteps($chain, $newChain)
     {
         return [
-            function(EventChain $events, ValidationResult $validation) use ($firstError, $newChain, $dynamicNewChain): EventChain {
-                static $called = 0;                
-                $called++;
-                $events->calledFirst = $called;
+            function(ArrayObject $newEvents, ValidationResult $validation, ArrayObject $newEvents2) use ($newChain) : Pipeline {
+                $this->assertEquals($newChain->events->getArrayCopy(), $newEvents->getArrayCopy());                
+                $this->assertEquals($newChain->events->getArrayCopy(), $newEvents2->getArrayCopy());
 
-                if ($firstError !== null) {
-                    $validation->addError($firstError);
-                }                
+                $validation->addError('first step error');
 
-                return $called === 1 ? $newChain : $dynamicNewChain;
+                return Pipeline::with($newEvents);
             },
-            function(EventChain $events, ValidationResult $validation) use ($secondError, $newChain, $dynamicNewChain): ?EventChain {
-                static $called = 0;
-                $called++;
-                $events->calledSecond = $called;
+            function(Pipeline $pipe, ValidationResult $validation, ArrayObject $newEvents) use ($newChain) {
+                $this->assertEquals($newChain->events->getArrayCopy(), $newEvents->getArrayCopy());
+                $this->assertEquals($newChain->events->getArrayCopy(), $pipe->toArray());
 
-                if ($secondError !== null) {
-                    $validation->addError($secondError);
-                }
-
-                return $called === 1 ? $dynamicNewChain : null;
-            },
-        ];
-    }
-
-
-    public function addProvider()
-    {
-        return [
-            ['First error', 'secondError', 'First error', 'secondError'],
-            []
+                $validation->addError('second step error');
+            }
         ];
     }
 
     /**
-     * Test 'add' method
-     * @dataProvider addProvider
+     * Test 'add' method for another chain
+     *
+     * @expectedException UnexpectedValueException
+     * @expectedExceptionMessage Can't add events of a different chain
      */
-    public function testAdd(string ...$errors)
+    public function testAddAnotherChain()
     {
-        $chain = $this->createMock(EventChain::class);
-        $newChain = $this->createMock(EventChain::class);
-        $dynamicNewChain = $this->createMock(EventChain::class);
+        $chain = $this->createEventChain(2);
+        $newChain = $this->createEventChain(2);
 
-        $newChain->id = 'a';
-        $dynamicNewChain->id = 'b';
-
-        $manager = $this->createEventManager(['getSteps']);
-
-        $manager->expects($this->once())->method('getSteps')
-            ->willReturn($this->stubSteps($errors[0] ?? null, $errors[1] ?? null, $newChain, $dynamicNewChain));
-
-        $result = $manager->add($chain, $newChain);
-
-        $this->assertInstanceOf(ValidationResult::class, $result);
-        $this->assertSame($errors, $result->getErrors());
-        $this->assertSame(1, $newChain->calledFirst);
-        $this->assertSame(1, $newChain->calledSecond);
-        $this->assertSame(2, $dynamicNewChain->calledFirst);
-        $this->assertSame(2, $dynamicNewChain->calledSecond);
+        $manager = $this->createEventManager();
+        $manager->add($chain, $newChain);
     }
 
     /**
@@ -146,6 +134,9 @@ class EventManagerTest extends \Codeception\Test\Unit
         $manager->add($chain, $newChain);
     }
 
+    /**
+     * Test 'getSteps' method
+     */
     public function testGetSteps()
     {
         $chain = $this->createMock(EventChain::class);
@@ -157,17 +148,16 @@ class EventManagerTest extends \Codeception\Test\Unit
 
         $this->assertInternalType('array', $steps);
         
-        $this->assertInstanceOf(Step\ValidateInput::class, $steps[0]);
-        $this->assertInstanceOf(Step\SyncChains::class, $steps[1]);
-        $this->assertInstanceOf(Step\SkipKnownEvents::class, $steps[2]);
-        $this->assertInstanceOf(Step\HandleFork::class, $steps[3]);
-        $this->assertInstanceOf(Step\ValidateNewEvent::class, $steps[4]);
-        $this->assertInstanceOf(Step\StoreResource::class, $steps[5]);
-        $this->assertInstanceOf(Step\HandleFailed::class, $steps[6]);
-        $this->assertInstanceOf(Step\SaveEvent::class, $steps[7]);
-        $this->assertInstanceOf(Step\AnchorEvent::class, $steps[8]);
+        $this->assertInstanceOf(Step\SyncChains::class, $steps[0]);
+        $this->assertInstanceOf(Step\SkipKnownEvents::class, $steps[1]);
+        $this->assertInstanceOf(Step\HandleFork::class, $steps[2]);
+        $this->assertInstanceOf(Step\ValidateNewEvent::class, $steps[3]);
+        $this->assertInstanceOf(Step\StoreResource::class, $steps[4]);
+        $this->assertInstanceOf(Step\HandleFailed::class, $steps[5]);
+        $this->assertInstanceOf(Step\SaveEvent::class, $steps[6]);
+        $this->assertInstanceOf(Step\AnchorEvent::class, $steps[7]);
+        $this->assertInstanceOf(Step\TriggerResources::class, $steps[8]);
         $this->assertInstanceOf(Step\Walk::class, $steps[9]);
         $this->assertInstanceOf(Step\Dispatch::class, $steps[10]);
-        $this->assertInstanceOf(Step\TriggerResources::class, $steps[11]);
     }
 }
