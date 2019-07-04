@@ -103,7 +103,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
 
         $expected = [
             [
-                'url' => 'http://www.foo.com/foo_process_id',
+                'url' => 'http://www.foo.com/-',
                 'data' => [
                     '$schema' => 'http://example.com/foo/schema.json#',
                     'process' => 'foo_process_id',
@@ -112,7 +112,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
                 ]
             ],
             [
-                'url' => 'http://www.zoo-foo.com/foo_process_id/zoo',
+                'url' => 'http://www.zoo-foo.com/-/zoo',
                 'data' => [
                     '$schema' => 'http://example.com/foo/schema.json#',
                     'process' => 'foo_process_id',
@@ -122,7 +122,8 @@ class ResourceStorageTest extends \Codeception\Test\Unit
                         'id' => $chain->id,
                         'events' => json_decode(json_encode($chain->events)),
                         'identities' => json_decode(json_encode($chain->identities)),
-                        'resources' => ['foo', 'bar']
+                        'resources' => ['foo', 'bar'],
+                        'latestHash' => $chain->getLatestHash()
                     ]
                 ]
             ],
@@ -136,15 +137,15 @@ class ResourceStorageTest extends \Codeception\Test\Unit
                     'chain' => [
                         'id' => $chain->id,
                         'events' => [],
-                        'identities' => [],
-                        'resources' => [],
-                        'latest_hash' => $chain->getLatestHash()
+                        'identities' => json_decode(json_encode($chain->identities)),
+                        'resources' => ['foo', 'bar'],
+                        'latestHash' => $chain->getLatestHash()
                     ]
                 ]
             ],
         ];
 
-        for ($i=2; $i < 3; $i++) { 
+        for ($i=0; $i < 3; $i++) { 
             $data = $expected[$i];
             $options = $httpRequestContainer[$i]['options'];
             $request = $httpRequestContainer[$i]['request'];
@@ -158,7 +159,8 @@ class ResourceStorageTest extends \Codeception\Test\Unit
             $this->assertEquals(['application/json'], $headers['Content-Type']);
             $this->assertEquals(['foo_event_public_signkey'], $headers['X-Original-Key-Id']);
             $this->assertTrue(!empty($headers['date'][0]));
-            $this->assertJsonStringEqualsJsonString(json_encode($data['data']), (string)$request->getBody());            
+            $body = (string)$request->getBody();
+            $this->assertJsonStringEqualsJsonString(json_encode($data['data']), $body);            
         }   
     }
 

@@ -66,12 +66,12 @@ class ResourceTrigger
                 $newEvents = $this->triggerOne($resources, $chain, $endpoint, $opts);
 
                 if ($newEvents !== null) {
-                    break; // First process the new events before triggering more
+                    return $newEvents; // First process the new events before triggering more
                 }
             }
         }
 
-        return $newEvents;
+        return null;
     }
 
     /**

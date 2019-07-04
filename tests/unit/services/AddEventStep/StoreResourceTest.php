@@ -2,6 +2,7 @@
 
 namespace AddEventStep;
 
+use ArrayObject;
 use Improved as i;
 use Event;
 use Identity;
@@ -78,6 +79,7 @@ class StoreResourceTest extends \Codeception\Test\Unit
 
         $events[0]->hash = 'a';
         $events[1]->hash = 'b';
+        $newEvents = new ArrayObject($events);       
 
         $resources = [
             $this->createMock(ResourceInterface::class),
@@ -113,7 +115,7 @@ class StoreResourceTest extends \Codeception\Test\Unit
         ]));
 
         $step->expects($this->exactly(2))->method('storeResource')->withConsecutive(
-            [$resources[0]], [$resources[1]]
+            [$resources[0], $newEvents], [$resources[1], $newEvents]
         )->willReturnOnConsecutiveCalls($storedValidations[0], $storedValidations[1]);
 
         $resources[0]->expects($this->once())->method('validate')->willReturn($resourceValidations[0]);
@@ -124,8 +126,8 @@ class StoreResourceTest extends \Codeception\Test\Unit
             [$privilegeValidations[1], "event 'b': "], [$resourceValidations[1], "event 'b': "], [$storedValidations[1], "event 'b': "]
         );
         
-        $pipeline = Pipeline::with($events);               
-        $ret = i\function_call($step, $pipeline, $validation);
+        $pipeline = Pipeline::with($events);        
+        $ret = i\function_call($step, $pipeline, $validation, $newEvents);
 
         $this->assertSame($pipeline, $ret);
 
@@ -141,6 +143,7 @@ class StoreResourceTest extends \Codeception\Test\Unit
         $step = $this->getStep(['applyPrivilegeToResource', 'storeResource']);
         list($events, $resources, $privilegeValidations, $storedValidations, $resourceValidations) = $this->getItems();
 
+        $newEvents = new ArrayObject($events);       
         $validation = $this->createMock(ValidationResult::class);
 
         $validation->expects($this->exactly(6))->method('failed')->willReturnOnConsecutiveCalls(
@@ -157,7 +160,7 @@ class StoreResourceTest extends \Codeception\Test\Unit
         ]));
 
         $step->expects($this->exactly(2))->method('storeResource')->withConsecutive(
-            [$resources[0]], [$resources[1]]
+            [$resources[0], $newEvents], [$resources[1], $newEvents]
         )->willReturnOnConsecutiveCalls($storedValidations[0], $storedValidations[1]);
 
         $resources[0]->expects($this->once())->method('validate')->willReturn($resourceValidations[0]);
@@ -169,7 +172,7 @@ class StoreResourceTest extends \Codeception\Test\Unit
         );
         
         $pipeline = Pipeline::with($events);               
-        $ret = i\function_call($step, $pipeline, $validation);
+        $ret = i\function_call($step, $pipeline, $validation, $newEvents);
 
         $this->assertSame($pipeline, $ret);
 
@@ -185,6 +188,7 @@ class StoreResourceTest extends \Codeception\Test\Unit
         $step = $this->getStep(['applyPrivilegeToResource', 'storeResource']);
         list($events, $resources, $privilegeValidations, $storedValidations, $resourceValidations) = $this->getItems();
 
+        $newEvents = new ArrayObject($events);       
         $validation = $this->createMock(ValidationResult::class);
 
         $validation->expects($this->exactly(7))->method('failed')->willReturnOnConsecutiveCalls(
@@ -203,7 +207,7 @@ class StoreResourceTest extends \Codeception\Test\Unit
         ]));
 
         $step->expects($this->exactly(2))->method('storeResource')->withConsecutive(
-            [$resources[0]], [$resources[1]]
+            [$resources[0], $newEvents], [$resources[1], $newEvents]
         )->willReturnOnConsecutiveCalls($storedValidations[0], $storedValidations[1]);
 
         $resources[0]->expects($this->once())->method('validate')->willReturn($resourceValidations[0]);
@@ -217,7 +221,7 @@ class StoreResourceTest extends \Codeception\Test\Unit
         );
         
         $pipeline = Pipeline::with($events);               
-        $ret = i\function_call($step, $pipeline, $validation);
+        $ret = i\function_call($step, $pipeline, $validation, $newEvents);
 
         $this->assertSame($pipeline, $ret);
 
@@ -240,6 +244,8 @@ class StoreResourceTest extends \Codeception\Test\Unit
         $events[0]->hash = 'a';
         $events[1]->hash = 'b';
 
+        $newEvents = new ArrayObject($events);       
+
         $validation = $this->createMock(ValidationResult::class);
         $validation->expects($this->exactly(2))->method('failed')->willReturn(true);
 
@@ -249,7 +255,7 @@ class StoreResourceTest extends \Codeception\Test\Unit
         $validation->expects($this->never())->method('add');
         
         $pipeline = Pipeline::with($events);               
-        $ret = i\function_call($step, $pipeline, $validation);
+        $ret = i\function_call($step, $pipeline, $validation, $newEvents);
 
         $this->assertSame($pipeline, $ret);
 
@@ -280,7 +286,7 @@ class StoreResourceTest extends \Codeception\Test\Unit
         $step = $this->getStep();
         $event = $this->createMock(Event::class);
 
-        $this->chain->expects($this->once())->method('isEmpty')->willReturn(true);
+        $this->chain->expects($this->once())->method('hasEvents')->willReturn(false);
 
         $result = $step->applyPrivilegeToResource($resource, $event);
 
@@ -306,7 +312,7 @@ class StoreResourceTest extends \Codeception\Test\Unit
         $this->chain->identities = $this->createMock(IdentitySet::class);
         $identitiesFiltered = $this->createMock(IdentitySet::class);
 
-        $this->chain->expects($this->once())->method('isEmpty')->willReturn(false);
+        $this->chain->expects($this->once())->method('hasEvents')->willReturn(true);
         $this->chain->identities->expects($this->once())->method('filterOnSignkey')->with($event->signkey)->willReturn($identitiesFiltered);
         $identitiesFiltered->expects($this->once())->method('getPrivileges')->with($resource)->willReturn($privileges);
 
@@ -337,7 +343,7 @@ class StoreResourceTest extends \Codeception\Test\Unit
 
         $this->chain->identities = $this->createMock(IdentitySet::class);;
 
-        $this->chain->expects($this->once())->method('isEmpty')->willReturn(false);
+        $this->chain->expects($this->once())->method('hasEvents')->willReturn(true);
         $this->chain->identities->expects($this->once())->method('filterOnSignkey')->with($event->signkey)->willReturn($identitiesFiltered);
         $identitiesFiltered->expects($this->once())->method('getPrivileges')->with($resource)->willReturn($privileges);
         $step->expects($this->once())->method('consolidatedPrivilege')->with($resource, $privileges)->willReturn($consolidatedPrivilege);
@@ -392,7 +398,8 @@ class StoreResourceTest extends \Codeception\Test\Unit
                 throw $exception;
             }));
 
-        $result = $this->callPrivateMethod($step, 'storeResource', [$resource]);
+        $newEvents = new ArrayObject([]);
+        $result = $this->callPrivateMethod($step, 'storeResource', [$resource, $newEvents]);
 
         $this->assertInstanceOf(ValidationResult::class, $result);
         $this->assertEquals([$expectedError], $result->getErrors());
@@ -404,12 +411,15 @@ class StoreResourceTest extends \Codeception\Test\Unit
     public function testStoreResourceSuccess()
     {
         $step = $this->getStep();
+        $newEvents = new ArrayObject([]);
+        $addedEvents = $this->createMock(EventChain::class);
 
         $resource = $this->createMock(ResourceInterface::class);
-        $this->resourceStorage->expects($this->once())->method('store')->with($resource);
+        $this->resourceStorage->expects($this->once())->method('store')->with($resource, $this->chain)
+            ->willReturn($addedEvents);
         $this->chain->expects($this->once())->method('registerResource')->with($resource);
 
-        $result = $this->callPrivateMethod($step, 'storeResource', [$resource]);
+        $result = $this->callPrivateMethod($step, 'storeResource', [$resource, $newEvents]);
 
         $this->assertInstanceOf(ValidationResult::class, $result);
         $this->assertTrue($result->succeeded());
@@ -426,6 +436,9 @@ class StoreResourceTest extends \Codeception\Test\Unit
             $this->createMock(Event::class),
             $this->createMock(Event::class)
         ];
+        $events[1]->hash = 'a';
+
+        $newEvents = new ArrayObject($events);
 
         $pipe = Pipeline::with($events);
         $resource = $this->createMock(\ExternalResource::class);
@@ -448,15 +461,19 @@ class StoreResourceTest extends \Codeception\Test\Unit
             ->willReturn(ValidationResult::success());
 
         $resource->expects($this->once())->method('validate')->willReturn(ValidationResult::success());
-        $step->expects($this->once())->method('storeResource')->with($this->identicalTo($resource))
+        $step->expects($this->once())->method('storeResource')
+            ->with($this->identicalTo($resource), $this->identicalTo($newEvents))
             ->willReturn(ValidationResult::success());
 
         $validation = new ValidationResult();
 
-        $result = $step($pipe, $validation);
+        $result = $step($pipe, $validation, $newEvents);
         $result->walk();
 
         $errors = $validation->getErrors();
+        $expected = ["event 'a': failed to extract resource: error on event 2"];
+
+        $this->assertEquals($expected, $errors);
     }
 
     /**

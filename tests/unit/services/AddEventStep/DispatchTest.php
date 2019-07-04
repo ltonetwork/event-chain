@@ -50,16 +50,19 @@ class DispatchTest extends \Codeception\Test\Unit
         $partial = $this->createMock(EventChain::class);
         $partial->events = [$this->createMock(Event::class)];
 
+        $onlyEventsChain = $this->createMock(EventChain::class);
+
         $this->chain->expects($this->once())->method('getNodes')
             ->willReturn(['amq://example.com', 'amq://example.net', 'amq://example.org']);
         $this->chain->expects($this->once())->method('getNodesForSystem')
             ->with(123)
             ->willReturn(['amq://example.net']);
+        $this->chain->expects($this->once())->method('onlyWithEvents')->willReturn($onlyEventsChain);
 
         $this->dispatcher->expects($this->exactly(2))->method('dispatch')
             ->withConsecutive(
                 [$this->identicalTo($partial), ['amq://example.org']],
-                [$this->identicalTo($this->chain), ['amq://example.com']]
+                [$this->identicalTo($onlyEventsChain), ['amq://example.com']]
             );
 
         i\function_call($this->step, $partial);
@@ -70,14 +73,17 @@ class DispatchTest extends \Codeception\Test\Unit
         $partial = $this->createMock(EventChain::class);
         $partial->events = [];
 
+        $onlyEventsChain = $this->createMock(EventChain::class);
+
         $this->chain->expects($this->once())->method('getNodes')
             ->willReturn(['amq://example.com', 'amq://example.net', 'amq://example.org']);
         $this->chain->expects($this->once())->method('getNodesForSystem')
             ->with(123)
             ->willReturn(['amq://example.net']);
+        $this->chain->expects($this->once())->method('onlyWithEvents')->willReturn($onlyEventsChain);
 
         $this->dispatcher->expects($this->exactly(1))->method('dispatch')
-            ->with($this->identicalTo($this->chain), ['amq://example.com']);
+            ->with($this->identicalTo($onlyEventsChain), ['amq://example.com']);
 
         i\function_call($this->step, $partial);
     }

@@ -2,6 +2,7 @@
 
 namespace AddEventStep;
 
+use ArrayObject;
 use Improved as i;
 use Event;
 use EventChain;
@@ -61,13 +62,7 @@ class SyncChainsTest extends \Codeception\Test\Unit
     {
         $previous = 'foo_hash';
 
-        $firstEvent = $this->createMock(Event::class);
-        $firstEvent->previous = $previous;        
-
-        $newEvents = $this->createMock(EventChain::class);
-        $newEvents->expects($this->once())->method('getFirstEvent')->willReturn($firstEvent);
-
-        $newEvents->events = [
+        $events = [
             $this->createMock(Event::class),
             $this->createMock(Event::class),
             $this->createMock(Event::class),
@@ -75,18 +70,19 @@ class SyncChainsTest extends \Codeception\Test\Unit
             $this->createMock(Event::class)
         ];
 
-        $newEvents->events[0]->hash = 'a';
-        $newEvents->events[1]->hash = 'b';
-        $newEvents->events[2]->hash = 'c';
-        $newEvents->events[3]->hash = 'd';
-        $newEvents->events[4]->hash = 'e';
+        $events[0]->previous = $previous;
+        $events[0]->hash = 'a';
+        $events[1]->hash = 'b';
+        $events[2]->hash = 'c';
+        $events[3]->hash = 'd';
+        $events[4]->hash = 'e';
+
+        $newEvents = new ArrayObject($events);
 
         $this->chain->expects($this->once())->method('getEventsAfter')->with($previous)->willReturn($followingEvents);
 
         $validation = $this->createMock(ValidationResult::class);
         $validation->expects($this->never())->method('addError');
-        
-        $expectedValues = $newEvents->events;
        
         $ret = i\function_call($this->step, $newEvents, $validation);
         $this->assertInstanceOf(Pipeline::class, $ret);
@@ -97,36 +93,34 @@ class SyncChainsTest extends \Codeception\Test\Unit
         $resultValues = $retClone->values()->toArray();
 
         $this->assertEquals($expectedKeys, $resultKeys);
-        $this->assertEquals($expectedValues, $resultValues);
+        $this->assertEquals($events, $resultValues);
     }
 
     public function testException()
     {
         $previous = 'foo_hash';
 
-        $firstEvent = $this->createMock(Event::class);
-        $firstEvent->previous = $previous;        
-
-        $newEvents = $this->createMock(EventChain::class);
-        $newEvents->expects($this->once())->method('getFirstEvent')->willReturn($firstEvent);
-
-        $newEvents->events = [
+        $events = [
             $this->createMock(Event::class),
             $this->createMock(Event::class),
         ];
 
-        $newEvents->events[0]->hash = 'a';
-        $newEvents->events[1]->hash = 'b';
+        $events[0]->previous = $previous;
+        $events[0]->hash = 'a';
+        $events[1]->hash = 'b';
 
-        $this->chain->expects($this->once())->method('getEventsAfter')->with($previous)->will($this->returnCallback(function($prev) {
-            throw new \OutOfBoundsException('Test no events after');
-        }));
+        $newEvents = new ArrayObject($events);
+
+        $this->chain->expects($this->once())->method('getEventsAfter')->with($previous)
+            ->will($this->returnCallback(function($prev) {
+                throw new \OutOfBoundsException('Test no events after');
+            }));
 
         $validation = $this->createMock(ValidationResult::class);
         $validation->expects($this->once())->method('addError')->with("events don't fit on chain, '%s' not found", $previous);
         
         $expectedKeys = [null, null];
-        $expectedValues = $newEvents->events;
+        $expectedValues = $events;
        
         $ret = i\function_call($this->step, $newEvents, $validation);
         $this->assertInstanceOf(Pipeline::class, $ret);

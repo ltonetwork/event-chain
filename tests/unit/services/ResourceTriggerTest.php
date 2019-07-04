@@ -42,10 +42,10 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
         $partial2 = json_encode(['id' => $chain->id, 'events' => [['hash' => 'not_used']]]);
 
         return [
-            [$chain, $resources, $validateEvents, $partial1, $partial2],
-            [$chain, $callable(), $validateEvents, $partial1, $partial2],
-            [$chain, $resources, $validateNoEvents],
-            [$chain, $callable(), $validateNoEvents]
+            [$chain, $resources, $validateEvents, 3, $partial1, $partial2],
+            [$chain, $callable(), $validateEvents, 3, $partial1, $partial2],
+            [$chain, $resources, $validateNoEvents, 6],
+            [$chain, $callable(), $validateNoEvents, 6]
         ];
     }
 
@@ -54,7 +54,7 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
      *
      * @dataProvider triggerProvider
      */
-    public function testTriggerResultEvents($chain, $resources, $validateResult, $response1 = '', $response2 = '')
+    public function testTriggerResultEvents($chain, $resources, $validateResult, $expectedRequestCound, $response1 = '', $response2 = '')
     {
         $endpoints = $this->getEndpoints();        
         $responseHeader = ['Content-Type' => 'application/json'];
@@ -70,27 +70,26 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
             new GuzzleHttp\Psr7\Response(200, $responseHeader, $response2)
         ]);        
 
-        $httpError = $this->createMock(HttpErrorWarning::class);
-        $httpError->expects($this->never())->method('__invoke');
-
         $node = $this->createMock(Account::class);
         $node->sign = (object)['publickey' => 'foo_node_sign_publickey'];
 
-        $storage = new ResourceTrigger($endpoints, $httpClient, $httpError, $node);        
-        $result = $storage->trigger($resources, $chain);
+        $storage = new ResourceTrigger($endpoints, $httpClient, $node);        
+        $result = @$storage->trigger($resources, $chain);
 
         $validateResult($chain, $result);
 
-        $this->assertCount(6, $httpRequestContainer);
+        $this->assertCount($expectedRequestCound, $httpRequestContainer);
 
         $expected = [
-            ['url' => 'http://simple-foo-bar.com/foo_value', 'data' => ['foo' => 'foo_value']], // group resources 1 & 2
-            ['url' => 'http://simple-foo-bar.com/res5_foo', 'data' => ['foo' => 'res5_foo']], // resource 5
-            ['url' => 'http://simple-foo-bar.com/res3_bar_id', 'data' => ['bar' => 'res3_bar_id']],
-            ['url' => 'http://another-foo-bar-zoo.com/path/foo_value/action', 'data' => ['foo' => 'foo_value']], // group resources 1 & 2
-            ['url' => 'http://another-foo-bar-zoo.com/path/res5_foo/action', 'data' => ['foo' => 'res5_foo']], // resource 5
-            ['url' => 'http://another-foo-bar-zoo.com/path/res3_bar_id/action', 'data' => ['bar' => 'res3_bar_id']]
+            ['url' => 'http://simple-foo-bar.com/-', 'data' => ['process' => 'foo_value']], // group resources 1 & 2
+            ['url' => 'http://simple-foo-bar.com/-', 'data' => ['process' => 'res5_foo']], // resource 5
+            ['url' => 'http://simple-foo-bar.com/-', 'data' => ['process' => ['id' => 'res3_bar_id']]],
+            ['url' => 'http://another-foo-bar-zoo.com/path/-/action', 'data' => ['process' => 'foo_value']], // group resources 1 & 2
+            ['url' => 'http://another-foo-bar-zoo.com/path/-/action', 'data' => ['process' => 'res5_foo']], // resource 5
+            ['url' => 'http://another-foo-bar-zoo.com/path/-/action', 'data' => ['process' => ['id' => 'res3_bar_id']]]
         ];
+
+        $expected = array_slice($expected, 0, $expectedRequestCound);
 
         for ($i=0; $i < count($expected); $i++) { 
             $data = $expected[$i];
@@ -124,13 +123,10 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
             new GuzzleHttp\Psr7\Response(200)
         ]);        
 
-        $httpError = $this->createMock(HttpErrorWarning::class);
-        $httpError->expects($this->never())->method('__invoke');
-
         $node = $this->createMock(Account::class);
         $node->sign = (object)['publickey' => 'foo_node_sign_publickey'];
 
-        $storage = new ResourceTrigger($endpoints, $httpClient, $httpError, $node);        
+        $storage = new ResourceTrigger($endpoints, $httpClient, $node);        
         $storage->trigger($resources, $chain);
 
         $this->assertCount(3, $httpRequestContainer);
@@ -138,30 +134,31 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
         $expected = [
             [
                 'url' => 'http://simple-foo.com', 
-                'data' => ['scenario' => 'foo_scenario_id']
+                'data' => ['process' => 'foo_process_id']
             ],
             [
                 'url' => 'http://another-foo.com', 
                 'data' => [
-                    'scenario' => 'foo_scenario_id',
+                    'process' => 'foo_process_id',
                     'chain' => [
                         'id' => $chain->id,
                         'events' => json_decode(json_encode($chain->events)),
                         'identities' => json_decode(json_encode($chain->identities)),
-                        'resources' => ['foo', 'bar']
+                        'resources' => ['foo', 'bar'],
+                        'latestHash' => $chain->getLatestHash()
                     ]
                 ]
             ],
             [
                 'url' => 'http://more-foo.com', 
                 'data' => [
-                    'scenario' => 'foo_scenario_id',
+                    'process' => 'foo_process_id',
                     'chain' => [
                         'id' => $chain->id,
                         'events' => [],
-                        'identities' => [],
-                        'resources' => [],
-                        'latest_hash' => $chain->getLatestHash()
+                        'identities' => json_decode(json_encode($chain->identities)),
+                        'resources' => ['foo', 'bar'],
+                        'latestHash' => $chain->getLatestHash()
                     ]
                 ]
             ],
@@ -194,7 +191,7 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
             (object)[
                 'url' => 'http://simple-foo-bar.com/-', 
                 'resources' => [
-                    (object)[ // resources 1 and 2
+                    (object)[ // resources 1, 2 and 5
                         'schema' => 'http://example.com/foo/schema.json#',
                         'group' => (object)['process' => 'foo']
                     ],
@@ -207,7 +204,7 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
             (object)[
                 'url' => 'http://another-foo-bar-zoo.com/path/-/action', 
                 'resources' => [
-                    (object)[ // resources 1 and 2
+                    (object)[ // resources 1, 2 and 5
                         'schema' => 'http://example.com/foo/schema.json#',
                         'group' => (object)['process' => 'foo']
                     ],
@@ -238,7 +235,7 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
                 'resources' => [
                     (object)[
                         'schema' => 'http://example.com/foo/schema.json#',
-                        'group' => (object)['process' => 'scenario']
+                        'group' => (object)['process' => 'id']
                     ]
                 ]
             ],
@@ -248,7 +245,7 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
                 'resources' => [
                     (object)[
                         'schema' => 'http://example.com/foo/schema.json#',
-                        'group' => (object)['process' => 'scenario']
+                        'group' => (object)['process' => 'id']
                     ]
                 ]
             ],
@@ -258,7 +255,7 @@ class ResourceTriggerTest extends \Codeception\Test\Unit
                 'resources' => [
                     (object)[
                         'schema' => 'http://example.com/foo/schema.json#',
-                        'group' => (object)['process' => 'scenario']
+                        'group' => (object)['process' => 'id']
                     ]
                 ]
             ],

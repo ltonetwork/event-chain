@@ -35,73 +35,7 @@
             "original": null
         }
     ],
-    "identities": [
-        {
-            "id": "0c1d7eac-18ec-496a-8713-8e6e5f098686",
-            "node": "localhost-1",
-            "signkeys": {
-                "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",
-                "system": "2KduZAmAKuXEL463udjCQkVfwJkBQhpciUC4gNiayjSJ"
-            },
-            "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
-            "timestamp": null,
-            "$schema": "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
-        },
-        {
-            "id": "3hu99b8e-6bd3-4d88-81dd-a6ed9308q2g7",
-            "node": "localhost",
-            "signkeys": {
-                "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",
-                "system": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
-            },
-            "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
-            "timestamp": null,
-            "$schema": "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
-        },
-        {
-            "id": "4fd69b8e-6bd3-4d88-81dd-a6ed9308a14e",
-            "node": "localhost-2",
-            "signkeys": {
-                "default": "BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp",
-                "system": "H3fdNWdGtxia7Q7dv7rWtEao6xNha7R672DkhD93SdQL"
-            },
-            "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
-            "timestamp": null,
-            "$schema": "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
-        },
-        {
-            "id": "8kda3eac-18ec-496a-8713-8e6e5f012358",
-            "node": "localhost-3",
-            "signkeys": {
-                "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",
-                "system": "CcdaoWD1ZW49ZgMeLJoki2sFZhraZSwHNuweJeEaBZmV"
-            },
-            "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
-            "timestamp": 1554069465,
-            "$schema": "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
-        },
-        {
-            "id": "2th67uj5-6bd3-4d88-81dd-a6ed933fgv8k",
-            "node": "localhost",
-            "signkeys": {
-                "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",
-                "system": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
-            },
-            "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
-            "timestamp": 1554069465,
-            "$schema": "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
-        },
-        {
-            "id": "w3d6hvb8-6bd3-4d88-81dd-a6ed932s5tg9",
-            "node": "localhost-4",
-            "signkeys": {
-                "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y",
-                "system": "DwqSGapJ295NavPy6wWzmxiR8nSXv3k8zPAoeto6Ct9C"
-            },
-            "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
-            "timestamp": 1554069465,
-            "$schema": "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
-        }
-    ],
-    "resources": []
+    "identities": [],
+    "resources": [],
+    "latestHash": "BG2oBdh3DuYdCfbARm5GArtUmSHzbnPAwFtRiQf5UdZe"
 }

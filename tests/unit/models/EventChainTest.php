@@ -73,14 +73,19 @@ class EventChainTest extends \Codeception\Test\Unit
     
     public function testGetFirstEvent()
     {
-        $event1 = $this->createMock(Event::class);
-        $event2 = $this->createMock(Event::class);
+        $chain = $this->createEventChain(2);
+        $result = $chain->getFirstEvent();
         
-        $chain = EventChain::create()->setValues([
-            'events' => [ $event1, $event2 ]
-        ]);
+        $this->assertSame($chain->events[0], $result);
+    }
+    
+    public function testGetFirstPartialEvent()
+    {
+        $chain = $this->createEventChain(2);
+        $partial = $this->addEvents($chain, 1, null, true);
+        $result = $partial->getFirstEvent(true);
         
-        $this->assertSame($event1, $chain->getFirstEvent());
+        $this->assertSame($partial->events[0], $result);
     }
 
     /**
@@ -93,6 +98,17 @@ class EventChainTest extends \Codeception\Test\Unit
         ]);
         
         $chain->getFirstEvent();
+    }
+
+    /**
+     * @expectedException OutOfBoundsException
+     * @expectedExceptionMessage partial chain doesn't hold the first event
+     */
+    public function testGetFirstPartialEventException()
+    {
+        $chain = $this->createEventChain(2);
+        $partial = $this->addEvents($chain, 1, null, true);        
+        $partial->getFirstEvent();
     }
 
     public function testGetLastEvent()
@@ -119,19 +135,19 @@ class EventChainTest extends \Codeception\Test\Unit
         $chain->getLastEvent();
     }
 
-    public function testIsEmptyTrue()
+    public function testHasEventsFalse()
     {
         $chain = new EventChain();
         
-        $this->assertTrue($chain->isEmpty());
+        $this->assertFalse($chain->hasEvents());
     }
 
-    public function testIsEmptyFalse()
+    public function testHasEventsTrue()
     {
         $chain = new EventChain();
         $chain->events[] = $this->createMock(Event::class);
         
-        $this->assertFalse($chain->isEmpty());
+        $this->assertTrue($chain->hasEvents());
     }
     
     public function testIsPartialFalse()
@@ -739,5 +755,22 @@ class EventChainTest extends \Codeception\Test\Unit
         ];
 
         $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Test 'onlyWithEvents' method
+     */
+    public function testOnlyWithEvents()
+    {
+        $chain = $this->createEventChain(2);
+        $chain->identities = [$this->createMock(Identity::class)];
+        $chain->resources = ['foo'];
+
+        $result = $chain->onlyWithEvents();
+
+        $this->assertSame($chain->id, $result->id);
+        $this->assertEquals($chain->events, $result->events);
+        $this->assertEquals([], $result->identities);
+        $this->assertEquals([], $result->resources);
     }
 }

@@ -77,8 +77,6 @@ class EventChainController extends Jasny\Controller
             return;
         }
 
-        $eventChain->latest_hash = $eventChain->getLatestHash();        
-
         $this->output($eventChain, 'json');
     }
 

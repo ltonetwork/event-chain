@@ -52,11 +52,11 @@ $I->expectTo('see in response, that chain did not change');
 $I->dontSee("broken chain");
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
-$I->seeResponseIsEventChain($chainId);
+$I->seeResponseIsEventChain($chainId, ['latestHash']);
 
 $I->expectTo('get whole chain and see, that it did not change');
 
 $I->sendGET('/event-chains/' . $chainId);
 $I->seeResponseCodeIs(200);
 $I->seeResponseIsJson();
-$I->seeResponseIsEventChain($chainId, ['latest_hash']);
+$I->seeResponseIsEventChain($chainId, ['latestHash']);

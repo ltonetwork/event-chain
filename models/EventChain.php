@@ -86,16 +86,18 @@ class EventChain extends MongoDocument
     /**
      * Get the first event of the chain.
      *
+     * @param bool $allowPartial
      * @return Event
      * @throws UnderflowException
+     * @throws OutOfBoundsException
      */
-    public function getFirstEvent(): Event
+    public function getFirstEvent(bool $allowPartial = false): Event
     {
         if (count($this->events) === 0) {
             throw new UnderflowException("chain has no events");
         }
 
-        if ($this->isPartial()) {
+        if (!$allowPartial && $this->isPartial()) {
             throw new OutOfBoundsException("partial chain doesn't hold the first event");
         }
 
@@ -289,8 +291,15 @@ class EventChain extends MongoDocument
         
         if (count($this->events) === 0) {
             $validation->addError('no events');
-        } elseif ($this->getFirstEvent()->previous === $this->getInitialHash() && !$this->isValidId()) {
-            $validation->addError('invalid id');
+        } else {
+            $invalidId = 
+                !$this->isPartial() && 
+                $this->getFirstEvent()->previous === $this->getInitialHash() && 
+                !$this->isValidId();
+
+            if ($invalidId) {
+                $validation->addError('invalid id');
+            }
         }
         
         $validation->add($this->validateIntegrity());
@@ -347,7 +356,21 @@ class EventChain extends MongoDocument
 
         return $chain;
     }
-    
+
+    /**
+     * Return an event chain without identities and resources
+     *
+     * @return static
+     */
+    public function onlyWithEvents(): self
+    {
+        $chain = clone $this;
+        
+        $chain->identities = [];
+        $chain->resources = [];
+
+        return $chain;
+    }    
     
     /**
      * Get all events that follow the specified event.
@@ -393,7 +416,7 @@ class EventChain extends MongoDocument
     }
 
     /**
-     * Get a partial chain consisting without any events.
+     * Get a partial chain without any events.
      *
      * @return EventChain
      */

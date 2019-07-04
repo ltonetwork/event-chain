@@ -2,6 +2,7 @@
 
 namespace AddEventStep;
 
+use ArrayObject;
 use Improved as i;
 use Event;
 use EventChain;
@@ -9,6 +10,7 @@ use EventFactory;
 use AnchorClient;
 use ResourceFactory;
 use ResourceTrigger;
+use ExternalResource;
 use Jasny\DB\EntitySet;
 use Improved\IteratorPipeline\Pipeline;
 use Jasny\ValidationResult;
@@ -50,64 +52,104 @@ class TriggerResourceServicesTest extends \Codeception\Test\Unit
         $this->step = new TriggerResources($this->chain, $this->resourceFactory, $this->resourceTrigger, $this->node);
     }
 
-    public function provider()
+    /**
+     * Test '__invoke' method
+     */
+    public function testInvoke()
     {
-        $event = $this->createMock(Event::class);
-
-        return [
-            [true, [], false, false, null],
-            [false, [$event], false, false, $event],
-            [false, [], true, false, null],
-            [true, [], true, false, null],
-            [true, [$event], true, true, $event],
+        $resources = [
+            $this->createMock(ExternalResource::class),
+            $this->createMock(ExternalResource::class),
+            $this->createMock(ExternalResource::class)
         ];
+
+        $addedEvents = [
+            $this->createMock(Event::class),
+            $this->createMock(Event::class)
+        ];
+
+        $events = [
+            $this->createMock(Event::class),
+            $this->createMock(Event::class),
+            $this->createMock(Event::class)
+        ];
+
+        $events[0]->hash = 'a';
+        $events[1]->hash = 'b';
+        $events[2]->hash = 'c';
+        $addedEvents[0]->hash = 'd';
+        $addedEvents[1]->hash = 'e';
+
+        $newChain = (new EventChain)->withEvents($events);
+        $addedEventsChain = (new EventChain)->withEvents($addedEvents);
+
+        $newEvents = new ArrayObject($events);
+        $pipe = Pipeline::with($events);
+
+        $this->resourceFactory->expects($this->exactly(3))->method('extractFrom')
+            ->withConsecutive([$events[0]], [$events[1]], [$events[2]])
+            ->willReturnOnConsecutiveCalls($resources[0], $resources[1], $resources[2]);
+
+        $this->chain->expects($this->once())->method('withEvents')->with($events)->willReturn($newChain);
+        $this->resourceTrigger->expects($this->once())->method('trigger')
+            ->with($resources, $this->identicalTo($newChain))->willReturn($addedEventsChain);
+
+        $validation = new ValidationResult();
+
+        $result = i\function_call($this->step, $pipe, $validation, $newEvents);
+        $this->assertInstanceOf(Pipeline::class, $result);
+
+        $result->walk();
+
+        $expectedNewEvents = $events;
+        $expectedNewEvents[] = $addedEvents[0];
+        $expectedNewEvents[] = $addedEvents[1];
+
+        $this->assertEquals($expectedNewEvents, $newEvents->getArrayCopy());
     }
 
     /**
-     * @dataProvider provider
+     * Test '__invoke' method, if validation fails for some event
      */
-    public function test(bool $validationSuccess, array $partialEvents, bool $isEventSigned, bool $done, ?Event $lastEvent)
+    public function testInvokeValidationFail()
     {
         $validation = $this->createMock(ValidationResult::class);
-        $validation->expects($this->once())->method('succeeded')->willReturn($validationSuccess);
+        $validation->expects($this->exactly(3))->method('failed')
+            ->willReturnOnConsecutiveCalls(false, true, true);
 
-        $partial = $this->createMock(EventChain::class);
-        $partial->events = $partialEvents;
+        $resource = $this->createMock(ExternalResource::class);
 
-        $lastEvent = $this->createMock(Event::class);
+        $addedEvents = [
+            $this->createMock(Event::class),
+            $this->createMock(Event::class)
+        ];
 
-        $partial->expects($this->any())->method('getLastEvent')->willReturn($lastEvent);
-        $this->chain->expects($this->any())->method('isEventSignedByAccount')->with($lastEvent, $this->node)->willReturn($isEventSigned);
+        $events = [
+            $this->createMock(Event::class),
+            $this->createMock(Event::class),
+            $this->createMock(Event::class)
+        ];
 
-        if ($done) {
-            $newEvents = $this->createMock(EventChain::class);
+        $events[0]->hash = 'a';
+        $events[1]->hash = 'b';
+        $events[2]->hash = 'c';
+        $addedEvents[0]->hash = 'd';
+        $addedEvents[1]->hash = 'e';
 
-            $resource = $this->createMock(\ExternalResource::class);
-            $callback = function($arg) use ($resource) {
-                $isGenerator = $arg instanceof \Generator;
+        $newEvents = new ArrayObject($events);
+        $pipe = Pipeline::with($events);
 
-                $array = [];
-                foreach ($arg as $key => $value) {
-                    $array[$key] = $value;
-                }
+        $this->resourceFactory->expects($this->once())->method('extractFrom')
+            ->with($events[0])->willReturn($resource);
 
-                return $isGenerator && count($array) === 1 && $array[0] === $resource;
-            };
+        $this->chain->expects($this->never())->method('withEvents');
+        $this->resourceTrigger->expects($this->never())->method('trigger');
 
-            $this->resourceFactory->expects($this->once())->method('extractFrom')
-                ->with($partialEvents[0])->willReturn($resource);
+        $result = i\function_call($this->step, $pipe, $validation, $newEvents);
+        $this->assertInstanceOf(Pipeline::class, $result);
 
-            $this->resourceTrigger->expects($this->once())->method('trigger')
-                ->with($this->callback($callback), $this->chain)
-                ->willReturn($newEvents);            
-        } else {            
-            $newEvents = null;
+        $result->walk();
 
-            $this->resourceFactory->expects($this->never())->method('extractFrom');
-            $this->resourceTrigger->expects($this->never())->method('trigger');
-        }
-       
-        $result = i\function_call($this->step, $partial, $validation);
-        $this->assertSame($newEvents, $result);
+        $this->assertEquals($events, $newEvents->getArrayCopy());                
     }
 }

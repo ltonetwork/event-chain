@@ -156,8 +156,8 @@ class EventChainRebaseTest extends \Codeception\Test\Unit
         $leadChain = $this->createMock(EventChain::class);
         $laterChain = $this->createMock(EventChain::class);
 
-        $leadChain->expects($this->any())->method('isEmpty')->willReturn($isLeadEmpty);
-        $laterChain->expects($this->any())->method('isEmpty')->willReturn($isLaterEmpty);
+        $leadChain->expects($this->any())->method('hasEvents')->willReturn(!$isLeadEmpty);
+        $laterChain->expects($this->any())->method('hasEvents')->willReturn(!$isLaterEmpty);
 
         i\function_call($this->rebaser, $leadChain, $laterChain);
     }
