@@ -30,7 +30,7 @@ trait ExtractFromResponseTrait
 
         $body = (string)$response->getBody();
         $data = json_decode($body, true);
-        $isValidJson = isset($data['id']) && isset($data['events']);
+        $isValidJson = isset($data['id']);
 
         if (!$isValidJson) {
             $error = json_last_error_msg();
@@ -42,6 +42,6 @@ trait ExtractFromResponseTrait
             return null;
         }
 
-        return EventChain::fromData($data);
+        return isset($data['events']) ? EventChain::fromData($data) : null;
     }
 }
