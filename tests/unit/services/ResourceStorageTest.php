@@ -120,7 +120,7 @@ class ResourceStorageTest extends \Codeception\Test\Unit
                     'timestamp' => null,
                     'chain' => [
                         'id' => $chain->id,
-                        'events' => json_decode(json_encode($chain->events)),
+                        'events' => [],
                         'identities' => json_decode(json_encode($chain->identities)),
                         'resources' => ['foo', 'bar'],
                         'latestHash' => $chain->getLatestHash()

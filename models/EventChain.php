@@ -47,6 +47,22 @@ class EventChain extends MongoDocument
     protected $partialPrevious;
 
     /**
+     * Cast to data.
+     *
+     * @return array
+     */
+    public function toData()
+    {
+        $data = parent::toData();
+
+        foreach ($data['events'] as &$event) {
+            unset($event['cachedBody']);
+        }
+
+        return $data;
+    }
+
+    /**
      * Class constructor.
      */
     public function __construct()
