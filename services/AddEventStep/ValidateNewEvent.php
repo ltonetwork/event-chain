@@ -39,6 +39,7 @@ class ValidateNewEvent
     public function __invoke(Pipeline $pipeline, ValidationResult $validation): Pipeline
     {
         return $pipeline->apply(function (Event $event) use ($validation): void {
+            error_log('STEP IV, VALIDATE NEW EVENT, FOR EVENT: ' . $event->hash);
             if ($validation->failed()) {
                 return;
             }
@@ -46,6 +47,7 @@ class ValidateNewEvent
             $validation->add($event->validate(), "event '$event->hash': ");
 
             if ($event->previous !== $this->chain->getLatestHash()) {
+                error_log('VALIDATION ERROR: ' . "{$event->previous} !== {$this->chain->getLatestHash()}");
                 $validation->addError("event '%s' doesn't fit on chain", $event->hash);
             }
         });

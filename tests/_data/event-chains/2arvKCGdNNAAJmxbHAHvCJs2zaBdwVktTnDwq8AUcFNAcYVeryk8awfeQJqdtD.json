@@ -43,7 +43,7 @@
                 "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
             },
             "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
-            "node": null,
+            "node": "localhost",
             "timestamp": null
         }
     ],

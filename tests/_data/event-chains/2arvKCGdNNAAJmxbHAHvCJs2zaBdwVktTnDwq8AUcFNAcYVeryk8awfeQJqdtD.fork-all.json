@@ -39,25 +39,7 @@
         {
             "$schema": "https://specs.livecontracts.io/v0.2.0/identity/schema.json#",
             "id": "3hu99b8e-6bd3-4d88-81dd-a6ed9308q2g7",
-            "node": "localhost-1",
-            "signkeys": {
-                "user": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
-            },
-            "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6"
-        },
-        {
-            "$schema": "https://specs.livecontracts.io/v0.2.0/identity/schema.json#",
-            "id": "3yb78b8e-6bd3-4d88-81dd-a6ed93083g6z",
-            "node": "localhost-2",
-            "signkeys": {
-                "user": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
-            },
-            "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6"
-        },
-        {
-            "$schema": "https://specs.livecontracts.io/v0.2.0/identity/schema.json#",
-            "id": "3hv88b8e-6bd3-4d88-81dd-a6ed93083g6z",
-            "node": "test",
+            "node": "localhost",
             "signkeys": {
                 "user": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
             },

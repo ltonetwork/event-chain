@@ -43,6 +43,7 @@ class SaveEvent
     public function __invoke(Pipeline $pipeline): Pipeline
     {
         return $pipeline->apply(function (Event $event) {
+            error_log('STEP VII, SAVE EVENT FOR EVENT: ' . $event->hash);
             $this->chain->events->add($event);
             $this->chainGateway->save($this->chain);
         });

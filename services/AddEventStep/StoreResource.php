@@ -59,9 +59,15 @@ class StoreResource
     public function __invoke(Pipeline $pipeline, ValidationResult $validation, ArrayObject $newEvents): Pipeline
     {
         return $pipeline->apply(function (\Event $event) use ($validation, $newEvents): void {
+            error_log('STORE RESOURCE FOR EVENT: ' . $event->hash);
+            error_log('VALIDATION: ');
+            error_log(var_export($validation->getErrors(), true));
+
             if ($validation->failed()) {
                 return;
             }
+
+            error_log('PASS 1 VALIDATION');
 
             try {
                 $resource = $this->resourceFactory->extractFrom($event);
@@ -79,6 +85,8 @@ class StoreResource
             if ($validation->failed()) {
                 return;
             }
+
+            error_log('PASS 1 VALIDATION');
 
             $storedValidation = $this->storeResource($resource, $newEvents);
             $validation->add($storedValidation, "event '$event->hash': ");

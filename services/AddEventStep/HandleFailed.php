@@ -46,6 +46,7 @@ class HandleFailed
     public function __invoke(Pipeline $pipeline, ValidationResult $validation): Pipeline
     {
         return $pipeline->then(function (iterable $events) use ($validation): \Generator {
+            error_log('STEP VI, HANDLE FAILED');
             $failed = [];
 
             foreach ($events as $event) {
@@ -57,6 +58,8 @@ class HandleFailed
             }
 
             if ($failed !== []) {
+                error_log('CREATE ERROR EVENT FOR EVENTS:');
+                debug_events($failed, true);
                 yield $this->eventFactory->createErrorEvent($validation->getErrors(), $failed);
             }
         });
