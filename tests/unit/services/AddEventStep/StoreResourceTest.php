@@ -411,11 +411,14 @@ class StoreResourceTest extends \Codeception\Test\Unit
     public function testStoreResourceSuccess()
     {
         $step = $this->getStep();
-        $newEvents = new ArrayObject([]);
+        $newEventsItems = [$this->createMock(Event::class)];
+        $newEvents = new ArrayObject($newEventsItems);
         $addedEvents = $this->createMock(EventChain::class);
+        $newChain = $this->createMock(EventChain::class);
 
         $resource = $this->createMock(ResourceInterface::class);
-        $this->resourceStorage->expects($this->once())->method('store')->with($resource, $this->chain)
+        $this->chain->expects($this->once())->method('withEvents')->with($newEventsItems)->willReturn($newChain);
+        $this->resourceStorage->expects($this->once())->method('store')->with($resource, $newChain)
             ->willReturn($addedEvents);
         $this->chain->expects($this->once())->method('registerResource')->with($resource);
 
