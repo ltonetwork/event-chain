@@ -28,6 +28,8 @@ class SkipKnownEvents
         $forked = false;
 
         return $pipeline->filter(function (?Event $new, ?Event $known) use (&$forked): bool {
+            error_log('STEP II, SKIP KNOWN EVENTS: ' . "{$known->hash} -> {$new->hash}");
+
             $forked = $forked || ($known !== null && $known->hash !== $new->hash);
 
             return ($known === null || $forked) && ($new !== null);

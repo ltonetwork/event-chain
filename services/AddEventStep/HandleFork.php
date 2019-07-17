@@ -7,7 +7,7 @@ use Improved\IteratorPipeline\Pipeline;
 use Jasny\ValidationResult;
 
 /**
- * If a fork is detected it's resolved using the `ConflictResolver` service. From to forked event, the new rebased
+ * If a fork is detected it's resolved using the `ConflictResolver` service. From the forked event, the new rebased
  * events are yielded.
  */
 class HandleFork
@@ -61,6 +61,7 @@ class HandleFork
      */
     protected function iterate(iterable $events): \Generator
     {
+        error_log('STEP III, HANDLE FORK');
         $forked = false;
         $forkedEvents = [];
 
@@ -78,10 +79,14 @@ class HandleFork
             yield $new;
         }
 
+        error_log('GATHERED FORKED EVENTS: ');
+        debug_events($forkedEvents, true);
+
         if ($forked) {
             $rebasedChain = $this->resolveConflict($forkedEvents);
 
             foreach ($rebasedChain->events as $rebasedEvent) {
+                error_log('YIELD REBASED EVENT: ' . $rebasedEvent->hash);
                 yield $rebasedEvent;
             }
         }

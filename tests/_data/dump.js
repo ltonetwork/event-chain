@@ -130,7 +130,8 @@ db.getCollection("event_chains").insert([
                 "signkeys": {
                     "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
                 },
-                "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6"
+                "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
+                "node": "localhost"
             },
             {
                 "\\u0024schema": "https://specs.livecontracts.io/v0.2.0/identity/schema.json#",
@@ -138,7 +139,8 @@ db.getCollection("event_chains").insert([
                 "signkeys": {
                     "default": "BvEdG3ATxtmkbCVj9k2yvh3s6ooktBoSmyp8xwDqCQHp"
                 },
-                "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6"
+                "encryptkey": "BVv1ZuE3gKFa6krwWJQwEmrLYUESuUabNCXgYTmCoBt6",
+                "node": "localhost"
             }
         ]
     },

@@ -42,6 +42,8 @@ class SyncChains
      */
     public function __invoke(ArrayObject $newEvents, ValidationResult $validation): Pipeline
     {
+        error_log('STEP I, SYNC CHAINS');
+        
         $following = [];
         $previous = $newEvents[0]->previous;
 

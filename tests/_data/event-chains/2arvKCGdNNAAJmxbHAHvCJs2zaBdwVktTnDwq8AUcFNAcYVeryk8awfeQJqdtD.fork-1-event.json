@@ -27,7 +27,7 @@
     "identities": [
         {
             "id": "4fd69b8e-6bd3-4d88-81dd-a6ed9308a14e",
-            "node": null,
+            "node": "localhost",
             "signkeys": {
                 "default": "FkU1XyfrCftc4pQKXCrrDyRLSnifX1SMvmx1CYiiyB3Y"
             },
