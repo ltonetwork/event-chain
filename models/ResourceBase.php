@@ -40,8 +40,14 @@ trait ResourceBase
      * Public signkey of resource's event
      * @var string
      */
-    public $original_key;    
-    
+    public $original_key;
+
+    /**
+     * Endpoints where the resource is stored.
+     * @var string[]
+     */
+    public $endpoints;
+
     /**
      * Cast properties.
      * @codeCoverageIgnore
@@ -58,6 +64,26 @@ trait ResourceBase
         }
         
         return $this->metaCast();
+    }
+
+    /**
+     * Add an endpoint where the resource is stored.
+     *
+     * @param string $url
+     */
+    public function addEndpoint(string $url): void
+    {
+        $this->endpoints[] = $url;
+    }
+
+    /**
+     * Get all endpoints where the resource is stored.
+     *
+     * @return array
+     */
+    public function getEndpoints(): array
+    {
+        return $this->endpoints;
     }
 
     /**
@@ -130,7 +156,7 @@ trait ResourceBase
             $only = array_merge(['schema', 'id', 'timestamp', 'original_key'], $privilege->only);
             $this->withOnly(...$only);
         }
-        
+
         if (isset($privilege->not)) {
             $not = array_diff($privilege->not, ['schema', 'id', 'timestamp', 'original_key']);
             $this->without(...$not);

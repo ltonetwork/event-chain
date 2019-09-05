@@ -68,15 +68,8 @@ class EventManager
         EventChainGateway $chainGateway,
         ConflictResolver $conflictResolver
     ) {
-        $this->resourceFactory = $resourceFactory;
-        $this->resourceStorage = $resourceStorage;
-        $this->resourceTrigger = $resourceTrigger;
-        $this->dispatcher = $dispatcher;
-        $this->eventFactory = $eventFactory;
-        $this->node = $eventFactory->getNodeAccount();
-        $this->anchor = $anchor;
-        $this->chainGateway = $chainGateway;
-        $this->conflictResolver = $conflictResolver;
+        $node = $eventFactory->getNodeAccount();
+        object_set_dependencies($this, get_defined_vars());
     }
 
     /**
@@ -118,7 +111,7 @@ class EventManager
             new Step\HandleFailed($chain, $this->eventFactory),
             new Step\SaveEvent($chain, $this->chainGateway),
             new Step\AnchorEvent($chain, $this->node, $this->anchor),
-            new Step\TriggerResources($chain, $this->resourceFactory, $this->resourceTrigger, $this->node),
+            new Step\TriggerResources($chain, $this->resourceFactory, $this->resourceTrigger),
             new Step\Walk($chain), // <-- Nothing will happen without this step
             new Step\Dispatch($chain, $this->dispatcher, $this->node, $chain->getNodes()),
         ];

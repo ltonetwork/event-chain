@@ -16,6 +16,16 @@ class EventChainController extends Jasny\Controller
     protected $eventChains;
 
     /**
+     * @var bool
+     */
+    protected $allowReset;
+
+    /**
+     * @var ResourceStorage
+     */
+    protected $resourceStorage;
+
+    /**
      * Account that signed the request
      * @var Account
      */
@@ -25,10 +35,16 @@ class EventChainController extends Jasny\Controller
      * EventChainController constructor.
      *
      * @param EventChainGateway $eventChainGateway  "models.event_chains"
+     * @param bool|null         $allowReset
+     * @param ResourceStorage   $resourceStorage
      */
-    public function __construct(EventChainGateway $eventChainGateway)
-    {
-        $this->eventChains = $eventChainGateway;
+    public function __construct(
+        EventChainGateway $eventChainGateway,
+        ?bool $allowReset,
+        ResourceStorage $resourceStorage
+    ) {
+        $allowReset = $allowReset ?? false;
+        object_set_dependencies($this, get_defined_vars());
     }
 
     /**
@@ -87,9 +103,11 @@ class EventChainController extends Jasny\Controller
      */
     public function deleteAction($id): void
     {
+        $signKey = $this->account->getPublicSignKey();
+
         $eventChain = $this->eventChains->fetch([
             'id' => $id,
-            'identities.signkeys.default' => $this->account->getPublicSignKey()
+            'identities.signkeys.default' => $signKey
         ]);
 
         if (!isset($eventChain)) {
@@ -97,7 +115,32 @@ class EventChainController extends Jasny\Controller
             return;
         }
 
+        $this->resourceStorage->delete($eventChain->resources, $signKey);
         $this->eventChains->delete($eventChain);
+
+        $this->noContent();
+    }
+
+    /**
+     * Delete all event chains (of this identity).
+     */
+    public function resetAction(): void
+    {
+        if (!$this->allowReset) {
+            $this->notFound();
+            return;
+        }
+
+        $signKey = $this->account->getPublicSignKey();
+
+        $eventChains = $this->eventChains->fetchAll([
+            'identities.signkeys.default' => $signKey,
+        ]);
+
+        foreach ($eventChains as $eventChain) {
+            $this->resetChain->deleteResources($eventChain, $signKey);
+            $this->eventChains->delete($eventChain);
+        }
 
         $this->noContent();
     }

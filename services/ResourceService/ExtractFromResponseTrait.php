@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ResourceService;
 
 use EventChain;
-use GuzzleHttp\Psr7\Response as HttpResponse;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Trait to extract event chain from HTTP response.
@@ -17,11 +17,11 @@ trait ExtractFromResponseTrait
      *
      * @todo The response should include a `$schema` so we don't have to do duck typing.
      *
-     * @param HttpResponse $response
-     * @param EventChain   $chain
+     * @param ResponseInterface $response
+     * @param EventChain        $chain
      * @return EventChain|null
      */
-    protected function getEventsFromResponse(HttpResponse $response): ?EventChain
+    protected function getEventsFromResponse(ResponseInterface $response): ?EventChain
     {
         $contentType = $response->getHeaderLine('Content-Type');
         if (strpos($contentType, 'application/json') === false) {

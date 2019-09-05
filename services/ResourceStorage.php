@@ -1,7 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 use Improved\IteratorPipeline\Pipeline;
 use GuzzleHttp\ClientInterface as HttpClient;
+use GuzzleHttp\Promise;
+use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use LTO\Account;
 
@@ -49,6 +53,7 @@ class ResourceStorage
      * @param ResourceInterface $resource
      * @param EventChain $chain
      * @return EventChain
+     * @throws GuzzleHttp\Exception\GuzzleException
      */
     public function store(ResourceInterface $resource, EventChain $chain): EventChain
     {
@@ -62,9 +67,15 @@ class ResourceStorage
                 return !isset($endpoint->grouped);
             })
             ->map(function($endpoint) use ($resource, $partial) {
+                /** @var ResourceInterface $resource */
                 $resource = $this->injectEventChain($resource, $endpoint, $partial);
 
                 return $this->sendStoreRequest($resource, $endpoint, $partial);
+            })
+            ->apply(function(Response $response) use ($resource) {
+                if ($response->getStatusCode() === 204 /* Created */ && $response->hasHeader('Location')) {
+                    $resource->addEndpoint($response->getHeaderLine('Location'));
+                }
             })
             ->map(function(Response $response) {
                 return $this->getEventsFromResponse($response);
@@ -94,6 +105,7 @@ class ResourceStorage
      * @param stdClass          $endpoint
      * @param EventChain        $chain
      * @return Response
+     * @throws GuzzleHttp\Exception\GuzzleException
      */
     protected function sendStoreRequest(ResourceInterface $resource, stdClass $endpoint, EventChain $chain): Response
     {
@@ -102,13 +114,48 @@ class ResourceStorage
             'http_errors' => true,
             'signature_key_id' => base58_encode($this->node->sign->publickey),
             'headers' => [
-                'X-Original-Key-Id' => $resource->original_key,
+                'X-Original-Key-Id' => $resource->original_key ?? null,
                 'X-Event-Chain' => $chain->id . ':' . $chain->getLatestHash(),
                 'Content-Type' => 'application/json',
-                'date' => date(DATE_RFC1123)
+                'Date' => date(DATE_RFC1123)
             ]
         ];
 
         return $this->httpClient->request('POST', $endpoint->url, $options);
+    }
+
+    /**
+     * Delete the resource on all endpoints
+     *
+     * @param ResourceInterface|ResourceInterface[] $resources
+     */
+    public function delete($resources, ?string $orginalKeyId = null): void
+    {
+        $promises = Pipeline::with(is_array($resources) ? $resources : [$resources])
+            ->map(function(ResourceInterface $resource) {
+                return $resource->getEndpoints();
+            })
+            ->flatten()
+            ->map(function (string $url) use ($orginalKeyId): PromiseInterface {
+                $options = [
+                    'signature_key_id' => base58_encode($this->node->sign->publickey),
+                    'http_errors' => true,
+                    'headers' => [
+                        'X-Original-Key-Id' => $resource->original_key ?? null,
+                        'Date' => date(DATE_RFC1123),
+                    ]
+                ];
+
+                $promise = $this->httpClient->requestAsync('DELETE', $url, $options)
+                    ->otherwise(function ($exception) use ($url) {
+                        $reason = $exception instanceof \Throwable ? '; ' . $exception->getMessage() : '';
+                        trigger_error("Failed to delete resource '$url'" . $reason, E_USER_WARNING);
+                    });
+
+                return $promise;
+            })
+            ->toArray();
+
+        Promise\settle($promises)->wait();
     }
 }

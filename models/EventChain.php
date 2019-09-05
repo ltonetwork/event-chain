@@ -35,8 +35,8 @@ class EventChain extends MongoDocument
     public $identities;
     
     /**
-     * Resources that are part of this chain
-     * @var string[]
+     * Resources that are part of this chain.
+     * @var ExternalResource&EntitySet
      */
     public $resources = [];
 
@@ -457,9 +457,8 @@ class EventChain extends MongoDocument
             return;
         }
 
-        $id = $resource->getId();
-        if ($resource instanceof Identifiable && !in_array($id, $this->resources, true)) {
-            $this->resources[] = $id;
+        if ($resource instanceof ExternalResource) {
+            $this->resources->add($resource);
         }
     }
 

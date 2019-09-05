@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 use Jasny\DB\Entity;
 use Jasny\DB\Entity\Redactable;
@@ -24,6 +26,21 @@ interface ResourceInterface extends Entity, Redactable, Meta, Validation
      * @return $this
      */
     public function applyPrivilege(Privilege $privilege);
+
+    /**
+     * Add an endpoint where the resource is stored.
+     *
+     * @param string $url
+     * @return mixed
+     */
+    public function addEndpoint(string $url);
+
+    /**
+     * Get all endpoints where the resource is stored.
+     *
+     * @return array
+     */
+    public function getEndpoints(): array;
 
     /**
      * Extract an identity from an event

@@ -1,16 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 use Jasny\DB\Entity\Identifiable;
 use Jasny\DB\Entity\Dynamic;
 use function Jasny\str_before;
 
 /**
- * A resource that is stored on an another system
+ * A resource that is stored on an another system.
  */
 class ExternalResource implements ResourceInterface, Identifiable, Dynamic
 {
-    use ResourceBase
-    {
+    use ResourceBase {
         ResourceBase::jsonSerialize as _jsonSerialize;
     }
 
@@ -63,5 +64,19 @@ class ExternalResource implements ResourceInterface, Identifiable, Dynamic
         }
 
         return $data;
+    }
+
+    /**
+     * Cast the external resource to data to be stored.
+     *
+     * @return array
+     */
+    public function toData(): array
+    {
+        return [
+            'schema' => $this->schema,
+            'id' => $this->id,
+            'endpoints' => $this->endpoints,
+        ];
     }
 }
