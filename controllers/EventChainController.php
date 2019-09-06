@@ -16,6 +16,11 @@ class EventChainController extends Jasny\Controller
     protected $eventChains;
 
     /**
+     * @var WorkflowReset
+     */
+    protected $workflowReset;
+
+    /**
      * Account that signed the request
      * @var Account
      */
@@ -25,10 +30,13 @@ class EventChainController extends Jasny\Controller
      * EventChainController constructor.
      *
      * @param EventChainGateway $eventChainGateway  "models.event_chains"
+     * @param WorkflowReset     $workflowReset
      */
-    public function __construct(EventChainGateway $eventChainGateway)
-    {
-        $this->eventChains = $eventChainGateway;
+    public function __construct(
+        EventChainGateway $eventChainGateway,
+        WorkflowReset $workflowReset
+    ) {
+        object_set_dependencies($this, get_defined_vars());
     }
 
     /**
@@ -98,6 +106,31 @@ class EventChainController extends Jasny\Controller
         }
 
         $this->eventChains->delete($eventChain);
+
+        $this->noContent();
+    }
+
+    /**
+     * Delete all event chains (of this identity).
+     */
+    public function resetAction(): void
+    {
+        if (!$this->workflowReset->isEnabled()) {
+            $this->notFound();
+            return;
+        }
+
+        $signKey = $this->account->getPublicSignKey();
+
+        $eventChains = $this->eventChains->fetchAll([
+            'identities.signkeys.default' => $signKey,
+        ]);
+
+        foreach ($eventChains as $eventChain) {
+            $this->eventChains->delete($eventChain);
+        }
+
+        $this->workflowReset->reset($signKey);
 
         $this->noContent();
     }

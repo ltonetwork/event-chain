@@ -2,6 +2,7 @@ locale: en_US
 cache: true
 debug: false
 digest: required
+allow_full_reset: !env ALLOW_FULL_RESET
 
 db:
   default:

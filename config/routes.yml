@@ -6,5 +6,6 @@
 /event-chains +POST:      { controller: event, action: process }
 
 /event-chains +GET:       { controller: event-chain, action: list }
+/event-chains +DELETE:    { controller: event-chain, action: reset }
 /event-chains/* +GET:     { controller: event-chain, action: get, id: $2 }
 /event-chains/* +DELETE:  { controller: event-chain, action: delete, id: $2 }
