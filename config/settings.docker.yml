@@ -7,7 +7,7 @@ queuer:
   url: http://event-queuer
 
 anchor:
-  url: http://anchor
+  url: !env ANCHOR_URL http://anchor
 
 endpoints:
   - schema: "https://specs.livecontracts.io/v0.2.0/scenario/schema.json#"

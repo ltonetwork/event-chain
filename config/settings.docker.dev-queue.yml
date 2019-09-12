@@ -1,2 +1,3 @@
 debug: true
 anchor: false
+digest: optional
