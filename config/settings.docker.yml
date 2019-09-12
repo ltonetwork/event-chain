@@ -1,13 +1,13 @@
 db:
   default:
-    client: mongodb://mongo:27017
+    client: !env MONGO_DB mongodb://mongo:27017
     database: lto_eventchain
 
 queuer:
   url: http://event-queuer
 
 anchor:
-  url: http://anchor
+  url: !env ANCHOR_URL http://anchor
 
 endpoints:
   - schema: "https://specs.livecontracts.io/v0.2.0/scenario/schema.json#"
