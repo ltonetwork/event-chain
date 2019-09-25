@@ -66,10 +66,6 @@ class ResourceFactoryTest extends \Codeception\Test\Unit
         $this->manager->extractFrom($event);
     }
     
-    /**
-     * @expectedException UnexpectedValueException
-     * @expectedExceptionMessage Unrecognized schema 'http://example.com/foo/schema.json' for event '3yMApqCuCjXDWPrbjfR5mjCPTHqFG8Pux1TxQrEM35jj'
-     */
     public function testExtractFromUnrecognizedSchema()
     {
         $event = $this->createMock(Event::class);
@@ -79,6 +75,9 @@ class ResourceFactoryTest extends \Codeception\Test\Unit
             'foo' => 'bar'
         ]);
         
-        $this->manager->extractFrom($event);
-    }
+        $resource = $this->manager->extractFrom($event);
+         
+        $this->assertInstanceOf(ExternalResource::class, $resource);
+        $this->assertAttributeEquals('bar', 'foo', $resource);
+   }
 }

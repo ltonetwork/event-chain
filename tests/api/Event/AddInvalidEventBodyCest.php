@@ -48,7 +48,6 @@ class AddInvalidEventBodyCest
             ['body' => null, 'message' => 'body is not base58 encoded json'],
             ['body' => ['foo' => 'bar'], 'message' => 'body does not contain the $schema property'],
             ['body' => $identity1, 'message' => 'body does not contain the $schema property'],
-            ['body' => $identity2, 'message' => "failed to extract resource: Unrecognized schema 'foo' for event '%hash'"],
             ['body' => $identity3, 'message' => 'node is required']
         ];
     }
