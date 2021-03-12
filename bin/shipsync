@@ -1,0 +1,45 @@
+#!/bin/env php
+<?php
+
+use LTO\Account;
+
+chdir(__DIR__);
+
+require 'vendor/autoload.php';
+
+if ($argc < 2) {
+    echo "USAGE: shipsync LAST_UPDATED\n";
+    exit(1);
+}
+
+$lastUpdated = new \DateTimeImmutable($argv[1]);
+
+App::init();
+$container = App::getContainer();
+
+$account = $container->get(Account::class);
+$sync = $container->get(ShipSync::class);
+$gateway = $container->get(EventChainGateway::class);
+$eventManager = $container->get(EventManager::class)->withoutStoringShips();
+$shipCodes = $sync->fetchShipCodes();
+
+foreach ($shipCodes as $shipCode) {
+    $event = $sync->createEvent($shipCode, $lastUpdated);
+
+    if ($event === null) {
+        continue;
+    }
+
+    /** @var EventChain $chainEntity */
+    $chainId = $sync->getEventChainId($account, $shipCode);
+    $chainEntity = $gateway->fetch($chainId);
+
+    $chain = $chainEntity !== null
+        ? $sync->getEventChainId($account, $shipCode)
+        : new LTO\EventChain($chainId, $chainEntity->getLatestHash());
+
+    $chain->add($event)->signWith($account);
+
+    $eventManager->add($chainEntity ?? new EventChain(), EventChain::fromLtoEventChain($chain));
+}
+

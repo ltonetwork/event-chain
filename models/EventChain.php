@@ -506,4 +506,19 @@ class EventChain extends MongoDocument
 
         return $query;
     }
+
+    /**
+     * Create entity from LTO EventChain object.
+     */
+    public static function fromLtoEventChain(LTO\EventChain $chain): self
+    {
+        $entity = new self();
+        $entity->id = $chain->id;
+
+        foreach ($chain->events as $event) {
+            $entity->events[] = Event::fromLtoEvent($event);
+        }
+
+        return $entity;
+    }
 }

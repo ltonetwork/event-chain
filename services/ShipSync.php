@@ -55,8 +55,8 @@ class ShipSync
     public function createEventChain(Account $account, string $shipCode): EventChain
     {
         $chain = $account->createEventChain("{$this->prefix}:{$shipCode}");
-        $chain->add($this->createEventForIdentity($account, $this->node))->signWith($account);
-        $chain->add($this->createEventForShip($shipCode))->signWith($account);
+        $chain->add($this->createIdentityEvent($account, $this->node))->signWith($account);
+        $chain->add($this->createNewShipEvent($shipCode))->signWith($account);
 
         return $chain;
     }
@@ -64,7 +64,7 @@ class ShipSync
     /**
      * Create an Identity for an account and wrap it in an Event.
      */
-    public function createEventForIdentity(Account $account, string $node)
+    public function createIdentityEvent(Account $account, string $node)
     {
         $identity = new Identity();
         $identity->id = $account->getAddress();
@@ -80,7 +80,7 @@ class ShipSync
     /**
      * Fetch ship info and wrap it in an Event.
      */
-    public function createEventForShip(string $shipCode)
+    public function createNewShipEvent(string $shipCode)
     {
         $stmt = $this->mysql->prepare("CALL IP_sel_LastShipStatus(?, '0000-01-01', @err)");
         $stmt->execute([$shipCode]);

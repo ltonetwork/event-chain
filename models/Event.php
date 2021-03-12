@@ -309,4 +309,20 @@ class Event extends MongoSubDocument implements Identifiable
 
         return parent::fromData($data);
     }
+
+    /**
+     * Create entity from LTO Event object
+     *
+     * @param \LTO\Event $event
+     * @return static
+     */
+    public static function fromLtoEvent(LTO\Event $event): self
+    {
+        $data = object_get_properties($event);
+        if (isset($data['original'])) {
+            $data['original'] = object_get_properties($data['original']);
+        }
+
+        return self::fromData($data);
+    }
 }

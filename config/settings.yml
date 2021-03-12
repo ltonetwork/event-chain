@@ -14,3 +14,7 @@ email:
 
 lto:
   account: !env LTO_ACCOUNT_SEED_BASE58
+  node: amqps://localhost
+
+ship:
+  prefix: dekimo
