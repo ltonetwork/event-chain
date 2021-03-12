@@ -7,6 +7,10 @@ db:
     client: mongodb://localhost:27017
     database: lto_eventchain
 
+mysql:
+  dsn: mysql:host=127.0.0.1,dbname=dcigarn
+  user: root
+
 email:
   From: info@example.com
   FromName: Example

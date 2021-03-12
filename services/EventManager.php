@@ -66,7 +66,8 @@ class EventManager
         EventFactory $eventFactory,
         AnchorClient $anchor,
         EventChainGateway $chainGateway,
-        ConflictResolver $conflictResolver
+        ConflictResolver $conflictResolver,
+        ShipStore $blackBoxStore
     ) {
         $this->resourceFactory = $resourceFactory;
         $this->resourceStorage = $resourceStorage;
@@ -114,11 +115,11 @@ class EventManager
             new Step\SkipKnownEvents(),
             new Step\HandleFork($chain, $this->conflictResolver),
             new Step\ValidateNewEvent($chain),
-            new Step\StoreResource($chain, $this->resourceFactory, $this->resourceStorage),
+            //new Step\StoreResource($chain, $this->resourceFactory, $this->resourceStorage),
             new Step\HandleFailed($chain, $this->eventFactory),
             new Step\SaveEvent($chain, $this->chainGateway),
             new Step\AnchorEvent($chain, $this->node, $this->anchor),
-            new Step\TriggerResources($chain, $this->resourceFactory, $this->resourceTrigger, $this->node),
+            //new Step\TriggerResources($chain, $this->resourceFactory, $this->resourceTrigger),
             new Step\Walk($chain), // <-- Nothing will happen without this step
             new Step\Dispatch($chain, $this->dispatcher, $this->node, $chain->getNodes()),
         ];

@@ -3,32 +3,15 @@ db:
     client: mongodb://mongo:27017
     database: lto_eventchain
 
+mysql:
+  dsn: mysql:host=mariadb;dbname=dcigarn
+  user: root
+
 queuer:
   url: http://event-queuer
 
 anchor:
   url: !env ANCHOR_URL http://anchor
 
-endpoints:
-  - schema: "https://specs.livecontracts.io/v0.2.0/scenario/schema.json#"
-    url: http://legalflow/scenarios/
-
-  - schema: "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
-    url: http://legalflow/identities/
-
-  - schema: "https://specs.livecontracts.io/v0.2.0/process/schema.json#"
-    url: http://legalflow/processes/
-    inject_chain: empty
-
-  - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
-    url: http://legalflow/processes/-/response
-
-triggers:
-  - url: "http://legalflow/processes/-/invoke"
-    resources:
-      - schema: "https://specs.livecontracts.io/v0.2.0/process/schema.json#"
-        group:
-          process: id
-      - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
-        group:
-          process: process
+endpoints: []
+triggers: []
