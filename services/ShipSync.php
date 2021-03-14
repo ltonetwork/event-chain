@@ -7,7 +7,7 @@ use LTO\Event;
 use LTO\EventChain;
 
 /**
- * Class BlackBoxSync
+ * Create an event chain for a ship and add events to ship event chains.
  */
 class ShipSync
 {
@@ -19,6 +19,7 @@ class ShipSync
     {
         $this->mysql = $mysql;
         $this->prefix = $prefix;
+        $this->node = $node;
     }
 
     /**
@@ -28,8 +29,8 @@ class ShipSync
      */
     public function fetchShipCodes(): array
     {
-        return $this->mysql->query("CALL IP_sel_LastShipStatus('0000-01-01', @err)")
-            ->fetchColumn('ShipCode');
+        return $this->mysql->query("SELECT ShipCode FROM T_Ship")
+            ->fetchAll(PDO::FETCH_COLUMN);
     }
 
     /**
@@ -69,7 +70,10 @@ class ShipSync
         $identity = new Identity();
         $identity->id = $account->getAddress();
         $identity->node = $node;
-        $identity->signkeys['default'] = $account->getPublicSignKey();
+        $identity->signkeys = [
+            'default' => $account->getPublicSignKey(),
+            'system' => $account->getPublicSignKey(),
+        ];
 
         return new Event(
             ['$schema' => 'https://specs.livecontracts.io/v0.2.0/identity/schema.json#']
@@ -82,9 +86,13 @@ class ShipSync
      */
     public function createNewShipEvent(string $shipCode)
     {
-        $stmt = $this->mysql->prepare("CALL IP_sel_LastShipStatus(?, '0000-01-01', @err)");
+        $stmt = $this->mysql->prepare("SELECT * FROM T_Ship WHERE ShipCode = ?");
         $stmt->execute([$shipCode]);
         $ship = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($ship === false) {
+            throw new \UnexpectedValueException("Failed to fetch ship '$shipCode'");
+        }
 
         return new Event(['$schema' => 'https://dekimo.lto.network/ship', 'id' => $shipCode] + $ship);
     }
@@ -131,8 +139,8 @@ class ShipSync
      */
     protected function fetchData(string $proc, string $shipCode, DateTimeInterface $lastRequested)
     {
-        $stmt = $this->mysql->prepare("CALL IP_sel_Last{$proc}(?, '?', @err)");
-        $stmt->execute([$shipCode, $lastRequested->format('c')]);
+        $stmt = $this->mysql->prepare("CALL IP_sel_Last{$proc}(?, ?, @err)");
+        $stmt->execute([$shipCode, $lastRequested->format('Y-m-d\TH:i-s')]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

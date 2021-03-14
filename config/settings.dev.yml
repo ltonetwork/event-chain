@@ -8,37 +8,16 @@ db:
     database: lto_eventchain
 
 mysql:
-  dsn: mysql:host=127.0.0.1,dbname=dcigarn
-  user: root
+  dsn: mysql:host=127.0.0.1;dbname=dcigarn
+  username: root
 
 email:
   From: info@example.com
   FromName: Example
   Mailer: mail
 
-endpoints:
-  - schema: "https://specs.livecontracts.io/v0.2.0/scenario/schema.json#"
-    url: "http://localhost:4001/scenarios/"
-
-  - schema: "https://specs.livecontracts.io/v0.2.0/identity/schema.json#"
-    url: "http://localhost:4001/identities/"
-
-  - schema: "https://specs.livecontracts.io/v0.2.0/process/schema.json#"
-    url: "http://localhost:4001/processes/"
-    inject_chain: empty
-
-  - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
-    url: "http://localhost:4001/processes/-/response"
-
-triggers:
-  - url: "http://localhost:4001/processes/-/invoke"
-    resources:
-      - schema: "https://specs.livecontracts.io/v0.2.0/process/schema.json#"
-        group:
-          process: id
-      - schema: "https://specs.livecontracts.io/v0.2.0/response/schema.json#"
-        group:
-          process: process
+endpoints: []
+triggers: []
 
 lto:
   account:

@@ -1,9 +1,9 @@
-#!/bin/env php
+#!/usr/bin/env php
 <?php
 
 use LTO\Account;
 
-chdir(__DIR__);
+chdir(__DIR__ . '/..');
 
 require 'vendor/autoload.php';
 
@@ -34,12 +34,17 @@ foreach ($shipCodes as $shipCode) {
     $chainId = $sync->getEventChainId($account, $shipCode);
     $chainEntity = $gateway->fetch($chainId);
 
-    $chain = $chainEntity !== null
-        ? $sync->getEventChainId($account, $shipCode)
+    $chain = $chainEntity === null
+        ? $sync->createEventChain($account, $shipCode)
         : new LTO\EventChain($chainId, $chainEntity->getLatestHash());
 
     $chain->add($event)->signWith($account);
 
-    $eventManager->add($chainEntity ?? new EventChain(), EventChain::fromLtoEventChain($chain));
+    $origChain = $chainEntity ?? new EventChain();
+    $origChain->id ??= $chainId;
+
+    $validation = $eventManager->add($origChain, EventChain::fromLtoEventChain($chain));
+
+    echo "$shipCode:\n", join("\n", $validation->getErrors());
 }
 

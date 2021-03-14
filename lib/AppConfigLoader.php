@@ -7,6 +7,7 @@ use Jasny\Config;
 use Jasny\Config\LoaderInterface;
 use Jasny\Config\Loader\DelegateLoader;
 use Jasny\ApplicationEnv;
+use function Jasny\array_only;
 
 /**
  * Application config
