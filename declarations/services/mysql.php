@@ -8,6 +8,11 @@ return [
     PDO::class => function (ContainerInterface $container) {
         $config = $container->get('config')->mysql;
 
-        return new PDO($config->dsn ?? '', $config->username ?? '', $config->password ?? '');
+        return new PDO(
+            $config->dsn ?? '',
+            $config->username ?? '',
+            $config->password ?? '',
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION],
+        );
     }
 ];

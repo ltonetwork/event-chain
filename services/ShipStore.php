@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Jasny\Persist\SQL\Query;
+use function Jasny\array_without;
 
 /**
  * Class BlackBoxStore
@@ -21,7 +22,8 @@ class ShipStore
      */
     public function storeShip(array $info): void
     {
-        $this->insert('Ship', array_keys($info), $info);
+        $data = array_without($info, ['$schema', 'id']);
+        $this->insert('Ship', array_keys($data), $data);
     }
 
     /**
@@ -29,7 +31,7 @@ class ShipStore
      */
     public function storeShipEvent(array $info): void
     {
-        $this->insertData('ProcReg', $info['data']['registration'] ?? []);
+        $this->insertData('ProcessedRegistration', $info['data']['registration'] ?? []);
         $this->insertData('ProcRegDev', $info['data']['deviation'] ?? []);
         $this->insertData('StatusTime', $info['data']['status_time'] ?? []);
         $this->insertData('StatusTime_N200', $info['data']['status_time_n200'] ?? []);
@@ -67,7 +69,7 @@ class ShipStore
         $defaults = array_fill_keys($columns, null);
 
         foreach ($rows as $row) {
-            $values = array_values(array_intersect(array_merge($defaults, $row), $defaults));
+            $values = array_values(array_intersect_key(array_merge($defaults, $row), $defaults));
             $query->values($values);
         }
 

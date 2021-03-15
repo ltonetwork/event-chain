@@ -5,13 +5,14 @@ db:
 
 mysql:
   dsn: mysql:host=mariadb;dbname=dcigarn
-  user: root
+  username: !env MYSQL_USER
+  password: !env MYSQL_PASSWORD
 
 queuer:
   url: http://event-queuer
 
 anchor:
-  url: !env ANCHOR_URL http://anchor
+  url: http://anchor
 
 endpoints: []
 triggers: []

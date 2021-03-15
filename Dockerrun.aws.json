@@ -1,0 +1,132 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "containerDefinitions": [
+    {
+      "name": "api-gateway",
+      "image": "legalthings/api-gateway:v0.1.8",
+      "essential": true,
+      "memoryReservation": 128,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        }
+      ],
+      "environment": [
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        }
+      ],
+      "links": [
+        "legalevents",
+        "event-queuer"
+      ]
+    },
+    {
+      "name": "legalevents",
+      "image": "legalthings/nginx",
+      "memoryReservation": 128,
+      "links": [
+        "legalevents-fpm"
+      ],
+      "environment": [
+        {
+          "name": "PHP_HOST",
+          "value": "legalevents-fpm"
+        }
+      ]
+    },
+    {
+      "name": "legalevents-fpm",
+      "image": "930677074220.dkr.ecr.eu-west-1.amazonaws.com/event-chain:dekimo",
+      "essential": true,
+      "memoryReservation": 512,
+      "links": [
+        "mariadb",
+        "event-queuer"
+      ],
+      "environment": [
+        {
+          "name": "APPLICATION_ENV",
+          "value": "docker.dev"
+        }
+      ]
+    },
+    {
+      "name": "event-dispatcher",
+      "image": "legalthings/event-dispatcher:v0.1.2",
+      "essential": true,
+      "memoryReservation": 128,
+      "links": [
+        "rabbitmq",
+        "legalevents"
+      ],
+      "environment": [
+        {
+          "name": "DISPATCHER_MODULES_QUEUER",
+          "value": "0"
+        },
+        {
+          "name": "NODE_ENV",
+          "value": "lto"
+        }
+      ]
+    },
+    {
+      "name": "event-queuer",
+      "image": "legalthings/event-dispatcher:v0.1.2",
+      "essential": true,
+      "memoryReservation": 128,
+      "links": [
+        "rabbitmq"
+      ],
+      "environment": [
+        {
+          "name": "DISPATCHER_MODULES_DISPATCHER",
+          "value": "0"
+        },
+        {
+          "name": "NODE_ENV",
+          "value": "lto"
+        }
+      ]
+    },
+    {
+      "name": "mariadb",
+      "image": "mariadb",
+      "essential": true,
+      "memoryReservation": 128,
+      "environment": [
+        {
+          "name": "MYSQL_DATABASE",
+          "value": "dcigarn"
+        }
+      ],
+      "Entrypoint": "docker-entrypoint.sh",
+      "Command": "--lower-case-table-names",
+      "portMappings": [
+        {
+          "hostPort": 3306,
+          "containerPort": 3306
+        }
+      ]
+    },
+    {
+      "name": "rabbitmq",
+      "image": "legalthings/rabbitmq",
+      "essential": true,
+      "memoryReservation": 128,
+      "portMappings": [
+        {
+          "hostPort": 5672,
+          "containerPort": 5672
+        },
+        {
+          "hostPort": 15672,
+          "containerPort": 15672
+        }
+      ]
+    }
+  ]
+}
