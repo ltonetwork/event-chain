@@ -20,6 +20,7 @@ App::init();
 $container = App::getContainer();
 
 $account = $container->get(Account::class);
+$participants = $container->get('participants');
 $sync = $container->get(ShipSync::class);
 $gateway = $container->get(EventChainGateway::class);
 $eventManager = $container->get(EventManager::class)->withoutStoringShips();
@@ -39,6 +40,10 @@ foreach ($shipCodes as $shipCode) {
     $chain = $chainEntity === null
         ? $sync->createEventChain($account, $shipCode)
         : new LTO\EventChain($chainId, $chainEntity->getLatestHash());
+
+    foreach ($participants as ['account' => $otherAccount, 'node' => $otherNode]) {
+        $chain->add($sync->createIdentityEvent($otherAccount, $otherNode))->signWith($account);
+    }
 
     $chain->add($event)->signWith($account);
 

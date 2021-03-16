@@ -12,7 +12,6 @@ class NoDispatcher extends Dispatcher
      */ 
     public function __construct()
     {
-
     }
 
     /**
@@ -54,6 +53,7 @@ class NoDispatcher extends Dispatcher
      */
     protected function throwException()
     {
-        throw new Exception("Unable to dispatch events. The event-chain service runs in a local-only setup (queuer disabled). Make sure all identities are using system key 'YOUR KEY HERE'");
+        throw new Exception("Unable to dispatch events. The event-chain service runs in a local-only setup " .
+            "(queuer disabled). Make sure all identities are using the public key of this node as system key");
     }
 }

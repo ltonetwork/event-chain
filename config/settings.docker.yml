@@ -4,7 +4,7 @@ db:
     database: lto_eventchain
 
 mysql:
-  dsn: mysql:host=mariadb;dbname=dcigarn
+  dsn: !env MYSQL_DSN mysql:host=mariadb;dbname=dcigarn
   username: !env MYSQL_USER
   password: !env MYSQL_PASSWORD
 
@@ -12,7 +12,7 @@ queuer:
   url: http://event-queuer
 
 anchor:
-  url: http://anchor
+  url: !env ANCHOR_URL http://anchor
 
 endpoints: []
 triggers: []

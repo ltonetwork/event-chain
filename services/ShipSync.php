@@ -29,7 +29,7 @@ class ShipSync
      */
     public function fetchShipCodes(): array
     {
-        return $this->mysql->query("SELECT ShipCode FROM T_Ship")
+        return $this->mysql->query("CALL IP_sel_ShipCode(@err)")
             ->fetchAll(PDO::FETCH_COLUMN);
     }
 
@@ -46,17 +46,17 @@ class ShipSync
     }
 
     /**
-     * Create a new
-     *
-     * @param Account $account
-     * @param string  $node
-     * @param string  $shipCode
-     * @return EventChain
+     * Create a new event chain for a ship.
      */
-    public function createEventChain(Account $account, string $shipCode): EventChain
+    public function createEventChain(Account $account, string $shipCode, array $recipients = []): EventChain
     {
         $chain = $account->createEventChain("{$this->prefix}:{$shipCode}");
         $chain->add($this->createIdentityEvent($account, $this->node))->signWith($account);
+
+        foreach ($recipients as $recipient) {
+            $chain->add($this->createIdentityEvent($recipient, $recipient['node']))->signWith($account);
+        }
+
         $chain->add($this->createNewShipEvent($shipCode))->signWith($account);
 
         return $chain;
@@ -86,7 +86,7 @@ class ShipSync
      */
     public function createNewShipEvent(string $shipCode)
     {
-        $stmt = $this->mysql->prepare("SELECT * FROM T_Ship WHERE ShipCode = ?");
+        $stmt = $this->mysql->prepare("CALL IP_sel_SingleShip(?, @err)");
         $stmt->execute([$shipCode]);
         $ship = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -105,8 +105,8 @@ class ShipSync
         $data = [
             'registration' => $this->fetchData('Registration', $shipCode, $lastRequested),
             'deviation' => $this->fetchData('Deviation', $shipCode, $lastRequested),
-            'status_time' => $this->fetchData('StatusTime', $shipCode, $lastRequested),
-            'status_time_n200' => $this->fetchData('N200StatusTime', $shipCode, $lastRequested),
+            'status_time' => $this->fetchData('ShipStatusTime', $shipCode, $lastRequested),
+            'status_time_n2000' => $this->fetchData('N2000StatusTime', $shipCode, $lastRequested),
             'status_time_sea' => $this->fetchData('SeaStatusTime', $shipCode, $lastRequested),
             'status_time_fish_activity' => $this->fetchData('FishActivityStatusTime', $shipCode, $lastRequested),
         ];
@@ -114,8 +114,8 @@ class ShipSync
         $history = [
             'registration' => $this->fetchData('RegistrationHistory', $shipCode, $lastRequested),
             'deviation' => $this->fetchData('DeviationHistory', $shipCode, $lastRequested),
-            'status_time' => $this->fetchData('StatusTimeHistory', $shipCode, $lastRequested),
-            'status_time_n200' => $this->fetchData('N200StatusTimeHistory', $shipCode, $lastRequested),
+            'status_time' => $this->fetchData('ShipStatusTimeHistory', $shipCode, $lastRequested),
+            'status_time_n2000' => $this->fetchData('N2000StatusTimeHistory', $shipCode, $lastRequested),
             'status_time_sea' => $this->fetchData('SeaStatusTimeHistory', $shipCode, $lastRequested),
             'status_time_fish_activity' => $this->fetchData('FishActivityStatusTimeHistory', $shipCode, $lastRequested),
         ];
