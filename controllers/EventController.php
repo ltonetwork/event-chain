@@ -57,7 +57,7 @@ class EventController extends Jasny\Controller
         $chain = $this->eventChains->fetch($newChain->id) ?: $newChain->withoutEvents();
 
         if (!$this->assertSignedByUs($newChain, $chain, $this->dispatcher->getNode())) {
-            return; // Forbidden
+              return; // Forbidden
         }
 
         // @todo: Add checks from $manager->add() here as well. Now the request is accepted and fails when processing.
@@ -79,10 +79,6 @@ class EventController extends Jasny\Controller
         }
 
         $chain = EventChain::fetch($newChain->id) ?: $newChain->withoutEvents();
-
-        if (!$this->assertSignedByUs($newChain, $chain)) {
-            return; // Forbidden
-        }
 
         $handled = $this->manager->add($chain, $newChain);
 

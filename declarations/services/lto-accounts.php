@@ -14,10 +14,10 @@ return [
         $factory = $container->get(AccountFactory::class);
 
         return Pipeline::with($container->get('config.participants'))
-            ->filter(fn($recipient) => isset($recipient->publickey) && $recipient->publickey !== '')
-            ->map(fn($recipient) => [
-                'account' => $factory->createPublic($recipient->publickey),
-                'node' => $recipient->node,
+            ->filter(fn($participant) => isset($participant->publickey) && $participant->publickey !== '')
+            ->map(fn($participant) => [
+                'account' => $factory->createPublic($participant->publickey),
+                'node' => $participant->node,
             ])
             ->toArray();
     }

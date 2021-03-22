@@ -20,5 +20,5 @@ ship:
   prefix: dekimo
 
 participants:
-  - public_key: !env LTO_RECIPIENT_PUBKEY
+  - publickey: !env LTO_RECIPIENT_PUBKEY
     node: !env LTO_RECIPIENT_NODE

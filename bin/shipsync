@@ -21,6 +21,11 @@ $container = App::getContainer();
 
 $account = $container->get(Account::class);
 $participants = $container->get('participants');
+
+if (count($participants) === 0) {
+    trigger_error("No participants", E_USER_WARNING);
+}
+
 $sync = $container->get(ShipSync::class);
 $gateway = $container->get(EventChainGateway::class);
 $eventManager = $container->get(EventManager::class)->withoutStoringShips();
