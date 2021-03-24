@@ -1,6 +1,6 @@
 db:
   default:
-    client: mongodb://mongo:27017
+    client: !env MONGO_DB mongodb://mongo:27017
     database: lto_eventchain
 
 mysql:
