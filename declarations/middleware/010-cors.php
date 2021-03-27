@@ -18,7 +18,7 @@ return [
                 ->withHeader('Access-Control-Allow-Origin', '*')
                 ->withHeader('Access-Control-Allow-Methods', '*')
                 ->withHeader('Access-Control-Allow-Headers', '*')
-                ->withHeader('Access-Control-Max-Age', 1728000);  // 20 days
+                ->withHeader('Access-Control-Max-Age', '1728000');  // 20 days
         };
     },
 ];
