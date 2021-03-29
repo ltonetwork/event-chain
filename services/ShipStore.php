@@ -23,7 +23,7 @@ class ShipStore
     public function storeShip(array $info): void
     {
         $data = array_without($info, ['$schema', 'id']);
-        $this->replace('Ship', array_keys($data), $data);
+        $this->insert('Ship', array_keys($data), $data);
     }
 
     /**
@@ -66,36 +66,14 @@ class ShipStore
     protected function insert(string $table, array $columns, array ...$rows): void
     {
         $query = Query::build('mysql')->insert()->into("T_{$table}")->columns($columns);
-        $this->querySetValues($query, $columns, ...$rows);
-
-        $this->mysql->query((string)$query);
-    }
-
-    /**
-     * Insert data into a table
-     *
-     * @param string $table
-     * @param array $columns
-     * @param array ...$rows
-     */
-    protected function replace(string $table, array $columns, array ...$rows): void
-    {
-        $query = Query::build('mysql')->replace()->into("T_{$table}")->columns($columns);
-        $this->querySetValues($query, $columns, ...$rows);
-
-        $this->mysql->query((string)$query);
-    }
-
-    /**
-     * Set the VALUES part of an insert or replace queyr
-     */
-    protected function querySetValues(Query $query, array $columns, array ...$rows): void
-    {
+        $query->onDuplicateKeyUpdate($columns[0]);
         $defaults = array_fill_keys($columns, null);
 
         foreach ($rows as $row) {
             $values = array_values(array_intersect_key(array_merge($defaults, $row), $defaults));
             $query->values($values);
         }
+
+        $this->mysql->query((string)$query);
     }
 }
